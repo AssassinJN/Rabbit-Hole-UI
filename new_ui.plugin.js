@@ -302,6 +302,7 @@ let UIButton = document.createElement("button");
 let ActionButtonGallery = document.createElement("button");
 let ActionButton = document.createElement("button");
 let menuButton = document.createElement("button");
+let I2ICount = 5;
 var settings = {
 	galleryActions: 'hidden',
 	actions: 'hover',
@@ -387,8 +388,6 @@ function setup() {
 		preview.classList.remove('hideActions', 'showActions');
 		preview.classList.add('hoverActions');
 	}
-	//Zoom
-	
 		//Disable hover actions on groups
 	if(settings.disable_hover_on_group){
 		document.getElementById('container').classList.add('noGroupHover');
@@ -711,9 +710,9 @@ preview.addEventListener("keydown", (event) => {
 	};
 	function setModifiers(mods){
 		mods.forEach(function(category){
-			console.log(category);
+			//console.log(category);
 		});
-		console.log(modifierList);
+		//console.log(modifierList);
 	}
 
 	
@@ -862,8 +861,8 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5"><td><label for="useSeeds_input">Seeds to Generate:</label></td><td> <input id="useSeeds_input" name="useSeeds_input" size="10" value="`+settings.useSeeds+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useSamplers_input">Random Samplers:</label></td><td> <input id="useSamplers_input" name="useSamplers_input" size="10" value="`+settings.useSamplers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleCount_input">Guidance Scale Count:</label></td><td> <input id="scaleCount_input" name="scaleCount_input" size="10" value="`+settings.scaleCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="scaleStep_input">Guidance Scale Step Size:</label></td><td> <input id="scaleStep_input" name="scaleStep_input" size="10" value="`+settings.scaleStep+`" pattern="^[0-9\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="scaleMid_input">Guidance Scale Midpoint:</label></td><td> <input id="scaleMid_input" name="scaleMid_input" size="10" value="`+settings.scaleMid+`" pattern="^[0-9\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="scaleStep_input">Guidance Scale Step Size:</label></td><td> <input id="scaleStep_input" name="scaleStep_input" size="10" value="`+settings.scaleStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="scaleMid_input">Guidance Scale Midpoint:</label></td><td> <input id="scaleMid_input" name="scaleMid_input" size="10" value="`+settings.scaleMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISCount_input">Inference Steps Count:</label></td><td> <input id="ISCount_input" name="ISCount_input" size="10" value="`+settings.ISCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISStep_input">Inference Steps Step Size:</label></td><td> <input id="ISStep_input" name="ISStep_input" size="10" value="`+settings.ISStep+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISMid_input">Inference Steps Midpoint:</label></td><td> <input id="ISMid_input" name="ISMid_input" size="10" value="`+settings.ISMid+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
@@ -918,8 +917,15 @@ stepList.forEach((count) => {
 		PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Guidance Scale "+count, on_click: getStartNewTaskHandler(count, 'GS') });
 	}
 });
+var stepList = [2];
+stepList.forEach((count) => {
+	if(count > 0){
+		PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "I2I Render "+count+"x", on_click: getStartNewTaskHandler(count, 'I2I') });
+	}
+});
 function buildRequest(steps, mode, reqBody, img) {
-	const imageSeed = img.getAttribute('data-seed');
+	let imageSeed = img.getAttribute('data-seed');
+	imageSeed++;
 	const newTaskRequest = modifyCurrentRequest(reqBody, {
 		seed: imageSeed
 	});
@@ -929,6 +935,20 @@ function buildRequest(steps, mode, reqBody, img) {
 		newTaskRequest.reqBody.num_inference_steps = parseInt(reqBody.num_inference_steps) + steps;
 	}else if (mode == 'GS'){
 		newTaskRequest.reqBody.guidance_scale = parseFloat(reqBody.guidance_scale) + steps;
+	}else if (mode == "I2I"){
+		const imageElem = img;
+        const imgData = imageElem.src;
+		initImageSelector.value = null
+        initImagePreview.src = imgData
+		initImagePreviewContainer.style.display = 'block';
+        promptStrengthContainer.style.display = 'table-row';
+        maskSetting.checked = false;
+        samplerSelectionContainer.style.display = 'none';
+		newTaskRequest.reqBody.sampler = 'ddim';
+		newTaskRequest.reqBody.prompt_strength = 0.8;
+		newTaskRequest.reqBody.init_image = imageElem.src;
+		delete newTaskRequest.reqBody.mask;
+		I2ICount--;
 	}
 	return newTaskRequest;
 }
@@ -936,6 +956,7 @@ function getStartNewTaskHandler(steps, mode) {
 	return async function(reqBody, img) {
 		const newTaskRequest = buildRequest(steps, mode, reqBody, img);
 		createTask(newTaskRequest);
+		console.log(test);
 	}
 }
 

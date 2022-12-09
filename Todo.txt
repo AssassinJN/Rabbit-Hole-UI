@@ -5,8 +5,8 @@ Additional Hotkeys
 Favorites
 img2img
 Esc key return position
-
-
+tags/filtering/rating
+Add models to rabbit hole
 
 
 Bugs
