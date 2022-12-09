@@ -1,0 +1,14 @@
+Consider/Research/Explore
+
+Zoom options for focused page
+Additional Hotkeys
+Favorites
+img2img
+Esc key return position
+
+
+
+
+Bugs
+
+Setting for drawMore aren't working
