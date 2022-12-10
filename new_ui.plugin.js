@@ -698,7 +698,7 @@ preview.addEventListener("keydown", (event) => {
 	
 	/* For future use once I create a popup to configure the settings, loads modifiers in so the list is up to date */
 	var modifierList = [];
-	async function loadModifiers() {
+	async function rhLoadModifiers() {
 		try {
 			let res = await fetch("/get/modifiers")
 			if (res.status === 200) {
