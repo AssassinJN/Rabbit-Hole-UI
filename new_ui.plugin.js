@@ -46,6 +46,7 @@ style.textContent = `
 	#preview {
 		margin-bottom:200px;
 		margin-left:500px;
+		padding-left:0;
 		padding-top:45px;
 		min-height: calc(100vh - 270px);
 		outline:none !important;
