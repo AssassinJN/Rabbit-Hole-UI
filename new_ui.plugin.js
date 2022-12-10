@@ -709,7 +709,7 @@ preview.addEventListener("keydown", (event) => {
 			console.log("error fetching modifiers", e)
 		}
 	};
-	function setModifiers(mods){
+	function rhSetModifiers(mods){
 		mods.forEach(function(category){
 			//console.log(category);
 		});
