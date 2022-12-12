@@ -47,7 +47,6 @@ style.textContent = `
 		margin-bottom:200px;
 		margin-left:500px;
 		padding-left:0;
-		padding-top:45px;
 		min-height: calc(100vh - 270px);
 		outline:none !important;
 	}
@@ -71,15 +70,7 @@ style.textContent = `
 		width:100%;
 		z-index:1000;
 	}
-	#preview-tools {
-		position:fixed;
-		top:62px;
-		padding:8px 0;
-		background:var(--background-color1);
-		right:25px;
-		left:503px;
-		z-index:100;
-	}
+	
 	.hidden #preview-tools {
 		left:3px;
 	}
@@ -957,7 +948,6 @@ function getStartNewTaskHandler(steps, mode) {
 	return async function(reqBody, img) {
 		const newTaskRequest = buildRequest(steps, mode, reqBody, img);
 		createTask(newTaskRequest);
-		console.log(test);
 	}
 }
 
