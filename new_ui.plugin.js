@@ -47,7 +47,6 @@ style.textContent = `
 		margin-bottom:200px;
 		margin-left:500px;
 		margin-right:0;
-		padding-top:45px;
 		padding-left:0;
 		min-height: calc(100vh - 270px);
 		outline:none !important;
@@ -71,15 +70,6 @@ style.textContent = `
 		position:fixed;
 		width:100%;
 		z-index:1000;
-	}
-	#preview-tools {
-		position:fixed;
-		top:62px;
-		padding:8px 0;
-		background:var(--background-color1);
-		right:25px;
-		left:503px;
-		z-index:100;
 	}
 	.hidden #preview-tools {
 		left:3px;
@@ -366,6 +356,7 @@ function setup() {
 	updateZoom();
 	addRabbitHoleSettings();
 	addSettingsTabInfo();
+	rh_makeButtons();
 	//ActionButtonGallery
 	if(settings.galleryActions === 'hidden'){
 		ActionButtonGallery.innerHTML = "Actions: Hidden";
@@ -406,73 +397,122 @@ function setup() {
 
 
 
+function rh_makeButtons(){
+	UIButton.innerHTML = "Show Classic View";
+	UIButton.classList.add('UIButton');
+	UIButton.addEventListener("click", function () {
+		document.getElementById('container').classList.toggle('minimalUI');
+		if(UIButton.innerHTML == "Show Classic View"){
+			UIButton.innerHTML = "Show Gallery View";
+		}else{
+			UIButton.innerHTML = "Show Classic View";
+		}
+	});
+	document.getElementsByClassName('auto-scroll')[0].prepend(UIButton);
 
+	ActionButtonGallery.classList.add('ActionButtonGallery');
+	ActionButtonGallery.addEventListener("click", function () {
+		if(ActionButtonGallery.innerHTML == "Actions: Hidden"){
+			ActionButtonGallery.innerHTML = "Actions: Visible";
+			preview.classList.remove('hoverActionsGallery');
+			preview.classList.add('showActionsGallery');
+			settings.galleryActions = 'visible';
+		}else if(ActionButtonGallery.innerHTML == "Actions: Visible"){
+			ActionButtonGallery.innerHTML = "Actions: Hover";
+			preview.classList.remove('showActionsGallery');
+			preview.classList.add('hoverActionsGallery');
+			settings.galleryActions = 'hover';
+		}else{
+			ActionButtonGallery.innerHTML = "Actions: Hidden";
+			preview.classList.remove('showActionsGallery','hoverActionsGallery');
+			settings.galleryActions = 'hidden';
+		}
+		save();
+	});
+	document.getElementsByClassName('auto-scroll')[0].prepend(ActionButtonGallery);
+	ActionButton.classList.add('ActionButton');
+	ActionButton.addEventListener("click", function () {
+		if(ActionButton.innerHTML == "Actions: Hidden"){
+			ActionButton.innerHTML = "Actions: Visible";
+			preview.classList.remove('hideActions','hoverActions');
+			preview.classList.add('showActions');
+			settings.actions = 'visible';
+		}else if(ActionButton.innerHTML == "Actions: Visible"){
+			ActionButton.innerHTML = "Actions: Hover";
+			preview.classList.remove('hideActions', 'showActions');
+			preview.classList.add('hoverActions');
+			settings.actions = 'hover';
+		}else{
+			ActionButton.innerHTML = "Actions: Hidden";
+			preview.classList.remove('showActions','hoverActions');
+			preview.classList.add('hideActions');
+			settings.actions = 'hidden';
+		}
+		save();
+	});
+	document.getElementsByClassName('auto-scroll')[0].prepend(ActionButton);
+	menuButton.innerHTML = "<i class='fa fa-bars'></i>";
+	menuButton.classList.add('menuButton');
+	menuButton.addEventListener("click", function () {
+		document.getElementById('container').classList.toggle('hidden');
+	});
+	document.getElementById('logo').prepend(menuButton);
+	let GridUP = document.createElement("button");
+	GridUP.innerHTML = "Zoom <i class='fa fa-minus'></i>";
+	GridUP.classList.add('ZoomButton');
+	GridUP.addEventListener("click", function () {
+		settings.zoom++;
+		updateZoom();
+	});
+	previewTools.append(GridUP);
+	let GridDown = document.createElement("button");
+	GridDown.innerHTML = "Zoom <i class='fa fa-plus'></i>";
+	GridDown.classList.add('ZoomButton');
+	GridDown.addEventListener("click", function () {
+		if(settings.zoom > 1){
+			settings.zoom--;
+		}
+		updateZoom();
+	});
+	previewTools.append(GridDown);
 
+	let PrevBut = document.createElement("button");
+	PrevBut.innerHTML = "<i class='fa fa-chevron-left'></i> Prev";
+	PrevBut.classList.add('PrevNextBtn');
+	PrevBut.addEventListener("click", function () {
+		prevTask();
+	});
+	previewTools.append(PrevBut);
 
+	let NextBut = document.createElement("button");
+	NextBut.innerHTML = "Next <i class='fa fa-chevron-right'></i>";
+	NextBut.classList.add('PrevNextBtn');
+	NextBut.addEventListener("click", function () {
+		nextTask();
+	});
+	previewTools.append(NextBut);
 
-UIButton.innerHTML = "Show Classic View";
-UIButton.classList.add('UIButton');
-UIButton.addEventListener("click", function () {
-	document.getElementById('container').classList.toggle('minimalUI');
-	if(UIButton.innerHTML == "Show Classic View"){
-		UIButton.innerHTML = "Show Gallery View";
-	}else{
-		UIButton.innerHTML = "Show Classic View";
-	}
-});
-document.getElementsByClassName('auto-scroll')[0].prepend(UIButton);
+	var stepList = [settings.ISButton1,settings.ISButton2,settings.ISButton3,settings.ISButton4,settings.ISButton5];
+	stepList.forEach((count) => {
+		if(count > 0){
+			PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Draw "+count+" Steps", on_click: getStartNewTaskHandler(count, 'IS') });
+		}
+	});
+	var stepList = [settings.GSButton1,settings.GSButton2,settings.GSButton3,settings.GSButton4,settings.GSButton5];
+	stepList.forEach((count) => {
+		if(count > 0){
+			PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Guidance Scale "+count, on_click: getStartNewTaskHandler(count, 'GS') });
+		}
+	});
+	var stepList = [2];
+	stepList.forEach((count) => {
+		if(count > 0){
+			PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "I2I Render "+count+"x", on_click: getStartNewTaskHandler(count, 'I2I') });
+		}
+	});
+	PLUGINS["IMAGE_INFO_BUTTONS"].push({ text: "Draw RH Variants", on_click: startRequest });
+}
 
-
-ActionButtonGallery.classList.add('ActionButtonGallery');
-ActionButtonGallery.addEventListener("click", function () {
-	if(ActionButtonGallery.innerHTML == "Actions: Hidden"){
-		ActionButtonGallery.innerHTML = "Actions: Visible";
-		preview.classList.remove('hoverActionsGallery');
-		preview.classList.add('showActionsGallery');
-		settings.galleryActions = 'visible';
-	}else if(ActionButtonGallery.innerHTML == "Actions: Visible"){
-		ActionButtonGallery.innerHTML = "Actions: Hover";
-		preview.classList.remove('showActionsGallery');
-		preview.classList.add('hoverActionsGallery');
-		settings.galleryActions = 'hover';
-	}else{
-		ActionButtonGallery.innerHTML = "Actions: Hidden";
-		preview.classList.remove('showActionsGallery','hoverActionsGallery');
-		settings.galleryActions = 'hidden';
-	}
-	save();
-});
-document.getElementsByClassName('auto-scroll')[0].prepend(ActionButtonGallery);
-
-ActionButton.classList.add('ActionButton');
-ActionButton.addEventListener("click", function () {
-	if(ActionButton.innerHTML == "Actions: Hidden"){
-		ActionButton.innerHTML = "Actions: Visible";
-		preview.classList.remove('hideActions','hoverActions');
-		preview.classList.add('showActions');
-		settings.actions = 'visible';
-	}else if(ActionButton.innerHTML == "Actions: Visible"){
-		ActionButton.innerHTML = "Actions: Hover";
-		preview.classList.remove('hideActions', 'showActions');
-		preview.classList.add('hoverActions');
-		settings.actions = 'hover';
-	}else{
-		ActionButton.innerHTML = "Actions: Hidden";
-		preview.classList.remove('showActions','hoverActions');
-		preview.classList.add('hideActions');
-		settings.actions = 'hidden';
-	}
-	save();
-});
-document.getElementsByClassName('auto-scroll')[0].prepend(ActionButton);
-
-
-menuButton.innerHTML = "<i class='fa fa-bars'></i>";
-menuButton.classList.add('menuButton');
-menuButton.addEventListener("click", function () {
-	document.getElementById('container').classList.toggle('hidden');
-});
-document.getElementById('logo').prepend(menuButton);
 
 for(let i = 0; i < imageTaskContainer.length; i++){
 	if(imageTaskContainer[i].querySelector('.img-batch').length>1){
@@ -534,24 +574,7 @@ function updateZoom(){
 }
 
 
-let GridUP = document.createElement("button");
-GridUP.innerHTML = "Zoom <i class='fa fa-minus'></i>";
-GridUP.classList.add('ZoomButton');
-GridUP.addEventListener("click", function () {
-	settings.zoom++;
-	updateZoom();
-});
-previewTools.append(GridUP);
-let GridDown = document.createElement("button");
-GridDown.innerHTML = "Zoom <i class='fa fa-plus'></i>";
-GridDown.classList.add('ZoomButton');
-GridDown.addEventListener("click", function () {
-	if(settings.zoom > 1){
-		settings.zoom--;
-	}
-	updateZoom();
-});
-previewTools.append(GridDown);
+
 
 function nextTask(){
 	imageTaskContainer = document.getElementsByClassName('imageTaskContainer');
@@ -576,21 +599,7 @@ function prevTask(){
 	}
 }
 
-let PrevBut = document.createElement("button");
-PrevBut.innerHTML = "<i class='fa fa-chevron-left'></i> Prev";
-PrevBut.classList.add('PrevNextBtn');
-PrevBut.addEventListener("click", function () {
-	prevTask();
-});
-previewTools.append(PrevBut);
 
-let NextBut = document.createElement("button");
-NextBut.innerHTML = "Next <i class='fa fa-chevron-right'></i>";
-NextBut.classList.add('PrevNextBtn');
-NextBut.addEventListener("click", function () {
-	nextTask();
-});
-previewTools.append(NextBut);
 preview.tabIndex = "1000";
 preview.addEventListener("keydown", (event) => {
   if (event.isComposing || event.keyCode === 229) {
@@ -729,7 +738,6 @@ preview.addEventListener("keydown", (event) => {
 	
 	//Generate Modifier Array
 	function getTaskSettings(reqBody, img){
-		console.debug('start getTaskSettings');
 		var outputTasks = [];
 		var tempSeeds=[];
 		var tempArtists=[];
@@ -744,25 +752,40 @@ preview.addEventListener("keydown", (event) => {
 		var tempVisual_styles=[];
 		var tempScales = [];
 		var tempISs = [];
-		var tempScaleMid, tempISMid, tempPromptStrengthMid;
+		var tempMaxImagesToGenerate, tempScaleMid, tempISMid, tempPromptStrengthMid, tempPromptStrengthCount, tempScaleCount, tempISCount, tempPromptStrengthStep, tempScaleStep, tempISStep;
 		var tempSamplers = [];
 		var tempPromptStrengths = [];
-		
-		if(settings.promptStrengthMid<1){tempPromptStrengthMid = parseFloat(reqBody.prompt_strength);}
-		else{tempPromptStrengthMid = settings.promptStrengthMid;}
-		for (let i = (Math.floor(settings.promptStrengthCount/2)*settings.promptStrengthStep*-1); i <= (Math.floor(settings.promptStrengthCount/2)*settings.promptStrengthStep); i+=settings.promptStrengthStep) {
-			tempPromptStrengths.push(tempPromptStrengthMid + i);
+		tempPromptStrengthMid = (settings.promptStrengthMid ? settings.promptStrengthMid : parseFloat(reqBody.prompt_strength));
+		tempScaleMid = (settings.scaleMid ? settings.scaleMid : parseFloat(reqBody.guidance_scale));
+		tempISMid = (settings.ISMid ? settings.ISMid : parseInt(reqBody.num_inference_steps));
+		tempPromptStrengthCount = (settings.promptStrengthCount ? settings.promptStrengthCount : 1);
+		tempScaleCount = (settings.scaleCount ? settings.scaleCount : 1);
+		tempISCount = (settings.ISCount ? settings.ISCount : 1);
+		tempPromptStrengthStep = (settings.promptStrengthStep ? settings.promptStrengthStep : 0.1);
+		tempScaleStep = (settings.scaleStep ? settings.scaleStep : 1.0);
+		tempISStep = (settings.ISStep ? settings.ISStep : 5);
+
+		for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep); i+=tempPromptStrengthStep) {
+			if((tempPromptStrengthMid + i)>0){
+				tempPromptStrengths.push(Math.round((tempPromptStrengthMid + i)*100)/100);
+			} else {
+				console.log("invalid prompt strength: "+(tempPromptStrengthMid + i));
+			}
 		}
-		if(settings.scaleMid<1){tempScaleMid = parseFloat(reqBody.guidance_scale);}
-		else{tempScaleMid = settings.scaleMid;}
-		for (let i = (Math.floor(settings.scaleCount/2)*settings.scaleStep*-1); i <= (Math.floor(settings.scaleCount/2)*settings.scaleStep); i+=settings.scaleStep) {
-			tempScales.push(tempScaleMid + i);
+		for (let i = (Math.floor(tempScaleCount/2)*tempScaleStep*-1); i <= (Math.floor(tempScaleCount/2)*tempScaleStep); i+=tempScaleStep) {
+			if((tempScaleMid + i)>0){
+				tempScales.push(Math.round((tempScaleMid + i)*100)/100);
+			} else {
+				console.log("invalid guidance scale: "+(tempScaleMid + i));
+			}
 		}
-		if(settings.ISMid<1){tempISMid = parseInt(reqBody.num_inference_steps);}
-		else{tempISMid = settings.ISMid;}
-		for (let i = (Math.floor(settings.ISCount/2)*settings.ISStep*-1); i <= (Math.floor(settings.ISCount/2)*settings.ISStep); i+=settings.ISStep) {
-			if((tempISMid + i)==0){tempISs.push(1);}
-			else{tempISs.push(tempISMid + i);}
+		for (let i = (Math.floor(tempISCount/2)*tempISStep*-1); i <= (Math.floor(tempISCount/2)*tempISStep); i+=tempISStep) {
+			var tempIS = tempISMid + i;
+			if((tempIS)>0 && !([3,9,27,36,37,101,102,103,104,105,106,107,108,109,110,111].includes(tempIS))){
+				tempISs.push(tempIS);
+			} else {
+				console.log("invalid inference step: "+tempIS);
+			}
 		}
 		if(settings.useSeeds>0){
 			for (let i = 1; i <= settings.useSeeds; i++) {
@@ -826,7 +849,9 @@ preview.addEventListener("keydown", (event) => {
 			shuffle(tempVisual_styles);
 			tempVisual_styles = tempVisual_styles.slice(0,settings.useVisualStyle);
 		}
-		for(let i = 0; i<settings.maxImagesToGenerate; i++){
+		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempSamplers.length,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1));
+		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
+		for(let i = 0; i<tempMaxImagesToGenerate; i++){
 			var tempTask = {};
 			tempTask = {
 				IS: tempISs[Math.round(Math.random() * (tempISs.length - 1))],
@@ -855,11 +880,12 @@ preview.addEventListener("keydown", (event) => {
 			if(!inTasks){
 				outputTasks.push(tempTask);
 			}
-			
 		}
 		if(!settings.rh_full_random){
 			outputTasks.sort((firstItem, secondItem) => firstItem.seed - secondItem.seed);
-			outputTasks.sort((firstItem, secondItem) => firstItem.num_inference_steps - secondItem.num_inference_steps);
+			outputTasks.sort((firstItem, secondItem) => firstItem.IS - secondItem.IS);
+			outputTasks.sort((firstItem, secondItem) => firstItem.GS - secondItem.GS);
+			outputTasks.sort((firstItem, secondItem) => firstItem.PS - secondItem.PS);
 		}
 		return outputTasks;
 	}
@@ -870,10 +896,6 @@ preview.addEventListener("keydown", (event) => {
 	}
 	
 	function loopRequests(reqBody, img){
-		if(settings.scaleStep<1){settings.scaleStep=1;}
-		if(settings.ISStep<1){settings.ISStep=1;}
-		if(settings.promptStrengthStep<1){settings.promptStrengthStep=1;}
-		
 		var newTaskList = [];
 		var taskSettings = getTaskSettings(reqBody, img);
 
@@ -894,7 +916,7 @@ preview.addEventListener("keydown", (event) => {
 				batchCount: 1,
 				sampler: taskSetting.sampler,
 			});
-			if(init_image != null){newTaskRequest.prompt_strength = taskSetting.PS;}
+			if(reqBody.init_image != null){newTaskRequest.reqBody.prompt_strength = taskSetting.PS;}
 			delete newTaskRequest.reqBody.mask;
 			newTaskList.push(newTaskRequest);
 		});
@@ -905,10 +927,9 @@ preview.addEventListener("keydown", (event) => {
 		newTaskList.forEach(function(newTask) {
 			createTask(newTask);
 		});
-		console.debug('end loopRequests');
 	}	
 	
-	PLUGINS["IMAGE_INFO_BUTTONS"].push({ text: "Draw RH Variants", on_click: startRequest });
+	
 	
 function addRabbitHoleSettings(){
 	var openCheck = '';
@@ -965,30 +986,13 @@ function addRabbitHoleSettings(){
 		initialText.style.display = 'none';
 	});
 	document.getElementById('calcMaxButton').addEventListener("click", function () {
-		document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
+		document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
 		setSettings();
 	});
 	createCollapsibles(rabbitHoleSettings);
 }
 
-var stepList = [settings.ISButton1,settings.ISButton2,settings.ISButton3,settings.ISButton4,settings.ISButton5];
-stepList.forEach((count) => {
-	if(count > 0){
-		PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Draw "+count+" Steps", on_click: getStartNewTaskHandler(count, 'IS') });
-	}
-});
-var stepList = [settings.GSButton1,settings.GSButton2,settings.GSButton3,settings.GSButton4,settings.GSButton5];
-stepList.forEach((count) => {
-	if(count > 0){
-		PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Guidance Scale "+count, on_click: getStartNewTaskHandler(count, 'GS') });
-	}
-});
-var stepList = [2];
-stepList.forEach((count) => {
-	if(count > 0){
-		PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "I2I Render "+count+"x", on_click: getStartNewTaskHandler(count, 'I2I') });
-	}
-});
+
 function buildRequest(steps, mode, reqBody, img) {
 	let imageSeed = img.getAttribute('data-seed');
 	if (mode == "I2I"){imageSeed = Math.floor(Math.random() * 200000000);}
@@ -1021,9 +1025,7 @@ function buildRequest(steps, mode, reqBody, img) {
 function getStartNewTaskHandler(steps, mode) {
 	return async function(reqBody, img) {
 		const newTaskRequest = buildRequest(steps, mode, reqBody, img);
-		console.log(newTaskRequest);
 		createTask(newTaskRequest);
-		console.log('test');
 	}
 }
 
