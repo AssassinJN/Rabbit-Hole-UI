@@ -27,7 +27,7 @@ style.textContent = `
 		margin-top:58px;
 	}
 	#editor {
-		width:490px;
+		width:500px;
 		position:fixed;
 		overflow-y: auto;
 		overflow-x:hidden;
@@ -46,6 +46,7 @@ style.textContent = `
 	#preview {
 		margin-bottom:200px;
 		margin-left:500px;
+		margin-right:0;
 		padding-left:0;
 		min-height: calc(100vh - 270px);
 		outline:none !important;
@@ -70,7 +71,6 @@ style.textContent = `
 		width:100%;
 		z-index:1000;
 	}
-	
 	.hidden #preview-tools {
 		left:3px;
 	}
@@ -304,6 +304,9 @@ var settings = {
 	scaleCount: 0,
 	scaleStep: 0,
 	scaleMid: 0,
+	promptStrengthCount: 0,
+	promptStrengthStep: 0,
+	promptStrengthMid: 0,
 	ISCount: 0,
 	ISStep: 0,
 	ISMid: 0,
@@ -353,6 +356,7 @@ function setup() {
 	updateZoom();
 	addRabbitHoleSettings();
 	addSettingsTabInfo();
+	rh_makeButtons();
 	//ActionButtonGallery
 	if(settings.galleryActions === 'hidden'){
 		ActionButtonGallery.innerHTML = "Actions: Hidden";
@@ -393,73 +397,122 @@ function setup() {
 
 
 
+function rh_makeButtons(){
+	UIButton.innerHTML = "Show Classic View";
+	UIButton.classList.add('UIButton');
+	UIButton.addEventListener("click", function () {
+		document.getElementById('container').classList.toggle('minimalUI');
+		if(UIButton.innerHTML == "Show Classic View"){
+			UIButton.innerHTML = "Show Gallery View";
+		}else{
+			UIButton.innerHTML = "Show Classic View";
+		}
+	});
+	document.getElementsByClassName('auto-scroll')[0].prepend(UIButton);
 
+	ActionButtonGallery.classList.add('ActionButtonGallery');
+	ActionButtonGallery.addEventListener("click", function () {
+		if(ActionButtonGallery.innerHTML == "Actions: Hidden"){
+			ActionButtonGallery.innerHTML = "Actions: Visible";
+			preview.classList.remove('hoverActionsGallery');
+			preview.classList.add('showActionsGallery');
+			settings.galleryActions = 'visible';
+		}else if(ActionButtonGallery.innerHTML == "Actions: Visible"){
+			ActionButtonGallery.innerHTML = "Actions: Hover";
+			preview.classList.remove('showActionsGallery');
+			preview.classList.add('hoverActionsGallery');
+			settings.galleryActions = 'hover';
+		}else{
+			ActionButtonGallery.innerHTML = "Actions: Hidden";
+			preview.classList.remove('showActionsGallery','hoverActionsGallery');
+			settings.galleryActions = 'hidden';
+		}
+		save();
+	});
+	document.getElementsByClassName('auto-scroll')[0].prepend(ActionButtonGallery);
+	ActionButton.classList.add('ActionButton');
+	ActionButton.addEventListener("click", function () {
+		if(ActionButton.innerHTML == "Actions: Hidden"){
+			ActionButton.innerHTML = "Actions: Visible";
+			preview.classList.remove('hideActions','hoverActions');
+			preview.classList.add('showActions');
+			settings.actions = 'visible';
+		}else if(ActionButton.innerHTML == "Actions: Visible"){
+			ActionButton.innerHTML = "Actions: Hover";
+			preview.classList.remove('hideActions', 'showActions');
+			preview.classList.add('hoverActions');
+			settings.actions = 'hover';
+		}else{
+			ActionButton.innerHTML = "Actions: Hidden";
+			preview.classList.remove('showActions','hoverActions');
+			preview.classList.add('hideActions');
+			settings.actions = 'hidden';
+		}
+		save();
+	});
+	document.getElementsByClassName('auto-scroll')[0].prepend(ActionButton);
+	menuButton.innerHTML = "<i class='fa fa-bars'></i>";
+	menuButton.classList.add('menuButton');
+	menuButton.addEventListener("click", function () {
+		document.getElementById('container').classList.toggle('hidden');
+	});
+	document.getElementById('logo').prepend(menuButton);
+	let GridUP = document.createElement("button");
+	GridUP.innerHTML = "Zoom <i class='fa fa-minus'></i>";
+	GridUP.classList.add('ZoomButton');
+	GridUP.addEventListener("click", function () {
+		settings.zoom++;
+		updateZoom();
+	});
+	previewTools.append(GridUP);
+	let GridDown = document.createElement("button");
+	GridDown.innerHTML = "Zoom <i class='fa fa-plus'></i>";
+	GridDown.classList.add('ZoomButton');
+	GridDown.addEventListener("click", function () {
+		if(settings.zoom > 1){
+			settings.zoom--;
+		}
+		updateZoom();
+	});
+	previewTools.append(GridDown);
 
+	let PrevBut = document.createElement("button");
+	PrevBut.innerHTML = "<i class='fa fa-chevron-left'></i> Prev";
+	PrevBut.classList.add('PrevNextBtn');
+	PrevBut.addEventListener("click", function () {
+		prevTask();
+	});
+	previewTools.append(PrevBut);
 
+	let NextBut = document.createElement("button");
+	NextBut.innerHTML = "Next <i class='fa fa-chevron-right'></i>";
+	NextBut.classList.add('PrevNextBtn');
+	NextBut.addEventListener("click", function () {
+		nextTask();
+	});
+	previewTools.append(NextBut);
 
-UIButton.innerHTML = "Show Classic View";
-UIButton.classList.add('UIButton');
-UIButton.addEventListener("click", function () {
-	document.getElementById('container').classList.toggle('minimalUI');
-	if(UIButton.innerHTML == "Show Classic View"){
-		UIButton.innerHTML = "Show Gallery View";
-	}else{
-		UIButton.innerHTML = "Show Classic View";
-	}
-});
-document.getElementsByClassName('auto-scroll')[0].prepend(UIButton);
+	var stepList = [settings.ISButton1,settings.ISButton2,settings.ISButton3,settings.ISButton4,settings.ISButton5];
+	stepList.forEach((count) => {
+		if(count > 0){
+			PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Draw "+count+" Steps", on_click: getStartNewTaskHandler(count, 'IS') });
+		}
+	});
+	var stepList = [settings.GSButton1,settings.GSButton2,settings.GSButton3,settings.GSButton4,settings.GSButton5];
+	stepList.forEach((count) => {
+		if(count > 0){
+			PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Guidance Scale "+count, on_click: getStartNewTaskHandler(count, 'GS') });
+		}
+	});
+	var stepList = [2];
+	stepList.forEach((count) => {
+		if(count > 0){
+			PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "I2I Render "+count+"x", on_click: getStartNewTaskHandler(count, 'I2I') });
+		}
+	});
+	PLUGINS["IMAGE_INFO_BUTTONS"].push({ text: "Draw RH Variants", on_click: startRequest });
+}
 
-
-ActionButtonGallery.classList.add('ActionButtonGallery');
-ActionButtonGallery.addEventListener("click", function () {
-	if(ActionButtonGallery.innerHTML == "Actions: Hidden"){
-		ActionButtonGallery.innerHTML = "Actions: Visible";
-		preview.classList.remove('hoverActionsGallery');
-		preview.classList.add('showActionsGallery');
-		settings.galleryActions = 'visible';
-	}else if(ActionButtonGallery.innerHTML == "Actions: Visible"){
-		ActionButtonGallery.innerHTML = "Actions: Hover";
-		preview.classList.remove('showActionsGallery');
-		preview.classList.add('hoverActionsGallery');
-		settings.galleryActions = 'hover';
-	}else{
-		ActionButtonGallery.innerHTML = "Actions: Hidden";
-		preview.classList.remove('showActionsGallery','hoverActionsGallery');
-		settings.galleryActions = 'hidden';
-	}
-	save();
-});
-document.getElementsByClassName('auto-scroll')[0].prepend(ActionButtonGallery);
-
-ActionButton.classList.add('ActionButton');
-ActionButton.addEventListener("click", function () {
-	if(ActionButton.innerHTML == "Actions: Hidden"){
-		ActionButton.innerHTML = "Actions: Visible";
-		preview.classList.remove('hideActions','hoverActions');
-		preview.classList.add('showActions');
-		settings.actions = 'visible';
-	}else if(ActionButton.innerHTML == "Actions: Visible"){
-		ActionButton.innerHTML = "Actions: Hover";
-		preview.classList.remove('hideActions', 'showActions');
-		preview.classList.add('hoverActions');
-		settings.actions = 'hover';
-	}else{
-		ActionButton.innerHTML = "Actions: Hidden";
-		preview.classList.remove('showActions','hoverActions');
-		preview.classList.add('hideActions');
-		settings.actions = 'hidden';
-	}
-	save();
-});
-document.getElementsByClassName('auto-scroll')[0].prepend(ActionButton);
-
-
-menuButton.innerHTML = "<i class='fa fa-bars'></i>";
-menuButton.classList.add('menuButton');
-menuButton.addEventListener("click", function () {
-	document.getElementById('container').classList.toggle('hidden');
-});
-document.getElementById('logo').prepend(menuButton);
 
 for(let i = 0; i < imageTaskContainer.length; i++){
 	if(imageTaskContainer[i].querySelector('.img-batch').length>1){
@@ -521,24 +574,7 @@ function updateZoom(){
 }
 
 
-let GridUP = document.createElement("button");
-GridUP.innerHTML = "Zoom <i class='fa fa-minus'></i>";
-GridUP.classList.add('ZoomButton');
-GridUP.addEventListener("click", function () {
-	settings.zoom++;
-	updateZoom();
-});
-previewTools.append(GridUP);
-let GridDown = document.createElement("button");
-GridDown.innerHTML = "Zoom <i class='fa fa-plus'></i>";
-GridDown.classList.add('ZoomButton');
-GridDown.addEventListener("click", function () {
-	if(settings.zoom > 1){
-		settings.zoom--;
-	}
-	updateZoom();
-});
-previewTools.append(GridDown);
+
 
 function nextTask(){
 	imageTaskContainer = document.getElementsByClassName('imageTaskContainer');
@@ -563,21 +599,7 @@ function prevTask(){
 	}
 }
 
-let PrevBut = document.createElement("button");
-PrevBut.innerHTML = "<i class='fa fa-chevron-left'></i> Prev";
-PrevBut.classList.add('PrevNextBtn');
-PrevBut.addEventListener("click", function () {
-	prevTask();
-});
-previewTools.append(PrevBut);
 
-let NextBut = document.createElement("button");
-NextBut.innerHTML = "Next <i class='fa fa-chevron-right'></i>";
-NextBut.classList.add('PrevNextBtn');
-NextBut.addEventListener("click", function () {
-	nextTask();
-});
-previewTools.append(NextBut);
 preview.tabIndex = "1000";
 preview.addEventListener("keydown", (event) => {
   if (event.isComposing || event.keyCode === 229) {
@@ -606,6 +628,9 @@ preview.addEventListener("keydown", (event) => {
 		settings.scaleCount = parseInt(scaleCount_input.value);
 		settings.scaleStep = parseFloat(scaleStep_input.value);
 		settings.scaleMid = parseFloat(scaleMid_input.value);
+		settings.promptStrengthCount = parseInt(promptStrengthCount_input.value);
+		settings.promptStrengthStep = parseFloat(promptStrengthStep_input.value);
+		settings.promptStrengthMid = parseFloat(promptStrengthMid_input.value);
 		//Inference Steps, works the same as Guidance Scale
 		settings.ISCount = parseInt(ISCount_input.value);
 		settings.ISStep = parseInt(ISStep_input.value);
@@ -709,69 +734,160 @@ preview.addEventListener("keydown", (event) => {
 
 	
 	/* End of Modifier load */
-	
-	
-	//Matrix 2 arrays then combine to a single array
-	function combineArrays(array1, array2, max){
-		var tempArray = [];
-		for(let i = 0; i < max; i++){
-			if(array1.length>0){
-				array1.forEach(function(item){
-					tempArray.push(item+", "+array2[i]);
-				});
-			}else{
-				tempArray[i] = array2[i];
-			}
-		}
-		return tempArray;
-	}
-	
-	
+
 	
 	//Generate Modifier Array
-	function getModifiers(){
-		var outputModifiers = [""];
+	function getTaskSettings(reqBody, img){
+		var outputTasks = [];
+		var tempSeeds=[];
+		var tempArtists=[];
+		var tempCgi_renderings=[];
+		var tempCgi_softwares=[];
+		var tempCameras=[];
+		var tempCarving_and_etchings=[];
+		var tempColors=[];
+		var tempDrawing_styles=[];
+		var tempEmotions=[];
+		var tempPens=[];
+		var tempVisual_styles=[];
+		var tempScales = [];
+		var tempISs = [];
+		var tempMaxImagesToGenerate, tempScaleMid, tempISMid, tempPromptStrengthMid, tempPromptStrengthCount, tempScaleCount, tempISCount, tempPromptStrengthStep, tempScaleStep, tempISStep;
+		var tempSamplers = [];
+		var tempPromptStrengths = [];
+		tempPromptStrengthMid = (settings.promptStrengthMid ? settings.promptStrengthMid : parseFloat(reqBody.prompt_strength));
+		tempScaleMid = (settings.scaleMid ? settings.scaleMid : parseFloat(reqBody.guidance_scale));
+		tempISMid = (settings.ISMid ? settings.ISMid : parseInt(reqBody.num_inference_steps));
+		tempPromptStrengthCount = (settings.promptStrengthCount ? settings.promptStrengthCount : 1);
+		tempScaleCount = (settings.scaleCount ? settings.scaleCount : 1);
+		tempISCount = (settings.ISCount ? settings.ISCount : 1);
+		tempPromptStrengthStep = (settings.promptStrengthStep ? settings.promptStrengthStep : 0.1);
+		tempScaleStep = (settings.scaleStep ? settings.scaleStep : 1.0);
+		tempISStep = (settings.ISStep ? settings.ISStep : 5);
+
+		for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep); i+=tempPromptStrengthStep) {
+			if((tempPromptStrengthMid + i)>0){
+				tempPromptStrengths.push(Math.round((tempPromptStrengthMid + i)*100)/100);
+			} else {
+				console.log("invalid prompt strength: "+(tempPromptStrengthMid + i));
+			}
+		}
+		for (let i = (Math.floor(tempScaleCount/2)*tempScaleStep*-1); i <= (Math.floor(tempScaleCount/2)*tempScaleStep); i+=tempScaleStep) {
+			if((tempScaleMid + i)>0){
+				tempScales.push(Math.round((tempScaleMid + i)*100)/100);
+			} else {
+				console.log("invalid guidance scale: "+(tempScaleMid + i));
+			}
+		}
+		for (let i = (Math.floor(tempISCount/2)*tempISStep*-1); i <= (Math.floor(tempISCount/2)*tempISStep); i+=tempISStep) {
+			var tempIS = tempISMid + i;
+			if((tempIS)>0 && !([3,9,27,36,37,101,102,103,104,105,106,107,108,109,110,111].includes(tempIS))){
+				tempISs.push(tempIS);
+			} else {
+				console.log("invalid inference step: "+tempIS);
+			}
+		}
+		if(settings.useSeeds>0){
+			for (let i = 1; i <= settings.useSeeds; i++) {
+				tempSeeds.push(Math.floor(Math.random() * 2000000000));
+			} 
+		} else {
+			tempSeeds[0] = [reqBody.seed];
+		}
+		if(settings.useSamplers>0){
+			tempSamplers = samplers;
+			shuffle(tempSamplers);
+			tempSamplers = tempSamplers.slice(0,settings.useSamplers);
+		}
 		if(settings.useArtists>0){
-			shuffle(artists);
-			outputModifiers = combineArrays(outputModifiers, artists, settings.useArtists);
+			tempArtists = artists;
+			shuffle(tempArtists);
+			tempArtists = tempArtists.slice(0,settings.useArtists);
 		}
 		if(settings.useCGIRendering>0){
-			shuffle(cgi_renderings);
-			outputModifiers = combineArrays(outputModifiers, cgi_renderings, settings.useCGIRendering);
+			tempCgi_renderings = cgi_renderings;
+			shuffle(tempCgi_renderings);
+			tempCgi_renderings = tempCgi_renderings.slice(0,settings.useCGIRendering);
 		}
 		if(settings.useCGISoftware>0){
-			shuffle(cgi_softwares);
-			outputModifiers = combineArrays(outputModifiers, cgi_softwares, settings.useCGISoftware);
+			tempCgi_softwares = cgi_softwares;
+			shuffle(tempCgi_softwares);
+			tempCgi_softwares = tempCgi_softwares.slice(0,settings.useCGISoftware);
 		}
 		if(settings.useCamera>0){
-			shuffle(cameras);
-			outputModifiers = combineArrays(outputModifiers, cameras, settings.useCamera);
+			tempCameras = cameras;
+			shuffle(tempCameras);
+			tempCameras = tempCameras.slice(0,settings.useCamera);
 		}
 		if(settings.useCarvingAndEtching>0){
-			shuffle(carving_and_etchings);
-			outputModifiers = combineArrays(outputModifiers, carving_and_etchings, settings.useCarvingAndEtching);
+			tempCarving_and_etchings = carving_and_etchings;
+			shuffle(tempCarving_and_etchings);
+			tempCarving_and_etchings = tempCarving_and_etchings.slice(0,settings.useCarvingAndEtching);
 		}
 		if(settings.useColor>0){
-			shuffle(colors);
-			outputModifiers = combineArrays(outputModifiers, colors, settings.useColor);
+			tempColors = colors;
+			shuffle(tempColors);
+			tempColors = tempColors.slice(0,settings.useColor);
 		}
 		if(settings.useDrawingStyle>0){
-			shuffle(drawing_styles);
-			outputModifiers = combineArrays(outputModifiers, drawing_styles, settings.useDrawingStyle);
+			tempDrawing_styles = drawing_styles;
+			shuffle(tempDrawing_styles);
+			tempDrawing_styles = tempDrawing_styles.slice(0,settings.useDrawingStyle);
 		}
 		if(settings.useEmotions>0){
-			shuffle(emotions);
-			outputModifiers = combineArrays(outputModifiers, emotions, settings.useEmotions);
+			tempEmotions = emotions;
+			shuffle(tempEmotions);
+			tempEmotions = tempEmotions.slice(0,settings.useEmotions);
 		}
 		if(settings.usePen>0){
-			shuffle(pens);
-			outputModifiers = combineArrays(outputModifiers, pens, settings.usePen);
+			tempPens = pens;
+			shuffle(tempPens);
+			tempPens = tempPens.slice(0,settings.usePen);
 		}
 		if(settings.useVisualStyle>0){
-			shuffle(visual_styles);
-			outputModifiers = combineArrays(outputModifiers, visual_styles, settings.useVisualStyle);
+			tempVisual_styles = visual_styles;
+			shuffle(tempVisual_styles);
+			tempVisual_styles = tempVisual_styles.slice(0,settings.useVisualStyle);
 		}
-		return outputModifiers;
+		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempSamplers.length,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1));
+		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
+		for(let i = 0; i<tempMaxImagesToGenerate; i++){
+			var tempTask = {};
+			tempTask = {
+				IS: tempISs[Math.round(Math.random() * (tempISs.length - 1))],
+				GS: tempScales[Math.round(Math.random() * (tempScales.length - 1))],
+				PS: tempPromptStrengths[Math.round(Math.random() * (tempPromptStrengths.length - 1))],
+				seed: tempSeeds[Math.round(Math.random() * (tempSeeds.length - 1))],
+				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]+', ' : reqBody.sampler),
+				artist: (settings.useArtists>0 ? tempArtists[Math.round(Math.random() * (tempArtists.length - 1))]+', ' : ''),
+				cgi_rendering: (settings.useCGIRendering>0 ? tempCgi_renderings[Math.round(Math.random() * (tempCgi_renderings.length - 1))]+', ' : ''),
+				cgi_software: (settings.useCGISoftware>0 ? tempCgi_softwares[Math.round(Math.random() * (tempCgi_softwares.length - 1))]+', ' : ''),
+				camera: (settings.useCamera>0 ? tempCameras[Math.round(Math.random() * (tempCameras.length - 1))]+', ' : ''),
+				carving_and_etching: (settings.useCarvingAndEtching>0 ? tempCarving_and_etchings[Math.round(Math.random() * (tempCarving_and_etchings.length - 1))]+', ' : ''),
+				color: (settings.useColor>0 ? tempColors[Math.round(Math.random() * (tempColors.length - 1))]+', ' : ''),
+				drawing_style: (settings.useDrawingStyle>0 ? tempDrawing_styles[Math.round(Math.random() * (tempDrawing_styles.length - 1))]+', ' : ''),
+				emotion: (settings.useEmotions>0 ? tempEmotions[Math.round(Math.random() * (tempEmotions.length - 1))]+', ' : ''),
+				pen: (settings.usePen>0 ? tempPens[Math.round(Math.random() * (tempPens.length - 1))]+', ' : ''),
+				visual_style: (settings.useVisualStyle>0 ? tempVisual_styles[Math.round(Math.random() * (tempVisual_styles.length - 1))]+', ' : ''),
+			}
+			var inTasks = false;
+			for(let ot = 0; ot<outputTasks.length; ot++){
+				if(JSON.stringify(outputTasks[ot]) === JSON.stringify(tempTask)){
+					inTasks = true;
+					i--;
+				}
+			}
+			if(!inTasks){
+				outputTasks.push(tempTask);
+			}
+		}
+		if(!settings.rh_full_random){
+			outputTasks.sort((firstItem, secondItem) => firstItem.seed - secondItem.seed);
+			outputTasks.sort((firstItem, secondItem) => firstItem.IS - secondItem.IS);
+			outputTasks.sort((firstItem, secondItem) => firstItem.GS - secondItem.GS);
+			outputTasks.sort((firstItem, secondItem) => firstItem.PS - secondItem.PS);
+		}
+		return outputTasks;
 	}
 	
 	function startRequest(reqBody, img){
@@ -780,63 +896,40 @@ preview.addEventListener("keydown", (event) => {
 	}
 	
 	function loopRequests(reqBody, img){
-		if(settings.scaleStep<1){settings.scaleStep=1;}
-		if(settings.ISStep<1){settings.ISStep=1;}
 		var newTaskList = [];
-		var seeds = [reqBody.seed];
-		var tempScaleMid, tempISMid;
-		var tempSamplers = samplers;
-		var scales = [];
-		var ISs = [];
-		for (let i = 1; i <= settings.useSeeds; i++) {
-			seeds.push(Math.floor(Math.random() * 2000000000));
-		}
-		if(settings.scaleMid<1){tempScaleMid = parseFloat(reqBody.guidance_scale);}
-		else{tempScaleMid = settings.scaleMid;}
-		for (let i = (Math.floor(settings.scaleCount/2)*settings.scaleStep*-1); i <= (Math.floor(settings.scaleCount/2)*settings.scaleStep); i+=settings.scaleStep) {
-			scales.push(tempScaleMid + i);
-		}
-		if(settings.ISMid<1){tempISMid = parseInt(reqBody.num_inference_steps);}
-		else{tempISMid = settings.ISMid;}
-		for (let i = (Math.floor(settings.ISCount/2)*settings.ISStep*-1); i <= (Math.floor(settings.ISCount/2)*settings.ISStep); i+=settings.ISStep) {
-			if((tempISMid + i)==0){ISs.push(1);}
-			else{ISs.push(tempISMid + i);}
-		}
-		var finalModifiers = getModifiers();
-		if(settings.useSamplers==0){tempSamplers = [reqBody.sampler];settings.useSamplers++;}
-		shuffle(tempSamplers);
-		seeds.forEach(function(setSeed){
-			tempSamplers.forEach(function(sampler){
-				finalModifiers.forEach(function(setMods){
-					scales.forEach(function(setScale){
-						ISs.forEach(function(setIS){
-							const newTaskRequest = modifyCurrentRequest(reqBody, {
-								num_outputs: 1,
-								seed: setSeed,
-								guidance_scale: setScale,
-								num_inference_steps: setIS,
-								prompt: reqBody.prompt + setMods
-							});
-							newTaskRequest.numOutputsTotal = 1;
-							newTaskRequest.batchCount = 1;
-							newTaskRequest.reqBody.sampler = sampler;
+		var taskSettings = getTaskSettings(reqBody, img);
 
-							delete newTaskRequest.reqBody.mask
-							newTaskList.push(newTaskRequest);
-						});
-					});
-				});
+		taskSettings.forEach(function(taskSetting){
+			var tempPrompt = reqBody.prompt + taskSetting.artist + taskSetting.cgi_rendering + taskSetting.cgi_software + 
+			taskSetting.camera + taskSetting.carving_and_etching + taskSetting.color + taskSetting.drawing_style + 
+			taskSetting.emotion + taskSetting.pen + taskSetting.visual_style;
+			if(tempPrompt.slice(-2) === ", "){tempPrompt = tempPrompt.slice(0,-2);}
+			if(taskSetting.sampler.slice(-2) === ", "){taskSetting.sampler = taskSetting.sampler.slice(0,-2);}
+			if(reqBody.init_image == null){taskSetting.PS = null;}
+			const newTaskRequest = modifyCurrentRequest(reqBody, {
+				num_outputs: 1,
+				seed: taskSetting.seed,
+				guidance_scale: taskSetting.GS,
+				num_inference_steps: taskSetting.IS,
+				prompt: tempPrompt,
+				numOutputsTotal: 1,
+				batchCount: 1,
+				sampler: taskSetting.sampler,
 			});
+			if(reqBody.init_image != null){newTaskRequest.reqBody.prompt_strength = taskSetting.PS;}
+			delete newTaskRequest.reqBody.mask;
+			newTaskList.push(newTaskRequest);
 		});
 		
-		if(settings.rh_full_random){shuffle(newTaskList)};
-		newTaskList = newTaskList.slice(0,settings.maxImagesToGenerate);
+		
+		
+				
 		newTaskList.forEach(function(newTask) {
 			createTask(newTask);
 		});
 	}	
 	
-	PLUGINS["IMAGE_INFO_BUTTONS"].push({ text: "Draw RH Variants", on_click: startRequest });
+	
 	
 function addRabbitHoleSettings(){
 	var openCheck = '';
@@ -855,18 +948,20 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5"><td><label for="scaleCount_input">Guidance Scale Count:</label></td><td> <input id="scaleCount_input" name="scaleCount_input" size="10" value="`+settings.scaleCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleStep_input">Guidance Scale Step Size:</label></td><td> <input id="scaleStep_input" name="scaleStep_input" size="10" value="`+settings.scaleStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleMid_input">Guidance Scale Midpoint:</label></td><td> <input id="scaleMid_input" name="scaleMid_input" size="10" value="`+settings.scaleMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="promptStrengthCount_input">Prompt Strength Count:</label></td><td> <input id="promptStrengthCount_input" name="promptStrengthCount_input" size="10" value="`+settings.promptStrengthCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="promptStrengthStep_input">Prompt Strength Step Size:</label></td><td> <input id="promptStrengthStep_input" name="promptStrengthStep_input" size="10" value="`+settings.promptStrengthStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="promptStrengthMid_input">Prompt Strength Midpoint:</label></td><td> <input id="promptStrengthMid_input" name="promptStrengthMid_input" size="10" value="`+settings.promptStrengthMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISCount_input">Inference Steps Count:</label></td><td> <input id="ISCount_input" name="ISCount_input" size="10" value="`+settings.ISCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISStep_input">Inference Steps Step Size:</label></td><td> <input id="ISStep_input" name="ISStep_input" size="10" value="`+settings.ISStep+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISMid_input">Inference Steps Midpoint:</label></td><td> <input id="ISMid_input" name="ISMid_input" size="10" value="`+settings.ISMid+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr><td>&nbsp;</td></tr>
 					
 					<tr><td colspan="2"><b class="settings-subheader">Image Modifier Settings</b></td></tr>
-					<tr><td colspan="2"><small><b>Warning:</b> keep numbers low here or your computer will hang.</small></td></tr>
 					<tr class="pl-5"><td><label for="useArtists_input">Random Artists:</label></td><td> <input id="useArtists_input" name="useArtists_input" size="10" value="`+settings.useArtists+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useCGIRendering_input">Random CGI Renderings:</label></td><td> <input id="useCGIRendering_input" name="useCGIRendering_input" size="10" value="`+settings.useCGIRendering+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useCGISoftware_input">Random CGI Softwares:</label></td><td> <input id="useCGISoftware_input" name="useCGISoftware_input" size="10" value="`+settings.useCGISoftware+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useCamera_input">Random Cameras:</label></td><td> <input id="useCamera_input" name="useCamera_input" size="10" value="`+settings.useCamera+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="useCarvingAndEtching_input">Random Carging & Etchings:</label></td><td> <input id="useCarvingAndEtching_input" name="useCarvingAndEtching_input" size="10" value="`+settings.useCarvingAndEtching+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="useCarvingAndEtching_input">Random Carving & Etchings:</label></td><td> <input id="useCarvingAndEtching_input" name="useCarvingAndEtching_input" size="10" value="`+settings.useCarvingAndEtching+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useColor_input">Random Colors:</label></td><td> <input id="useColor_input" name="useColor_input" size="10" value="`+settings.useColor+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useDrawingStyle_input">Random Drawing Styles:</label></td><td> <input id="useDrawingStyle_input" name="useDrawingStyle_input" size="10" value="`+settings.useDrawingStyle+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useEmotions_input">Random Emotions:</label></td><td> <input id="useEmotions_input" name="useEmotions_input" size="10" value="`+settings.useEmotions+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
@@ -882,42 +977,25 @@ function addRabbitHoleSettings(){
 	var editorSettings = document.getElementById('editor-settings');
 	editorSettings.parentNode.insertBefore(rabbitHoleSettings, editorSettings.nextSibling);
 	document.getElementById('newRabbitHoleBtn').addEventListener("click", function () {
-		const taskTemplate = getCurrentUserRequest()
-		const newTaskRequests = []
+		const taskTemplate = getCurrentUserRequest();
+		const newTaskRequests = [];
 		getPrompts().forEach((prompt) => newTaskRequests.push(Object.assign({}, taskTemplate, {
 			reqBody: Object.assign({ prompt: prompt }, taskTemplate.reqBody)
-		})))
+		})));
 		newTaskRequests.forEach((task) => startRequest(task.reqBody, task.img));
-		initialText.style.display = 'none'
+		initialText.style.display = 'none';
 	});
 	document.getElementById('calcMaxButton').addEventListener("click", function () {
-		document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
+		document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
 		setSettings();
 	});
 	createCollapsibles(rabbitHoleSettings);
 }
 
-var stepList = [settings.ISButton1,settings.ISButton2,settings.ISButton3,settings.ISButton4,settings.ISButton5];
-stepList.forEach((count) => {
-	if(count > 0){
-		PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Draw "+count+" Steps", on_click: getStartNewTaskHandler(count, 'IS') });
-	}
-});
-var stepList = [settings.GSButton1,settings.GSButton2,settings.GSButton3,settings.GSButton4,settings.GSButton5];
-stepList.forEach((count) => {
-	if(count > 0){
-		PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Guidance Scale "+count, on_click: getStartNewTaskHandler(count, 'GS') });
-	}
-});
-var stepList = [2];
-stepList.forEach((count) => {
-	if(count > 0){
-		PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "I2I Render "+count+"x", on_click: getStartNewTaskHandler(count, 'I2I') });
-	}
-});
+
 function buildRequest(steps, mode, reqBody, img) {
 	let imageSeed = img.getAttribute('data-seed');
-	imageSeed++;
+	if (mode == "I2I"){imageSeed = Math.floor(Math.random() * 200000000);}
 	const newTaskRequest = modifyCurrentRequest(reqBody, {
 		seed: imageSeed
 	});
@@ -937,7 +1015,7 @@ function buildRequest(steps, mode, reqBody, img) {
         maskSetting.checked = false;
         samplerSelectionContainer.style.display = 'none';
 		newTaskRequest.reqBody.sampler = 'ddim';
-		newTaskRequest.reqBody.prompt_strength = 0.8;
+		newTaskRequest.reqBody.prompt_strength = 0.5;
 		newTaskRequest.reqBody.init_image = imageElem.src;
 		delete newTaskRequest.reqBody.mask;
 		I2ICount--;
