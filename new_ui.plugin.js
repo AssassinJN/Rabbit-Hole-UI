@@ -48,8 +48,18 @@ style.textContent = `
 		margin-left:500px;
 		margin-right:0;
 		padding-left:0;
+		padding-top:40px;
 		min-height: calc(100vh - 270px);
 		outline:none !important;
+	}
+	#preview-tools {
+		position:fixed;
+		top:62px;
+		padding:8px 0;
+		background:var(--background-color1);
+		right:25px;
+		left:503px;
+		z-index:100;
 	}
 	.hidden #preview {
 		margin-left:0;
@@ -532,7 +542,7 @@ var observer = new MutationObserver(function (mutations) {
 		}
 		if(mutation.target.className == 'img-batch'){
 			var imageTaskContainer = mutation.target.parentNode.parentNode.parentNode;
-			if(imageTaskContainer.querySelectorAll('.img-batch').length == 2){
+			if(imageTaskContainer.querySelectorAll('.img-batch').length > 2){
 				imageTaskContainer.classList.add('condensed');
 			}
 			cleanup(mutation.target);
