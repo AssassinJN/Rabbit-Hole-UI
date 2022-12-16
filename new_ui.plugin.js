@@ -376,6 +376,7 @@ function setup() {
 	}else{
 		load();
 	}
+	rhLoadModifiers();
 	updateZoom();
 	addRabbitHoleSettings();
 	addSettingsTabInfo();
@@ -757,19 +758,28 @@ preview.addEventListener("keydown", (event) => {
 			let res = await fetch("/get/modifiers")
 			if (res.status === 200) {
 				let mods = await res.json()
-				setModifiers(mods);
+				rhSetModifiers(mods);
 			}
 		} catch (e) {
 			console.log("error fetching modifiers", e)
 		}
 	};
 	function rhSetModifiers(mods){
-		mods.forEach(function(category){
-			//console.log(category);
-		});
-		//console.log(modifierList);
+		for (let m = 0; m < mods.length; m++) {
+			var category = mods[m];
+			modifierList[m] = [];
+			modifierList[m][0] = category.category;
+			for (let c = 0; c < category.modifiers.length; c++) {
+				var mod = category.modifiers[c];
+				modifierList[m][c+1] = mod['modifier'];
+			}
+		}
+		var customMods = localStorage.getItem('customModifiers').split("\n");
+		customMods.unshift('Custom Modifiers');
+		modifierList.push(customMods);
+		console.log(modifierList);
 	}
-
+	
 	
 	/* End of Modifier load */
 
