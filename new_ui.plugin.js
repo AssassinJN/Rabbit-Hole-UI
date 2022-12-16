@@ -868,17 +868,17 @@ preview.addEventListener("keydown", (event) => {
 				GS: tempScales[Math.round(Math.random() * (tempScales.length - 1))],
 				PS: tempPromptStrengths[Math.round(Math.random() * (tempPromptStrengths.length - 1))],
 				seed: tempSeeds[Math.round(Math.random() * (tempSeeds.length - 1))],
-				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]+', ' : reqBody.sampler),
-				artist: (settings.useArtists>0 ? tempArtists[Math.round(Math.random() * (tempArtists.length - 1))]+', ' : ''),
-				cgi_rendering: (settings.useCGIRendering>0 ? tempCgi_renderings[Math.round(Math.random() * (tempCgi_renderings.length - 1))]+', ' : ''),
-				cgi_software: (settings.useCGISoftware>0 ? tempCgi_softwares[Math.round(Math.random() * (tempCgi_softwares.length - 1))]+', ' : ''),
-				camera: (settings.useCamera>0 ? tempCameras[Math.round(Math.random() * (tempCameras.length - 1))]+', ' : ''),
-				carving_and_etching: (settings.useCarvingAndEtching>0 ? tempCarving_and_etchings[Math.round(Math.random() * (tempCarving_and_etchings.length - 1))]+', ' : ''),
-				color: (settings.useColor>0 ? tempColors[Math.round(Math.random() * (tempColors.length - 1))]+', ' : ''),
-				drawing_style: (settings.useDrawingStyle>0 ? tempDrawing_styles[Math.round(Math.random() * (tempDrawing_styles.length - 1))]+', ' : ''),
-				emotion: (settings.useEmotions>0 ? tempEmotions[Math.round(Math.random() * (tempEmotions.length - 1))]+', ' : ''),
-				pen: (settings.usePen>0 ? tempPens[Math.round(Math.random() * (tempPens.length - 1))]+', ' : ''),
-				visual_style: (settings.useVisualStyle>0 ? tempVisual_styles[Math.round(Math.random() * (tempVisual_styles.length - 1))]+', ' : ''),
+				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]: reqBody.sampler),
+				artist: (settings.useArtists>0 ? ', '+tempArtists[Math.round(Math.random() * (tempArtists.length - 1))] : ''),
+				cgi_rendering: (settings.useCGIRendering>0 ? ', '+tempCgi_renderings[Math.round(Math.random() * (tempCgi_renderings.length - 1))] : ''),
+				cgi_software: (settings.useCGISoftware>0 ? ', '+tempCgi_softwares[Math.round(Math.random() * (tempCgi_softwares.length - 1))] : ''),
+				camera: (settings.useCamera>0 ? ', '+tempCameras[Math.round(Math.random() * (tempCameras.length - 1))] : ''),
+				carving_and_etching: (settings.useCarvingAndEtching>0 ? ', '+tempCarving_and_etchings[Math.round(Math.random() * (tempCarving_and_etchings.length - 1))] : ''),
+				color: (settings.useColor>0 ? ', '+tempColors[Math.round(Math.random() * (tempColors.length - 1))] : ''),
+				drawing_style: (settings.useDrawingStyle>0 ? ', '+tempDrawing_styles[Math.round(Math.random() * (tempDrawing_styles.length - 1))] : ''),
+				emotion: (settings.useEmotions>0 ? ', '+tempEmotions[Math.round(Math.random() * (tempEmotions.length - 1))] : ''),
+				pen: (settings.usePen>0 ? ', '+tempPens[Math.round(Math.random() * (tempPens.length - 1))] : ''),
+				visual_style: (settings.useVisualStyle>0 ? ', '+tempVisual_styles[Math.round(Math.random() * (tempVisual_styles.length - 1))] : ''),
 			}
 			var inTasks = false;
 			for(let ot = 0; ot<outputTasks.length; ot++){
@@ -913,8 +913,6 @@ preview.addEventListener("keydown", (event) => {
 			var tempPrompt = reqBody.prompt + taskSetting.artist + taskSetting.cgi_rendering + taskSetting.cgi_software + 
 			taskSetting.camera + taskSetting.carving_and_etching + taskSetting.color + taskSetting.drawing_style + 
 			taskSetting.emotion + taskSetting.pen + taskSetting.visual_style;
-			if(tempPrompt.slice(-2) === ", "){tempPrompt = tempPrompt.slice(0,-2);}
-			if(taskSetting.sampler.slice(-2) === ", "){taskSetting.sampler = taskSetting.sampler.slice(0,-2);}
 			if(reqBody.init_image == null){taskSetting.PS = null;}
 			const newTaskRequest = modifyCurrentRequest(reqBody, {
 				num_outputs: 1,
