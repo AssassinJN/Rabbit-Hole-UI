@@ -309,7 +309,7 @@ style.textContent = `
 
 document.head.appendChild(style);
 document.getElementById('container').classList.add('minimalUI');
-
+let artists = [], cgi_renderings = [], cgi_softwares = [], customModifierList = [], cameras = [], carving_and_etchings = [], colors = [], drawing_styles = [], emotions = [], pens = [], visual_styles = [];
 var editor = document.getElementById('editor');
 var preview = document.getElementById('preview');
 var imageTaskContainer = document.getElementsByClassName('imageTaskContainer');
@@ -344,7 +344,7 @@ var settings = {
 	useEmotions: 0,
 	usePen: 0,
 	useVisualStyle: 0,
-	rh_full_random:false,
+	useCustomModifiers: 0,
 	ISButton1: -20,
 	ISButton2: -10,
 	ISButton3: 10,
@@ -381,6 +381,7 @@ function setup() {
 	addRabbitHoleSettings();
 	addSettingsTabInfo();
 	rh_makeButtons();
+	loadCustomModifierList();
 	//ActionButtonGallery
 	if(settings.galleryActions === 'hidden'){
 		ActionButtonGallery.innerHTML = "Actions: Hidden";
@@ -412,11 +413,7 @@ function setup() {
 	if(settings.disable_hover_on_group){
 		document.getElementById('container').classList.add('noGroupHover');
 		document.getElementById('disable_hover_on_group_input').checked = true;
-	}
-	if(settings.rh_full_random){
-		document.getElementById('rh_full_random_input').checked = true;
-	}
-	
+	}	
 }
 
 
@@ -571,7 +568,6 @@ previewObserver.observe((preview), {
 var rh_initImagePreviewContainer = document.getElementById('init_image_preview_container');
 var editorObserver = new MutationObserver(function (mutations) {
 	mutations.forEach(function (mutation) {
-		console.log(rh_initImagePreviewContainer);
 		if(rh_initImagePreviewContainer.classList.contains('has-image')){
 			editor.classList.add('img2img');
 		}else{
@@ -583,6 +579,22 @@ editorObserver.observe((rh_initImagePreviewContainer), {
 	childList: false,
 	attributes: true
 })
+
+var rh_modifierContainer = document.getElementById('editor-modifiers');
+var modifierObserver = new MutationObserver(function (mutations) {
+	mutations.forEach(function (mutation) {
+		loadCustomModifierList();
+		if(customModifierList[0] === "" || customModifierList.length == 0){document.getElementById('customModifierInput').style.display = "none";}
+		else{document.getElementById('customModifierInput').style.display = "revert";}
+	})
+})
+modifierObserver.observe((rh_modifierContainer), {
+	childList: true,
+	attributes: true,
+	subtree: true
+})
+
+
 
 function scrollVisible(target){
 	const yOffset = -175; 
@@ -685,6 +697,7 @@ preview.addEventListener("keydown", (event) => {
 		settings.useEmotions = parseInt(useEmotions_input.value);
 		settings.usePen = parseInt(usePen_input.value);
 		settings.useVisualStyle = parseInt(useVisualStyle_input.value);
+		settings.useCustomModifiers = parseInt(useCustomModifiers_input.value);
 		settings.ISButton1 = parseInt(ISButton1_input.value);
 		settings.ISButton2 = parseInt(ISButton2_input.value);
 		settings.ISButton3 = parseInt(ISButton3_input.value);
@@ -696,13 +709,14 @@ preview.addEventListener("keydown", (event) => {
 		settings.GSButton4 = parseFloat(GSButton4_input.value);
 		settings.GSButton5 = parseFloat(GSButton5_input.value);
 		settings.disable_hover_on_group = disable_hover_on_group_input.checked;
-		settings.rh_full_random = rh_full_random_input.checked;
 		settings.rabbitHoleOpen = document.getElementById('rabbit-settings').getElementsByTagName('h4')[0].classList.contains('active');
 		
 		if(settings.disable_hover_on_group){document.getElementById('container').classList.add('noGroupHover');}
 		else{document.getElementById('container').classList.remove('noGroupHover');}
 		
 		samplers = ["plms","ddim","heun","euler","euler_a","dpm2","dpm2_a","lms"];
+		rhLoadModifiers();
+		/* Old Hard coded modifiers *
 		artists = ["Artstation", "by Agnes Lawrence Pelton", "by Akihito Yoshida", "by Alex Grey", "by Alexander Jansson", "by Alphonse Mucha", "by Andy Warhol", "by Artgerm", "by Asaf Hanuka", "by Aubrey Beardsley", "by Banksy", "by Beeple", "by Ben Enwonwu", "by Bob Eggleton", "by Caravaggio Michelangelo Merisi", "by Caspar David Friedrich", "by Chris Foss", "by Claude Monet", "by Dan Mumford", "by David Mann", "by Diego Velázquez", "by Disney Animation Studios", "by Édouard Manet", "by Esao Andrews", "by Frida Kahlo", "by Gediminas Pranckevicius", "by Georgia O'Keeffe", "by Greg Rutkowski", "by Gustave Doré", "by Gustave Klimt", "by H.R. Giger", "by Hayao Miyazaki", "by Henri Matisse", "by HP Lovecraft", "by Ivan Shishkin", "by Jack Kirby", "by Jackson Pollock", "by James Jean", "by Jim Burns", "by Johannes Vermeer", "by John William Waterhouse", "by Katsushika Hokusai", "by Kim Tschang Yeul", "by Ko Young Hoon", "by Leonardo da Vinci", "by Lisa Frank", "by M.C Escher", "by Mahmoud Saïd", "by Makoto Shinkai", "by Marc Simonetti", "by Mark Brooks", "by Michelangelo", "by Pablo Picasso", "by Paul Klee", "by Peter Mohrbacher", "by Pierre-Auguste Renoir", "by Pixar Animation Studios", "by Rembrandt", "by Richard Dadd", "by Rossdraws", "by Salvador Dalí", "by Sam does Arts", "by Sandro Botticelli", "by Ted Nasmith", "by Ten Hundred", "by Thomas Kinkade", "by Tivadar Csontváry Kosztka", "by Victo Ngai", "by Vincent di Fate", "by Vincent van Gogh", "by Wes Anderson", "by wlop", "by Yoshitaka Amano"];
 		cgi_renderings = ["3D Render", "Corona Render", "Creature Design", "Cycles Render", "Detailed Render", "Environment Design", "Intricate Environment", "LSD Render", "Octane Render", "PBR", "Glass Caustics", "Global Illumination", "Subsurface Scattering"];
 		cgi_softwares = ["3D Model", "3D Sculpt", "3Ds Max Model", "Blender Model", "Cinema4d Model", "Maya Model", "Unreal Engine", "Zbrush Sculpt"];
@@ -713,9 +727,11 @@ preview.addEventListener("keydown", (event) => {
 		emotions = ["Angry", "Bitter", "Disgusted", "Embarrassed", "Evil", "Excited", "Fear", "Funny", "Happy", "Horrifying", "Lonely", "Sad", "Serene", "Surprised", "Melancholic"];
 		pens = ["Chalk", "Colored Pencil", "Graphite", "Ink", "Oil Paint", "Pastel Art"];
 		visual_styles = ["2D", "8-Bit", "16-Bit", "Anaglyph", "Anime", "Art Nouveau", "Bauhaus", "Baroque", "CGI", "Cartoon", "Comic Book", "Concept Art", "Constructivist", "Cubist", "Digital Art", "Dadaist", "Expressionist", "Fantasy", "Fauvist", "Figurative", "Graphic Novel", "Geometric", "Hard Edge Painting", "Hydrodipped", "Impressionistic", "Lithography", "Manga", "Minimalist", "Modern Art", "Mosaic", "Mural", "Naive", "Neoclassical", "Photo", "Realistic", "Rococo", "Romantic", "Street Art", "Symbolist", "Stuckist", "Surrealist", "Visual Novel", "Watercolor"];
-		
+		/* End of old modifiers */
+
 		//Check Max Settings
 		if(settings.useSamplers > samplers.length){settings.useSamplers = samplers.length; useSamplers_input.value = samplers.length;}
+
 		if(settings.useArtists > artists.length){settings.useArtists = artists.length; useArtists_input.value = artists.length;}
 		if(settings.useCGIRendering > cgi_renderings.length){settings.useCGIRendering = cgi_renderings.length; useCGIRendering_input.value = cgi_renderings.length;}
 		if(settings.useCGISoftware > cgi_softwares.length){settings.useCGISoftware = cgi_softwares.length; useCGISoftware_input.value = cgi_softwares.length;}
@@ -726,6 +742,7 @@ preview.addEventListener("keydown", (event) => {
 		if(settings.useEmotions > emotions.length){settings.useEmotions = emotions.length; useEmotions_input.value = emotions.length;}
 		if(settings.usePen > pens.length){settings.usePen = pens.length; usePen_input.value = pens.length;}
 		if(settings.useVisualStyle > visual_styles.length){settings.useVisualStyle = visual_styles.length; useVisualStyle_input.value = visual_styles.length;}
+		if(settings.useCustomModifiers > customModifierList.length){settings.useCustomModifiers = customModifierList.length; useCustomModifiers_input.value = customModifierList.length;}
 		
 		save();
 		
@@ -751,8 +768,7 @@ preview.addEventListener("keydown", (event) => {
 	  return array;
 	}
 	
-	/* For future use once I create a popup to configure the settings, loads modifiers in so the list is up to date */
-	var modifierList = [];
+	/* Dynamic Modifier Load */
 	async function rhLoadModifiers() {
 		try {
 			let res = await fetch("/get/modifiers")
@@ -767,17 +783,54 @@ preview.addEventListener("keydown", (event) => {
 	function rhSetModifiers(mods){
 		for (let m = 0; m < mods.length; m++) {
 			var category = mods[m];
-			modifierList[m] = [];
-			modifierList[m][0] = category.category;
-			for (let c = 0; c < category.modifiers.length; c++) {
-				var mod = category.modifiers[c];
-				modifierList[m][c+1] = mod['modifier'];
+			if(category.category === "Artist"){
+				for (let c = 0; c < category.modifiers.length; c++) {
+					artists[c] = category.modifiers[c]['modifier'];
+				}
+			}else if(category.category === "CGI Rendering"){
+				for (let c = 0; c < category.modifiers.length; c++) {
+					cgi_renderings[c] = category.modifiers[c]['modifier'];
+				}
+			}else if(category.category === "CGI Software"){
+				for (let c = 0; c < category.modifiers.length; c++) {
+					cgi_softwares[c] = category.modifiers[c]['modifier'];
+				}
+			}else if(category.category === "Camera"){
+				for (let c = 0; c < category.modifiers.length; c++) {
+					cameras[c] = category.modifiers[c]['modifier'];
+				}
+			}else if(category.category === "Carving and Etching"){
+				for (let c = 0; c < category.modifiers.length; c++) {
+					carving_and_etchings[c] = category.modifiers[c]['modifier'];
+				}
+			}else if(category.category === "Color"){
+				for (let c = 0; c < category.modifiers.length; c++) {
+					colors[c] = category.modifiers[c]['modifier'];
+				}
+			}else if(category.category === "Drawing Style"){
+				for (let c = 0; c < category.modifiers.length; c++) {
+					drawing_styles[c] = category.modifiers[c]['modifier'];
+				}
+			}else if(category.category === "Emotions"){
+				for (let c = 0; c < category.modifiers.length; c++) {
+					emotions[c] = category.modifiers[c]['modifier'];
+				}
+			}else if(category.category === "Pen"){
+				for (let c = 0; c < category.modifiers.length; c++) {
+					pens[c] = category.modifiers[c]['modifier'];
+				}
+			}else if(category.category === "Visual Style"){
+				for (let c = 0; c < category.modifiers.length; c++) {
+					visual_styles[c] = category.modifiers[c]['modifier'];
+				}
 			}
 		}
-		var customMods = localStorage.getItem('customModifiers').split("\n");
-		customMods.unshift('Custom Modifiers');
-		modifierList.push(customMods);
-		console.log(modifierList);
+	}
+	function loadCustomModifierList() {
+		customModifierList = localStorage.getItem('customModifiers').split("\n");
+		if(customModifierList[0] === "" || customModifierList.length == 0){customModifierList = null;customModifierList = [];document.getElementById('customModifierInput').style.display = "none";}
+		else{document.getElementById('customModifierInput').style.display = "revert";}
+		console.log(customModifierList.length);
 	}
 	
 	
@@ -798,6 +851,7 @@ preview.addEventListener("keydown", (event) => {
 		var tempEmotions=[];
 		var tempPens=[];
 		var tempVisual_styles=[];
+		var tempCusomModifiers=[];
 		var tempScales = [];
 		var tempISs = [];
 		var tempMaxImagesToGenerate, tempScaleMid, tempISMid, tempPromptStrengthMid, tempPromptStrengthCount, tempScaleCount, tempISCount, tempPromptStrengthStep, tempScaleStep, tempISStep;
@@ -897,6 +951,11 @@ preview.addEventListener("keydown", (event) => {
 			shuffle(tempVisual_styles);
 			tempVisual_styles = tempVisual_styles.slice(0,settings.useVisualStyle);
 		}
+		if(settings.useCustomModifiers>0){
+			tempCusomModifiers = customModifierList;
+			shuffle(tempCusomModifiers);
+			tempCusomModifiers = tempCusomModifiers.slice(0,settings.useCustomModifiers);
+		}
 		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempSamplers.length,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1));
 		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
 		for(let i = 0; i<tempMaxImagesToGenerate; i++){
@@ -917,6 +976,7 @@ preview.addEventListener("keydown", (event) => {
 				emotion: (settings.useEmotions>0 ? ', '+tempEmotions[Math.round(Math.random() * (tempEmotions.length - 1))] : ''),
 				pen: (settings.usePen>0 ? ', '+tempPens[Math.round(Math.random() * (tempPens.length - 1))] : ''),
 				visual_style: (settings.useVisualStyle>0 ? ', '+tempVisual_styles[Math.round(Math.random() * (tempVisual_styles.length - 1))] : ''),
+				customModifier: (settings.useCustomModifiers>0 ? ', '+tempCusomModifiers[Math.round(Math.random() * (tempCusomModifiers.length - 1))] : ''),
 			}
 			var inTasks = false;
 			for(let ot = 0; ot<outputTasks.length; ot++){
@@ -929,12 +989,10 @@ preview.addEventListener("keydown", (event) => {
 				outputTasks.push(tempTask);
 			}
 		}
-		if(!settings.rh_full_random){
-			outputTasks.sort((firstItem, secondItem) => firstItem.seed - secondItem.seed);
-			outputTasks.sort((firstItem, secondItem) => firstItem.IS - secondItem.IS);
-			outputTasks.sort((firstItem, secondItem) => firstItem.GS - secondItem.GS);
-			outputTasks.sort((firstItem, secondItem) => firstItem.PS - secondItem.PS);
-		}
+		outputTasks.sort((firstItem, secondItem) => firstItem.seed - secondItem.seed);
+		outputTasks.sort((firstItem, secondItem) => firstItem.IS - secondItem.IS);
+		outputTasks.sort((firstItem, secondItem) => firstItem.GS - secondItem.GS);
+		outputTasks.sort((firstItem, secondItem) => firstItem.PS - secondItem.PS);
 		return outputTasks;
 	}
 	
@@ -950,7 +1008,7 @@ preview.addEventListener("keydown", (event) => {
 		taskSettings.forEach(function(taskSetting){
 			var tempPrompt = reqBody.prompt + taskSetting.artist + taskSetting.cgi_rendering + taskSetting.cgi_software + 
 			taskSetting.camera + taskSetting.carving_and_etching + taskSetting.color + taskSetting.drawing_style + 
-			taskSetting.emotion + taskSetting.pen + taskSetting.visual_style;
+			taskSetting.emotion + taskSetting.pen + taskSetting.visual_style + taskSetting.customModifier;
 			const newTaskRequest = modifyCurrentRequest(reqBody, {
 				num_outputs: 1,
 				seed: taskSetting.seed,
@@ -1015,10 +1073,8 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5"><td><label for="useEmotions_input">Random Emotions:</label></td><td> <input id="useEmotions_input" name="useEmotions_input" size="10" value="`+settings.useEmotions+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="usePen_input">Random Pens:</label></td><td> <input id="usePen_input" name="usePen_input" size="10" value="`+settings.usePen+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useVisualStyle_input">Random Visual Styles:</label></td><td> <input id="useVisualStyle_input" name="useVisualStyle_input" size="10" value="`+settings.useVisualStyle+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5" id="customModifierInput"><td><label for="useCustomModifiers_input">Random Custom Modifiers:</label></td><td> <input id="useCustomModifiers_input" name="useCustomModifiers_input" size="10" value="`+settings.useCustomModifiers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr><td>&nbsp;</td></tr>
-					
-					<tr><td><b class="settings-subheader">Other Settings</b></td></tr>
-					<tr class="pl-5"><td><div class="input-toggle"><input id="rh_full_random_input" name="rh_full_random_input" type="checkbox"><label for="rh_full_random_input"></label></div> <label for="rh_full_random_input">Full Random Mode</label></td></tr>
 				</tbody></table>
 				<button id="newRabbitHoleBtn" class="primaryButton">Start New Rabbit Hole</button></div>
 			</div>`;
