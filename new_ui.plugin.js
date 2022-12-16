@@ -36,6 +36,18 @@ style.textContent = `
 		background:#444444;
 		z-index:1000;
 	}
+	.img2imgOnly {
+		display:none;
+	}
+	.notImg2img {
+		display:revert;
+	}
+	#editor.img2img .img2imgOnly {
+		display:revert;
+	}
+	#editor.img2img .notImg2img {
+		display:none;
+	}
 	.hidden #editor {
 		left:-500px;
 	}
@@ -45,7 +57,7 @@ style.textContent = `
 	}
 	#preview {
 		margin-bottom:200px;
-		margin-left:500px;
+		margin-left:510px;
 		margin-right:0;
 		padding-left:0;
 		padding-top:40px;
@@ -58,7 +70,7 @@ style.textContent = `
 		padding:8px 0;
 		background:var(--background-color1);
 		right:25px;
-		left:503px;
+		left:513px;
 		z-index:100;
 	}
 	.hidden #preview {
@@ -298,6 +310,7 @@ style.textContent = `
 document.head.appendChild(style);
 document.getElementById('container').classList.add('minimalUI');
 
+var editor = document.getElementById('editor');
 var preview = document.getElementById('preview');
 var imageTaskContainer = document.getElementsByClassName('imageTaskContainer');
 let UIButton = document.createElement("button");
@@ -531,7 +544,7 @@ for(let i = 0; i < imageTaskContainer.length; i++){
 }
 
 
-var observer = new MutationObserver(function (mutations) {
+var previewObserver = new MutationObserver(function (mutations) {
 	mutations.forEach(function (mutation) {
 		updateZoom();
 		if(mutation.target.className == 'preview-prompt collapsible active'){
@@ -549,10 +562,25 @@ var observer = new MutationObserver(function (mutations) {
 		}
 	})
 })
+previewObserver.observe((preview), {
+	childList: true,
+	subtree: true
+})
 
-observer.observe((preview), {
-	 childList: true,
-	 subtree: true
+var rh_initImagePreviewContainer = document.getElementById('init_image_preview_container');
+var editorObserver = new MutationObserver(function (mutations) {
+	mutations.forEach(function (mutation) {
+		console.log(rh_initImagePreviewContainer);
+		if(rh_initImagePreviewContainer.classList.contains('has-image')){
+			editor.classList.add('img2img');
+		}else{
+			editor.classList.remove('img2img');
+		}
+	})
+})
+editorObserver.observe((rh_initImagePreviewContainer), {
+	childList: false,
+	attributes: true
 })
 
 function scrollVisible(target){
@@ -776,7 +804,7 @@ preview.addEventListener("keydown", (event) => {
 		tempISStep = (settings.ISStep ? settings.ISStep : 5);
 
 		for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep); i+=tempPromptStrengthStep) {
-			if((tempPromptStrengthMid + i)>0){
+			if((tempPromptStrengthMid + i)>0 && (tempPromptStrengthMid + i)<1){
 				tempPromptStrengths.push(Math.round((tempPromptStrengthMid + i)*100)/100);
 			} else {
 				console.log("invalid prompt strength: "+(tempPromptStrengthMid + i));
@@ -913,7 +941,6 @@ preview.addEventListener("keydown", (event) => {
 			var tempPrompt = reqBody.prompt + taskSetting.artist + taskSetting.cgi_rendering + taskSetting.cgi_software + 
 			taskSetting.camera + taskSetting.carving_and_etching + taskSetting.color + taskSetting.drawing_style + 
 			taskSetting.emotion + taskSetting.pen + taskSetting.visual_style;
-			if(reqBody.init_image == null){taskSetting.PS = null;}
 			const newTaskRequest = modifyCurrentRequest(reqBody, {
 				num_outputs: 1,
 				seed: taskSetting.seed,
@@ -924,7 +951,10 @@ preview.addEventListener("keydown", (event) => {
 				batchCount: 1,
 				sampler: taskSetting.sampler,
 			});
-			if(reqBody.init_image != null){newTaskRequest.reqBody.prompt_strength = taskSetting.PS;}
+			if(reqBody.init_image != null){
+				newTaskRequest.reqBody.prompt_strength = taskSetting.PS;
+				newTaskRequest.reqBody.sampler = "ddim";
+			}
 			delete newTaskRequest.reqBody.mask;
 			newTaskList.push(newTaskRequest);
 		});
@@ -952,13 +982,13 @@ function addRabbitHoleSettings(){
 					<tr><td><b class="settings-subheader">Image Settings</b></td></tr>
 					<tr class="pl-5"><td><label for="maxImagesToGenerate_input">Max Image to Generate:</label></td><td> <input id="maxImagesToGenerate_input" name="maxImagesToGenerate_input" size="10" value="`+settings.maxImagesToGenerate+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"><button id="calcMaxButton"><i class="fa fa-calculator"></i></button></td></tr>
 					<tr class="pl-5"><td><label for="useSeeds_input">Seeds to Generate:</label></td><td> <input id="useSeeds_input" name="useSeeds_input" size="10" value="`+settings.useSeeds+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="useSamplers_input">Random Samplers:</label></td><td> <input id="useSamplers_input" name="useSamplers_input" size="10" value="`+settings.useSamplers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5 notImg2img"><td><label for="useSamplers_input">Random Samplers:</label></td><td> <input id="useSamplers_input" name="useSamplers_input" size="10" value="`+settings.useSamplers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleCount_input">Guidance Scale Count:</label></td><td> <input id="scaleCount_input" name="scaleCount_input" size="10" value="`+settings.scaleCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleStep_input">Guidance Scale Step Size:</label></td><td> <input id="scaleStep_input" name="scaleStep_input" size="10" value="`+settings.scaleStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleMid_input">Guidance Scale Midpoint:</label></td><td> <input id="scaleMid_input" name="scaleMid_input" size="10" value="`+settings.scaleMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="promptStrengthCount_input">Prompt Strength Count:</label></td><td> <input id="promptStrengthCount_input" name="promptStrengthCount_input" size="10" value="`+settings.promptStrengthCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="promptStrengthStep_input">Prompt Strength Step Size:</label></td><td> <input id="promptStrengthStep_input" name="promptStrengthStep_input" size="10" value="`+settings.promptStrengthStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="promptStrengthMid_input">Prompt Strength Midpoint:</label></td><td> <input id="promptStrengthMid_input" name="promptStrengthMid_input" size="10" value="`+settings.promptStrengthMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthCount_input">Prompt Strength Count:</label></td><td> <input id="promptStrengthCount_input" name="promptStrengthCount_input" size="10" value="`+settings.promptStrengthCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthStep_input">Prompt Strength Step Size:</label></td><td> <input id="promptStrengthStep_input" name="promptStrengthStep_input" size="10" value="`+settings.promptStrengthStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthMid_input">Prompt Strength Midpoint:</label></td><td> <input id="promptStrengthMid_input" name="promptStrengthMid_input" size="10" value="`+settings.promptStrengthMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISCount_input">Inference Steps Count:</label></td><td> <input id="ISCount_input" name="ISCount_input" size="10" value="`+settings.ISCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISStep_input">Inference Steps Step Size:</label></td><td> <input id="ISStep_input" name="ISStep_input" size="10" value="`+settings.ISStep+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISMid_input">Inference Steps Midpoint:</label></td><td> <input id="ISMid_input" name="ISMid_input" size="10" value="`+settings.ISMid+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
