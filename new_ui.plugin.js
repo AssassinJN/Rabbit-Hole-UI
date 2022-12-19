@@ -828,9 +828,17 @@ preview.addEventListener("keydown", (event) => {
 	}
 	function loadCustomModifierList() {
 		customModifierList = localStorage.getItem('customModifiers').split("\n");
-		if(customModifierList[0] === "" || customModifierList.length == 0){customModifierList = null;customModifierList = [];document.getElementById('customModifierInput').style.display = "none";}
-		else{document.getElementById('customModifierInput').style.display = "revert";}
-		console.log(customModifierList.length);
+		customModifierList = customModifierList.filter(element => {
+			return element !== '';
+		  });
+		if(customModifierList[0] === "" || customModifierList.length == 0){
+			customModifierList = null;
+			customModifierList = [];
+			document.getElementById('customModifierInput').style.display = "none";
+		}else{
+			document.getElementById('customModifierInput').style.display = "revert";
+		}
+		console.log(customModifierList);
 	}
 	
 	
