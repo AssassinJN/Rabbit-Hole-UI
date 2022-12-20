@@ -1003,7 +1003,7 @@ preview.addEventListener("keydown", (event) => {
 				GS: tempScales[Math.round(Math.random() * (tempScales.length - 1))],
 				PS: tempPromptStrengths[Math.round(Math.random() * (tempPromptStrengths.length - 1))],
 				seed: tempSeeds[Math.round(Math.random() * (tempSeeds.length - 1))],
-				model: (settings.useModels>0 ? tempModels[Math.round(Math.random() * (tempModels.length - 1))]: reqBody.model),
+				model: (settings.useModels>0 ? tempModels[Math.round(Math.random() * (tempModels.length - 1))]: reqBody.use_stable_diffusion_model),
 				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]: reqBody.sampler),
 				artist: (settings.useArtists>0 ? ', '+tempArtists[Math.round(Math.random() * (tempArtists.length - 1))] : ''),
 				cgi_rendering: (settings.useCGIRendering>0 ? ', '+tempCgi_renderings[Math.round(Math.random() * (tempCgi_renderings.length - 1))] : ''),
