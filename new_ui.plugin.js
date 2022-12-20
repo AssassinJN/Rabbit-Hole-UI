@@ -1028,11 +1028,12 @@ preview.addEventListener("keydown", (event) => {
 				outputTasks.push(tempTask);
 			}
 		}
-		outputTasks.sort((firstItem, secondItem) => firstItem.model - secondItem.model);
-		outputTasks.sort((firstItem, secondItem) => firstItem.seed - secondItem.seed);
-		outputTasks.sort((firstItem, secondItem) => firstItem.IS - secondItem.IS);
-		outputTasks.sort((firstItem, secondItem) => firstItem.GS - secondItem.GS);
-		outputTasks.sort((firstItem, secondItem) => firstItem.PS - secondItem.PS);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.PS > secondItem.PS) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.GS > secondItem.GS) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.IS > secondItem.IS) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.seed > secondItem.seed) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.model > secondItem.model) ? 1 : -1);
+		
 		return outputTasks;
 	}
 	
