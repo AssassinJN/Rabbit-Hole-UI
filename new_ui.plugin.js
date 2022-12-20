@@ -1028,6 +1028,7 @@ preview.addEventListener("keydown", (event) => {
 				outputTasks.push(tempTask);
 			}
 		}
+		outputTasks.sort((firstItem, secondItem) => firstItem.model - secondItem.model);
 		outputTasks.sort((firstItem, secondItem) => firstItem.seed - secondItem.seed);
 		outputTasks.sort((firstItem, secondItem) => firstItem.IS - secondItem.IS);
 		outputTasks.sort((firstItem, secondItem) => firstItem.GS - secondItem.GS);
