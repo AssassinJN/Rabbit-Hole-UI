@@ -111,6 +111,9 @@ style.textContent = `
 		box-shadow:none;
 		margin-bottom:0px;
 	}
+	.minimalUI .drag-handle {
+		display:none;
+	}
 	.ZoomButton {
 		display:none;
 	}
@@ -309,7 +312,7 @@ style.textContent = `
 
 document.head.appendChild(style);
 document.getElementById('container').classList.add('minimalUI');
-let artists = [], cgi_renderings = [], cgi_softwares = [], customModifierList = [], cameras = [], carving_and_etchings = [], colors = [], drawing_styles = [], emotions = [], pens = [], visual_styles = [];
+let models = [], artists = [], cgi_renderings = [], cgi_softwares = [], customModifierList = [], cameras = [], carving_and_etchings = [], colors = [], drawing_styles = [], emotions = [], pens = [], visual_styles = [];
 var editor = document.getElementById('editor');
 var preview = document.getElementById('preview');
 var imageTaskContainer = document.getElementsByClassName('imageTaskContainer');
@@ -333,6 +336,7 @@ var settings = {
 	ISCount: 0,
 	ISStep: 0,
 	ISMid: 0,
+	useModels: 0,
 	useSamplers: 0,
 	useArtists: 0,
 	useCGIRendering: 0,
@@ -376,6 +380,7 @@ function setup() {
 	}else{
 		load();
 	}
+	rhLoadModels();
 	rhLoadModifiers();
 	updateZoom();
 	addRabbitHoleSettings();
@@ -686,6 +691,7 @@ preview.addEventListener("keydown", (event) => {
 		settings.ISCount = parseInt(ISCount_input.value);
 		settings.ISStep = parseInt(ISStep_input.value);
 		settings.ISMid = parseInt(ISMid_input.value);
+		settings.useModels = parseInt(useModels_input.value);
 		settings.useSamplers = parseInt(useSamplers_input.value);
 		settings.useArtists = parseInt(useArtists_input.value);
 		settings.useCGIRendering = parseInt(useCGIRendering_input.value);
@@ -714,6 +720,8 @@ preview.addEventListener("keydown", (event) => {
 		if(settings.disable_hover_on_group){document.getElementById('container').classList.add('noGroupHover');}
 		else{document.getElementById('container').classList.remove('noGroupHover');}
 		
+		rhLoadModels();
+		
 		samplers = ["plms","ddim","heun","euler","euler_a","dpm2","dpm2_a","lms"];
 		rhLoadModifiers();
 		/* Old Hard coded modifiers *
@@ -730,6 +738,7 @@ preview.addEventListener("keydown", (event) => {
 		/* End of old modifiers */
 
 		//Check Max Settings
+		if(settings.useModels > models.length){settings.useModels = models.length; useModels_input.value = models.length;}
 		if(settings.useSamplers > samplers.length){settings.useSamplers = samplers.length; useSamplers_input.value = samplers.length;}
 
 		if(settings.useArtists > artists.length){settings.useArtists = artists.length; useArtists_input.value = artists.length;}
@@ -766,6 +775,21 @@ preview.addEventListener("keydown", (event) => {
 	  }
 
 	  return array;
+	}
+	async function rhLoadModels() {
+		try {
+			let res = await fetch('/get/models')
+			const getmodels = await res.json()
+			let activeModel = getmodels['active']
+			let modelOptions = getmodels['options']
+			let stableDiffusionOptions = modelOptions['stable-diffusion']
+	
+			stableDiffusionOptions.forEach(modelName => {
+				models.push(modelName);
+			})
+		} catch (e) {
+			console.log('get models error', e)
+		}
 	}
 	
 	/* Dynamic Modifier Load */
@@ -828,9 +852,8 @@ preview.addEventListener("keydown", (event) => {
 	}
 	function loadCustomModifierList() {
 		customModifierList = localStorage.getItem('customModifiers').split("\n");
-		customModifierList = customModifierList.filter(element => {
-			return element !== '';
-		  });
+		customModifierList = customModifierList.filter(element => element !== '');
+		//customModifierList = customModifierList.filter(element => element[0] != "#");
 		if(customModifierList[0] === "" || customModifierList.length == 0){
 			customModifierList = null;
 			customModifierList = [];
@@ -838,7 +861,6 @@ preview.addEventListener("keydown", (event) => {
 		}else{
 			document.getElementById('customModifierInput').style.display = "revert";
 		}
-		console.log(customModifierList);
 	}
 	
 	
@@ -849,6 +871,7 @@ preview.addEventListener("keydown", (event) => {
 	function getTaskSettings(reqBody, img){
 		var outputTasks = [];
 		var tempSeeds=[];
+		var tempModels=[];
 		var tempArtists=[];
 		var tempCgi_renderings=[];
 		var tempCgi_softwares=[];
@@ -875,11 +898,13 @@ preview.addEventListener("keydown", (event) => {
 		tempScaleStep = (settings.scaleStep ? settings.scaleStep : 1.0);
 		tempISStep = (settings.ISStep ? settings.ISStep : 5);
 
-		for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep); i+=tempPromptStrengthStep) {
-			if((tempPromptStrengthMid + i)>0 && (tempPromptStrengthMid + i)<1){
-				tempPromptStrengths.push(Math.round((tempPromptStrengthMid + i)*100)/100);
-			} else {
-				console.log("invalid prompt strength: "+(tempPromptStrengthMid + i));
+		if(reqBody.init_image != null){
+			for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep); i+=tempPromptStrengthStep) {
+				if((tempPromptStrengthMid + i)>0 && (tempPromptStrengthMid + i)<1){
+					tempPromptStrengths.push(Math.round((tempPromptStrengthMid + i)*100)/100);
+				}else{
+					console.log("invalid prompt strength: "+(tempPromptStrengthMid + i));
+				}
 			}
 		}
 		for (let i = (Math.floor(tempScaleCount/2)*tempScaleStep*-1); i <= (Math.floor(tempScaleCount/2)*tempScaleStep); i+=tempScaleStep) {
@@ -903,6 +928,11 @@ preview.addEventListener("keydown", (event) => {
 			} 
 		} else {
 			tempSeeds[0] = [reqBody.seed];
+		}
+		if(settings.useModels>0){
+			tempModels = models;
+			shuffle(tempModels);
+			tempModels = tempModels.slice(0,settings.useModels);
 		}
 		if(settings.useSamplers>0){
 			tempSamplers = samplers;
@@ -964,7 +994,7 @@ preview.addEventListener("keydown", (event) => {
 			shuffle(tempCusomModifiers);
 			tempCusomModifiers = tempCusomModifiers.slice(0,settings.useCustomModifiers);
 		}
-		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempSamplers.length,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1));
+		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempModels.length,1)*Math.max(tempSamplers.length,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1));
 		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
 		for(let i = 0; i<tempMaxImagesToGenerate; i++){
 			var tempTask = {};
@@ -973,6 +1003,7 @@ preview.addEventListener("keydown", (event) => {
 				GS: tempScales[Math.round(Math.random() * (tempScales.length - 1))],
 				PS: tempPromptStrengths[Math.round(Math.random() * (tempPromptStrengths.length - 1))],
 				seed: tempSeeds[Math.round(Math.random() * (tempSeeds.length - 1))],
+				model: (settings.useModels>0 ? tempModels[Math.round(Math.random() * (tempModels.length - 1))]: reqBody.model),
 				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]: reqBody.sampler),
 				artist: (settings.useArtists>0 ? ', '+tempArtists[Math.round(Math.random() * (tempArtists.length - 1))] : ''),
 				cgi_rendering: (settings.useCGIRendering>0 ? ', '+tempCgi_renderings[Math.round(Math.random() * (tempCgi_renderings.length - 1))] : ''),
@@ -1026,6 +1057,7 @@ preview.addEventListener("keydown", (event) => {
 				numOutputsTotal: 1,
 				batchCount: 1,
 				sampler: taskSetting.sampler,
+				use_stable_diffusion_model: taskSetting.model
 			});
 			if(reqBody.init_image != null){
 				newTaskRequest.reqBody.prompt_strength = taskSetting.PS;
@@ -1058,6 +1090,7 @@ function addRabbitHoleSettings(){
 					<tr><td><b class="settings-subheader">Image Settings</b></td></tr>
 					<tr class="pl-5"><td><label for="maxImagesToGenerate_input">Max Image to Generate:</label></td><td> <input id="maxImagesToGenerate_input" name="maxImagesToGenerate_input" size="10" value="`+settings.maxImagesToGenerate+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"><button id="calcMaxButton"><i class="fa fa-calculator"></i></button></td></tr>
 					<tr class="pl-5"><td><label for="useSeeds_input">Seeds to Generate:</label></td><td> <input id="useSeeds_input" name="useSeeds_input" size="10" value="`+settings.useSeeds+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="useModels_input">Random Models:</label></td><td> <input id="useModels_input" name="useModels_input" size="10" value="`+settings.useModels+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5 notImg2img"><td><label for="useSamplers_input">Random Samplers:</label></td><td> <input id="useSamplers_input" name="useSamplers_input" size="10" value="`+settings.useSamplers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleCount_input">Guidance Scale Count:</label></td><td> <input id="scaleCount_input" name="scaleCount_input" size="10" value="`+settings.scaleCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleStep_input">Guidance Scale Step Size:</label></td><td> <input id="scaleStep_input" name="scaleStep_input" size="10" value="`+settings.scaleStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
@@ -1098,7 +1131,7 @@ function addRabbitHoleSettings(){
 		initialText.style.display = 'none';
 	});
 	document.getElementById('calcMaxButton').addEventListener("click", function () {
-		document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
+		document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
 		setSettings();
 	});
 	createCollapsibles(rabbitHoleSettings);
