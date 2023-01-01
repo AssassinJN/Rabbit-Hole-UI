@@ -67,9 +67,9 @@ style.textContent = `
 	#preview-tools {
 		position:fixed;
 		top:62px;
-		padding:8px 0;
+		padding:8px 25px 8px 0;
 		background:var(--background-color1);
-		right:25px;
+		right:0;
 		left:513px;
 		z-index:100;
 	}
@@ -270,7 +270,10 @@ style.textContent = `
 
 	@media screen and (max-width: 1349px) {
 		.minimalUI #tab-content-wrapper {
-			margin-top: 45px;
+			margin-top: 95px;
+		}
+		.minimalUI #preview-tools {
+			top: 98px;
 		}
 		.minimalUI #tab-container {
 			margin-top:5px;
