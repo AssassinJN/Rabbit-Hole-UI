@@ -387,6 +387,7 @@ function setup() {
 	addSettingsTabInfo();
 	rh_makeButtons();
 	loadCustomModifierList();
+	rhLoadSamplers();
 	//ActionButtonGallery
 	if(settings.galleryActions === 'hidden'){
 		ActionButtonGallery.innerHTML = "Actions: Hidden";
@@ -721,8 +722,8 @@ preview.addEventListener("keydown", (event) => {
 		else{document.getElementById('container').classList.remove('noGroupHover');}
 		
 		rhLoadModels();
-		
-		samplers = ["plms","ddim","heun","euler","euler_a","dpm2","dpm2_a","lms"];
+		rhLoadSamplers();
+		//samplers = ["plms","ddim","heun","euler","euler_a","dpm2","dpm2_a","lms"];
 		rhLoadModifiers();
 		/* Old Hard coded modifiers *
 		artists = ["Artstation", "by Agnes Lawrence Pelton", "by Akihito Yoshida", "by Alex Grey", "by Alexander Jansson", "by Alphonse Mucha", "by Andy Warhol", "by Artgerm", "by Asaf Hanuka", "by Aubrey Beardsley", "by Banksy", "by Beeple", "by Ben Enwonwu", "by Bob Eggleton", "by Caravaggio Michelangelo Merisi", "by Caspar David Friedrich", "by Chris Foss", "by Claude Monet", "by Dan Mumford", "by David Mann", "by Diego Velázquez", "by Disney Animation Studios", "by Édouard Manet", "by Esao Andrews", "by Frida Kahlo", "by Gediminas Pranckevicius", "by Georgia O'Keeffe", "by Greg Rutkowski", "by Gustave Doré", "by Gustave Klimt", "by H.R. Giger", "by Hayao Miyazaki", "by Henri Matisse", "by HP Lovecraft", "by Ivan Shishkin", "by Jack Kirby", "by Jackson Pollock", "by James Jean", "by Jim Burns", "by Johannes Vermeer", "by John William Waterhouse", "by Katsushika Hokusai", "by Kim Tschang Yeul", "by Ko Young Hoon", "by Leonardo da Vinci", "by Lisa Frank", "by M.C Escher", "by Mahmoud Saïd", "by Makoto Shinkai", "by Marc Simonetti", "by Mark Brooks", "by Michelangelo", "by Pablo Picasso", "by Paul Klee", "by Peter Mohrbacher", "by Pierre-Auguste Renoir", "by Pixar Animation Studios", "by Rembrandt", "by Richard Dadd", "by Rossdraws", "by Salvador Dalí", "by Sam does Arts", "by Sandro Botticelli", "by Ted Nasmith", "by Ten Hundred", "by Thomas Kinkade", "by Tivadar Csontváry Kosztka", "by Victo Ngai", "by Vincent di Fate", "by Vincent van Gogh", "by Wes Anderson", "by wlop", "by Yoshitaka Amano"];
@@ -758,6 +759,13 @@ preview.addEventListener("keydown", (event) => {
 		
 	}
 	
+	function rhLoadSamplers() {
+		var samplerList = document.querySelectorAll('#sampler_name option');
+		samplers = [];
+		samplerList.forEach((samplerOption) => {
+			samplers.push(samplerOption.value);
+		});
+	}
 	
 	function shuffle(array) {
 	  let currentIndex = array.length,  randomIndex;
@@ -851,8 +859,10 @@ preview.addEventListener("keydown", (event) => {
 		}
 	}
 	function loadCustomModifierList() {
-		customModifierList = localStorage.getItem('customModifiers').split("\n");
-		customModifierList = customModifierList.filter(element => element !== '');
+		if(localStorage.getItem('customModifiers')){
+			customModifierList = localStorage.getItem('customModifiers').split("\n");
+			customModifierList = customModifierList.filter(element => element !== '');
+		}
 		//customModifierList = customModifierList.filter(element => element[0] != "#");
 		if(customModifierList[0] === "" || customModifierList.length == 0){
 			customModifierList = null;
