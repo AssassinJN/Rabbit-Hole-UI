@@ -937,7 +937,7 @@ preview.addEventListener("keydown", (event) => {
 				tempSeeds.push(Math.floor(Math.random() * 2000000000));
 			} 
 		} else {
-			tempSeeds[0] = [reqBody.seed];
+			tempSeeds[0] = reqBody.seed;
 		}
 		if(settings.useModels>0){
 			tempModels = models;
@@ -1014,7 +1014,7 @@ preview.addEventListener("keydown", (event) => {
 				PS: tempPromptStrengths[Math.round(Math.random() * (tempPromptStrengths.length - 1))],
 				seed: tempSeeds[Math.round(Math.random() * (tempSeeds.length - 1))],
 				model: (settings.useModels>0 ? tempModels[Math.round(Math.random() * (tempModels.length - 1))]: reqBody.use_stable_diffusion_model),
-				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]: reqBody.sampler),
+				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]: reqBody.sampler_name),
 				artist: (settings.useArtists>0 ? ', '+tempArtists[Math.round(Math.random() * (tempArtists.length - 1))] : ''),
 				cgi_rendering: (settings.useCGIRendering>0 ? ', '+tempCgi_renderings[Math.round(Math.random() * (tempCgi_renderings.length - 1))] : ''),
 				cgi_software: (settings.useCGISoftware>0 ? ', '+tempCgi_softwares[Math.round(Math.random() * (tempCgi_softwares.length - 1))] : ''),
@@ -1028,6 +1028,7 @@ preview.addEventListener("keydown", (event) => {
 				customModifier: (settings.useCustomModifiers>0 ? ', '+tempCusomModifiers[Math.round(Math.random() * (tempCusomModifiers.length - 1))] : ''),
 			}
 			var inTasks = false;
+			
 			for(let ot = 0; ot<outputTasks.length; ot++){
 				if(JSON.stringify(outputTasks[ot]) === JSON.stringify(tempTask)){
 					inTasks = true;
@@ -1043,7 +1044,6 @@ preview.addEventListener("keydown", (event) => {
 		outputTasks.sort((firstItem, secondItem) => (firstItem.IS > secondItem.IS) ? 1 : -1);
 		outputTasks.sort((firstItem, secondItem) => (firstItem.seed > secondItem.seed) ? 1 : -1);
 		outputTasks.sort((firstItem, secondItem) => (firstItem.model > secondItem.model) ? 1 : -1);
-		
 		return outputTasks;
 	}
 	
@@ -1068,12 +1068,12 @@ preview.addEventListener("keydown", (event) => {
 				prompt: tempPrompt,
 				numOutputsTotal: 1,
 				batchCount: 1,
-				sampler: taskSetting.sampler,
+				sampler_name: taskSetting.sampler,
 				use_stable_diffusion_model: taskSetting.model
 			});
 			if(reqBody.init_image != null){
 				newTaskRequest.reqBody.prompt_strength = taskSetting.PS;
-				newTaskRequest.reqBody.sampler = "ddim";
+				newTaskRequest.reqBody.sampler_name = "ddim";
 			}
 			delete newTaskRequest.reqBody.mask;
 			newTaskList.push(newTaskRequest);
@@ -1171,7 +1171,7 @@ function buildRequest(steps, mode, reqBody, img) {
         promptStrengthContainer.style.display = 'table-row';
         maskSetting.checked = false;
         samplerSelectionContainer.style.display = 'none';
-		newTaskRequest.reqBody.sampler = 'ddim';
+		newTaskRequest.reqBody.sampler_name = 'ddim';
 		newTaskRequest.reqBody.prompt_strength = 0.5;
 		newTaskRequest.reqBody.init_image = imageElem.src;
 		delete newTaskRequest.reqBody.mask;
