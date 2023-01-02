@@ -282,6 +282,31 @@ style.textContent = `
 			flex-direction: column;
 		}
 	}
+	@media screen and (max-width:700px){
+		#editor {
+			width: revert;
+			position: revert;
+			overflow: revert;
+			margin: revert;
+			height: revert;
+		}
+		#preview {
+			margin-left: 0;
+			padding-top:0;
+			min-height:revert;
+			margin-bottom:0;
+		}
+		#preview-tools {
+			position:revert;
+		}
+		#preview-tools .auto-scroll {
+			margin-top:10px;
+			line-height:30px;
+		}
+		#footer {
+			left:0;
+		}
+	}
 	#newRabbitHoleBtn {
 		width:98%;
 		padding:10px;
