@@ -768,7 +768,6 @@ preview.addEventListener("keydown", (event) => {
 
 		//Check Max Settings
 
-		console.log(models);
 		if(settings.useModels > models.length){settings.useModels = models.length; useModels_input.value = models.length;}
 		if(settings.useSamplers > samplers.length){settings.useSamplers = samplers.length; useSamplers_input.value = samplers.length;}
 
