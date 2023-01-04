@@ -767,6 +767,8 @@ preview.addEventListener("keydown", (event) => {
 		/* End of old modifiers */
 
 		//Check Max Settings
+
+		console.log(models);
 		if(settings.useModels > models.length){settings.useModels = models.length; useModels_input.value = models.length;}
 		if(settings.useSamplers > samplers.length){settings.useSamplers = samplers.length; useSamplers_input.value = samplers.length;}
 
@@ -816,10 +818,9 @@ preview.addEventListener("keydown", (event) => {
 		try {
 			let res = await fetch('/get/models')
 			const getmodels = await res.json()
-			let activeModel = getmodels['active']
 			let modelOptions = getmodels['options']
 			let stableDiffusionOptions = modelOptions['stable-diffusion']
-	
+			models = [];
 			stableDiffusionOptions.forEach(modelName => {
 				models.push(modelName);
 			})
