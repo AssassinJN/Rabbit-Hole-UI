@@ -1094,11 +1094,11 @@ preview.addEventListener("keydown", (event) => {
 				guidance_scale: taskSetting.GS,
 				num_inference_steps: taskSetting.IS,
 				prompt: tempPrompt,
-				numOutputsTotal: 1,
-				batchCount: 1,
 				sampler_name: taskSetting.sampler,
 				use_stable_diffusion_model: taskSetting.model
 			});
+			newTaskRequest.batchCount = 1;
+			newTaskRequest.numOutputsTotal = 1;
 			if(reqBody.init_image != null){
 				newTaskRequest.reqBody.prompt_strength = taskSetting.PS;
 				newTaskRequest.reqBody.sampler_name = "ddim";
