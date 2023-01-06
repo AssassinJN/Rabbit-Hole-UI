@@ -559,10 +559,10 @@ function rh_makeButtons(){
 			PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Guidance Scale "+count, on_click: getStartNewTaskHandler(count, 'GS') });
 		}
 	});
-	var stepList = [2];
+	var stepList = [5];
 	stepList.forEach((count) => {
 		if(count > 0){
-			PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "I2I Render "+count+"x", on_click: getStartNewTaskHandler(count, 'I2I') });
+			//PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "I2I Render "+count+"x", on_click: getStartNewTaskHandler(count, 'I2I') });
 		}
 	});
 	PLUGINS["IMAGE_INFO_BUTTONS"].push({ text: "Draw RH Variants", on_click: startRequest });
@@ -579,14 +579,15 @@ for(let i = 0; i < imageTaskContainer.length; i++){
 var previewObserver = new MutationObserver(function (mutations) {
 	mutations.forEach(function (mutation) {
 		updateZoom();
-		if(mutation.target.className == 'preview-prompt collapsible active'){
-			var imageTaskContainer = mutation.target.parentNode.parentNode;
-			imageTaskContainer.querySelector('button.stopTask').addEventListener('click' , (event) => {
-				preview.classList.remove('focused');
-			});
+		if(mutation.addedNodes.length>0 && mutation.addedNodes[0].classList){
+			if(mutation.addedNodes[0].classList.contains('fa-trash-can')){
+				mutation.target.addEventListener('click' , (event) => {
+					preview.classList.remove('focused');
+				});
+			}
 		}
 		if(mutation.target.className == 'img-batch'){
-			var imageTaskContainer = mutation.target.parentNode.parentNode.parentNode;
+			var imageTaskContainer = mutation.target.closest('.imageTaskContainer');
 			if(imageTaskContainer.querySelectorAll('.img-batch').length > 2){
 				imageTaskContainer.classList.add('condensed');
 			}
@@ -638,6 +639,18 @@ function scrollVisible(target){
 
 function cleanup(target) {
 	var imageTaskContainer = target.parentNode.parentNode.parentNode;
+	if(imageTaskContainer.dataset.i2irendersLeft > 0){
+		var currentTaskInfo = getCurrentUserRequest();
+		var newTaskRequest = buildRequest(imageTaskContainer.dataset.i2irendersLeft, 'I2I', currentTaskInfo.reqBody, imageTaskContainer.querySelector('img'));
+		console.log(newTaskRequest);
+		var taskID = createTask(newTaskRequest);
+		
+		var newTask = document.querySelector('#'+taskID);
+		newTask.dataset.i2irendersLeft = newTaskRequest.steps;
+		
+		//getStartNewTaskHandler(imageTaskContainer.dataset.i2irendersLeft, 'I2I');
+		//currentTaskInfo.reqBody, imageTaskContainer.querySelector('img'), 
+	}
 	var imageList = target.querySelectorAll('img');
 	imageList.forEach(function (img) {
 		img.addEventListener('click', (event) => {
@@ -1200,17 +1213,19 @@ function buildRequest(steps, mode, reqBody, img) {
         maskSetting.checked = false;
         samplerSelectionContainer.style.display = 'none';
 		newTaskRequest.reqBody.sampler_name = 'ddim';
-		newTaskRequest.reqBody.prompt_strength = 0.5;
+		newTaskRequest.reqBody.prompt_strength = reqBody.prompt_strength;
 		newTaskRequest.reqBody.init_image = imageElem.src;
 		delete newTaskRequest.reqBody.mask;
-		I2ICount--;
+		newTaskRequest.steps = steps-1;
 	}
 	return newTaskRequest;
 }
 function getStartNewTaskHandler(steps, mode) {
 	return async function(reqBody, img) {
 		const newTaskRequest = buildRequest(steps, mode, reqBody, img);
-		createTask(newTaskRequest);
+		taskID = createTask(newTaskRequest);
+		var newTask = document.querySelector('#'+taskID)
+		newTask.dataset.i2irendersLeft = newTaskRequest.steps;
 	}
 }
 
