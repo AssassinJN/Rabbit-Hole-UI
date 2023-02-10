@@ -56,7 +56,6 @@ style.textContent = `
 		overflow-y:unset;
 	}
 	#preview {
-		margin-bottom:200px;
 		margin-left:510px;
 		margin-right:0;
 		padding-left:0;
@@ -266,6 +265,10 @@ style.textContent = `
 	}
 	#preview.focused #clear-all-previews {
 		display:none;
+	}
+
+	.tab-content {
+		margin-bottom:200px;
 	}
 
 	@media screen and (max-width: 1349px) {
