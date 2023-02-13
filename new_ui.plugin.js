@@ -75,8 +75,8 @@ style.textContent = `
 	.hidden #preview {
 		margin-left:0;
 	}
-	#stable_diffusion_model {
-		width:90%;
+	.model-list {
+		max-width: 310px;
 	}
 	#footer {
 		position:absolute;
