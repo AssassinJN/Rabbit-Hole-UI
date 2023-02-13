@@ -837,8 +837,16 @@ preview.addEventListener("keydown", (event) => {
 			let stableDiffusionOptions = modelOptions['stable-diffusion']
 			models = [];
 			stableDiffusionOptions.forEach(modelName => {
-				models.push(modelName);
+				console.log(modelName);
+				if(Array.isArray(modelName)){
+					modelName[1].forEach(subModel => {
+						models.push(modelName[0]+"/"+subModel);
+					})
+				} else {
+					models.push(modelName);
+				}
 			})
+			console.log(models);
 		} catch (e) {
 			console.log('get models error', e)
 		}
