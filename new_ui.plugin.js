@@ -591,7 +591,7 @@ var previewObserver = new MutationObserver(function (mutations) {
 		}
 		if(mutation.target.className == 'img-batch'){
 			var imageTaskContainer = mutation.target.closest('.imageTaskContainer');
-			if(imageTaskContainer.querySelectorAll('.img-batch').length > 2){
+			if(imageTaskContainer.querySelectorAll('.img-batch').length > 1){
 				imageTaskContainer.classList.add('condensed');
 			}
 			cleanup(mutation.target);
@@ -837,7 +837,6 @@ preview.addEventListener("keydown", (event) => {
 			let stableDiffusionOptions = modelOptions['stable-diffusion']
 			models = [];
 			stableDiffusionOptions.forEach(modelName => {
-				console.log(modelName);
 				if(Array.isArray(modelName)){
 					modelName[1].forEach(subModel => {
 						models.push(modelName[0]+"/"+subModel);
@@ -846,7 +845,6 @@ preview.addEventListener("keydown", (event) => {
 					models.push(modelName);
 				}
 			})
-			console.log(models);
 		} catch (e) {
 			console.log('get models error', e)
 		}
@@ -1113,7 +1111,7 @@ preview.addEventListener("keydown", (event) => {
 			taskSetting.camera + taskSetting.carving_and_etching + taskSetting.color + taskSetting.drawing_style + 
 			taskSetting.emotion + taskSetting.pen + taskSetting.visual_style + taskSetting.customModifier;
 			const newTaskRequest = modifyCurrentRequest(reqBody, {
-				num_outputs: 1,
+				//num_outputs: 1,
 				seed: taskSetting.seed,
 				guidance_scale: taskSetting.GS,
 				num_inference_steps: taskSetting.IS,
@@ -1121,8 +1119,8 @@ preview.addEventListener("keydown", (event) => {
 				sampler_name: taskSetting.sampler,
 				use_stable_diffusion_model: taskSetting.model
 			});
-			newTaskRequest.batchCount = 1;
-			newTaskRequest.numOutputsTotal = 1;
+			newTaskRequest.batchCount = document.querySelector('#num_outputs_total').value;
+			newTaskRequest.numOutputsTotal = document.querySelector('#num_outputs_total').value;
 			if(reqBody.init_image != null){
 				newTaskRequest.reqBody.prompt_strength = taskSetting.PS;
 				newTaskRequest.reqBody.sampler_name = "ddim";
@@ -1188,6 +1186,7 @@ function addRabbitHoleSettings(){
 	document.getElementById('newRabbitHoleBtn').addEventListener("click", function () {
 		const taskTemplate = getCurrentUserRequest();
 		const newTaskRequests = [];
+		console.log(taskTemplate);
 		getPrompts().forEach((prompt) => newTaskRequests.push(Object.assign({}, taskTemplate, {
 			reqBody: Object.assign({ prompt: prompt }, taskTemplate.reqBody)
 		})));
@@ -1195,7 +1194,11 @@ function addRabbitHoleSettings(){
 		initialText.style.display = 'none';
 	});
 	document.getElementById('calcMaxButton').addEventListener("click", function () {
-		document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
+		if(document.getElementById('editor').classList.contains('img2img')){
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
+		} else {
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
+		}
 		setSettings();
 	});
 	createCollapsibles(rabbitHoleSettings);
