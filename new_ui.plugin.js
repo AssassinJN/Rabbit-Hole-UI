@@ -343,7 +343,7 @@ style.textContent = `
 
 document.head.appendChild(style);
 document.getElementById('container').classList.add('minimalUI');
-let models = [], artists = [], cgi_renderings = [], cgi_softwares = [], customModifierList = [], cameras = [], carving_and_etchings = [], colors = [], drawing_styles = [], emotions = [], pens = [], visual_styles = [];
+let models = [], gfpgans = [], hypernetworks = [], vaes = [], artists = [], cgi_renderings = [], cgi_softwares = [], customModifierList = [], cameras = [], carving_and_etchings = [], colors = [], drawing_styles = [], emotions = [], pens = [], visual_styles = [];
 var editor = document.getElementById('editor');
 var preview = document.getElementById('preview');
 var imageTaskContainer = document.getElementsByClassName('imageTaskContainer');
@@ -368,6 +368,9 @@ var settings = {
 	ISStep: 0,
 	ISMid: 0,
 	useModels: 0,
+	useGfpgans: 0,
+	useHypernetworks: 0,
+	useVaes: 0,
 	useSamplers: 0,
 	useArtists: 0,
 	useCGIRendering: 0,
@@ -645,7 +648,6 @@ function cleanup(target) {
 	if(imageTaskContainer.dataset.i2irendersLeft > 0){
 		var currentTaskInfo = getCurrentUserRequest();
 		var newTaskRequest = buildRequest(imageTaskContainer.dataset.i2irendersLeft, 'I2I', currentTaskInfo.reqBody, imageTaskContainer.querySelector('img'));
-		console.log(newTaskRequest);
 		var taskID = createTask(newTaskRequest);
 		
 		var newTask = document.querySelector('#'+taskID);
@@ -737,6 +739,9 @@ preview.addEventListener("keydown", (event) => {
 		settings.ISStep = parseInt(ISStep_input.value);
 		settings.ISMid = parseInt(ISMid_input.value);
 		settings.useModels = parseInt(useModels_input.value);
+		settings.useGfpgans = parseInt(useGfpgans_input.value);
+		settings.useHypernetworks = parseInt(useHypernetworks_input.value);
+		settings.useVaes = parseInt(useVaes_input.value);
 		settings.useSamplers = parseInt(useSamplers_input.value);
 		settings.useArtists = parseInt(useArtists_input.value);
 		settings.useCGIRendering = parseInt(useCGIRendering_input.value);
@@ -785,6 +790,9 @@ preview.addEventListener("keydown", (event) => {
 		//Check Max Settings
 
 		if(settings.useModels > models.length){settings.useModels = models.length; useModels_input.value = models.length;}
+		if(settings.useGfpgans > gfpgans.length){settings.useGfpgans = gfpgans.length; useGfpgans_input.value = gfpgans.length;}
+		if(settings.useHypernetworks > hypernetworks.length){settings.useHypernetworks = hypernetworks.length; useHypernetworks_input.value = hypernetworks.length;}
+		if(settings.useVaes > vaes.length){settings.useVaes = vaes.length; useVaes_input.value = vaes.length;}
 		if(settings.useSamplers > samplers.length){settings.useSamplers = samplers.length; useSamplers_input.value = samplers.length;}
 
 		if(settings.useArtists > artists.length){settings.useArtists = artists.length; useArtists_input.value = artists.length;}
@@ -835,7 +843,13 @@ preview.addEventListener("keydown", (event) => {
 			const getmodels = await res.json()
 			let modelOptions = getmodels['options']
 			let stableDiffusionOptions = modelOptions['stable-diffusion']
-			models = [];
+			let gfpganOptions = modelOptions['gfpgan']
+			let hypernetworkOptions = modelOptions['hypernetwork']
+			let vaeOptions = modelOptions['vae']
+			models = []
+			gfpgans = []
+			hypernetworks = []
+			vaes = []
 			stableDiffusionOptions.forEach(modelName => {
 				if(Array.isArray(modelName)){
 					modelName[1].forEach(subModel => {
@@ -843,6 +857,33 @@ preview.addEventListener("keydown", (event) => {
 					})
 				} else {
 					models.push(modelName);
+				}
+			})
+			gfpganOptions.forEach(gfpganName => {
+				if(Array.isArray(gfpganName)){
+					gfpganName[1].forEach(subgfpgan => {
+						gfpgans.push(gfpganName[0]+"/"+subgfpgan);
+					})
+				} else {
+					gfpgans.push(gfpganName);
+				}
+			})
+			hypernetworkOptions.forEach(hypernetworkName => {
+				if(Array.isArray(hypernetworkName)){
+					hypernetworkName[1].forEach(subhypernetwork => {
+						hypernetworks.push(hypernetworkName[0]+"/"+subhypernetwork);
+					})
+				} else {
+					hypernetworks.push(hypernetworkName);
+				}
+			})
+			vaeOptions.forEach(vaeName => {
+				if(Array.isArray(vaeName)){
+					vaeName[1].forEach(subvae => {
+						vaes.push(vaeName[0]+"/"+subvae);
+					})
+				} else {
+					vaes.push(vaeName);
 				}
 			})
 		} catch (e) {
@@ -932,6 +973,9 @@ preview.addEventListener("keydown", (event) => {
 		var outputTasks = [];
 		var tempSeeds=[];
 		var tempModels=[];
+		var tempGfpgans=[];
+		var tempHypernetworks=[];
+		var tempVaes=[];
 		var tempArtists=[];
 		var tempCgi_renderings=[];
 		var tempCgi_softwares=[];
@@ -994,6 +1038,21 @@ preview.addEventListener("keydown", (event) => {
 			shuffle(tempModels);
 			tempModels = tempModels.slice(0,settings.useModels);
 		}
+		if(settings.useGfpgans>0){
+			tempGfpgans = gfpgans;
+			shuffle(tempGfpgans);
+			tempGfpgans = tempGfpgans.slice(0,settings.useGfpgans);
+		}
+		if(settings.useHypernetworks>0){
+			tempHypernetworks = hypernetworks;
+			shuffle(tempHypernetworks);
+			tempHypernetworks = tempHypernetworks.slice(0,settings.useHypernetworks);
+		}
+		if(settings.useVaes>0){
+			tempVaes = vaes;
+			shuffle(tempVaes);
+			tempVaes = tempVaes.slice(0,settings.useVaes);
+		}
 		if(settings.useSamplers>0){
 			tempSamplers = samplers;
 			shuffle(tempSamplers);
@@ -1054,7 +1113,7 @@ preview.addEventListener("keydown", (event) => {
 			shuffle(tempCusomModifiers);
 			tempCusomModifiers = tempCusomModifiers.slice(0,settings.useCustomModifiers);
 		}
-		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempModels.length,1)*Math.max(tempSamplers.length,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1));
+		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempSamplers.length,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1));
 		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
 		for(let i = 0; i<tempMaxImagesToGenerate; i++){
 			var tempTask = {};
@@ -1064,6 +1123,9 @@ preview.addEventListener("keydown", (event) => {
 				PS: tempPromptStrengths[Math.round(Math.random() * (tempPromptStrengths.length - 1))],
 				seed: tempSeeds[Math.round(Math.random() * (tempSeeds.length - 1))],
 				model: (settings.useModels>0 ? tempModels[Math.round(Math.random() * (tempModels.length - 1))]: reqBody.use_stable_diffusion_model),
+				gfpgan: (settings.useGfpgans>0 ? tempGfpgans[Math.round(Math.random() * (tempGfpgans.length - 1))]: reqBody.use_face_correction),
+				hypernetwork: (settings.useHypernetworks>0 ? tempHypernetworks[Math.round(Math.random() * (tempHypernetworks.length - 1))]: reqBody.use_hypernetwork_model),
+				vae: (settings.useVaes>0 ? tempVaes[Math.round(Math.random() * (tempVaes.length - 1))]: reqBody.use_vae_model),
 				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]: reqBody.sampler_name),
 				artist: (settings.useArtists>0 ? ', '+tempArtists[Math.round(Math.random() * (tempArtists.length - 1))] : ''),
 				cgi_rendering: (settings.useCGIRendering>0 ? ', '+tempCgi_renderings[Math.round(Math.random() * (tempCgi_renderings.length - 1))] : ''),
@@ -1117,7 +1179,10 @@ preview.addEventListener("keydown", (event) => {
 				num_inference_steps: taskSetting.IS,
 				prompt: tempPrompt,
 				sampler_name: taskSetting.sampler,
-				use_stable_diffusion_model: taskSetting.model
+				use_stable_diffusion_model: taskSetting.model,
+				use_face_correction: taskSetting.gfpgan,
+				use_hypernetwork_model: taskSetting.hypernetwork,
+				use_vae_model: taskSetting.vae
 			});
 			newTaskRequest.batchCount = document.querySelector('#num_outputs_total').value;
 			newTaskRequest.numOutputsTotal = document.querySelector('#num_outputs_total').value;
@@ -1153,6 +1218,9 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5"><td><label for="maxImagesToGenerate_input">Max Image to Generate:</label></td><td> <input id="maxImagesToGenerate_input" name="maxImagesToGenerate_input" size="10" value="`+settings.maxImagesToGenerate+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"><button id="calcMaxButton"><i class="fa fa-calculator"></i></button></td></tr>
 					<tr class="pl-5"><td><label for="useSeeds_input">Seeds to Generate:</label></td><td> <input id="useSeeds_input" name="useSeeds_input" size="10" value="`+settings.useSeeds+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useModels_input">Random Models:</label></td><td> <input id="useModels_input" name="useModels_input" size="10" value="`+settings.useModels+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="useGfpgans_input">Random GFPGANs:</label></td><td> <input id="useGfpgans_input" name="useGfpgans_input" size="10" value="`+settings.useGfpgans+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="useHypernetworks_input">Random Hypernetworks:</label></td><td> <input id="useHypernetworks_input" name="useHypernetworks_input" size="10" value="`+settings.useHypernetworks+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="useVaes_input">Random VAEs:</label></td><td> <input id="useVaes_input" name="useVaes_input" size="10" value="`+settings.useVaes+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5 notImg2img"><td><label for="useSamplers_input">Random Samplers:</label></td><td> <input id="useSamplers_input" name="useSamplers_input" size="10" value="`+settings.useSamplers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleCount_input">Guidance Scale Count:</label></td><td> <input id="scaleCount_input" name="scaleCount_input" size="10" value="`+settings.scaleCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleStep_input">Guidance Scale Step Size:</label></td><td> <input id="scaleStep_input" name="scaleStep_input" size="10" value="`+settings.scaleStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
@@ -1195,9 +1263,9 @@ function addRabbitHoleSettings(){
 	});
 	document.getElementById('calcMaxButton').addEventListener("click", function () {
 		if(document.getElementById('editor').classList.contains('img2img')){
-			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
 		} else {
-			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
 		}
 		setSettings();
 	});
