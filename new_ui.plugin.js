@@ -1190,7 +1190,7 @@ preview.addEventListener("keydown", (event) => {
 				newTaskRequest.reqBody.prompt_strength = taskSetting.PS;
 				newTaskRequest.reqBody.sampler_name = "ddim";
 			}
-			delete newTaskRequest.reqBody.mask;
+			//delete newTaskRequest.reqBody.mask;
 			newTaskList.push(newTaskRequest);
 		});
 		
@@ -1292,13 +1292,15 @@ function buildRequest(steps, mode, reqBody, img) {
         initImagePreview.src = imgData
 		initImagePreviewContainer.style.display = 'block';
         promptStrengthContainer.style.display = 'table-row';
-        maskSetting.checked = false;
+        //maskSetting.checked = false;
         samplerSelectionContainer.style.display = 'none';
 		newTaskRequest.reqBody.sampler_name = 'ddim';
 		newTaskRequest.reqBody.prompt_strength = reqBody.prompt_strength;
 		newTaskRequest.reqBody.init_image = imageElem.src;
-		delete newTaskRequest.reqBody.mask;
 		newTaskRequest.steps = steps-1;
+		if(maskSetting.checked == false){
+			delete newTaskRequest.reqBody.mask;
+		}
 	}
 	return newTaskRequest;
 }
