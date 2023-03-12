@@ -555,13 +555,13 @@ function rh_makeButtons(){
 
 	var stepList = [settings.ISButton1,settings.ISButton2,settings.ISButton3,settings.ISButton4,settings.ISButton5];
 	stepList.forEach((count) => {
-		if(count > 0){
+		if(count != 0){
 			PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Draw "+count+" Steps", on_click: getStartNewTaskHandler(count, 'IS') });
 		}
 	});
 	var stepList = [settings.GSButton1,settings.GSButton2,settings.GSButton3,settings.GSButton4,settings.GSButton5];
 	stepList.forEach((count) => {
-		if(count > 0){
+		if(count != 0){
 			PLUGINS['IMAGE_INFO_BUTTONS'].push({ text: "Guidance Scale "+count, on_click: getStartNewTaskHandler(count, 'GS') });
 		}
 	});
