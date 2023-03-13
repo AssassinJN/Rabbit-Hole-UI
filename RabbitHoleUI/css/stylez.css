@@ -239,6 +239,11 @@ input, textarea, select {
     display:block;
 }
 
+#init_image_preview {
+    max-width:100px;
+    max-height:100px;
+}
+
 /* -------------------- Gradients ----------------------- */
 
 #top-bar ul li:hover {

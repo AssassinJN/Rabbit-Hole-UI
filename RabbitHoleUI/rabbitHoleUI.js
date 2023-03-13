@@ -71,16 +71,15 @@ function loadDefaults() {
         taskSettings.sampler_name = samplerOptions.item(samplerIndex).value
         randoms.push('sampler_name')
     }
+    if(taskSettings.use_stable_diffusion_model == "random"){
+        let modelOptions = document.querySelectorAll('#use_stable_diffusion_model option')
+        let modelIndex = Math.floor(Math.random() * (modelOptions.length - 1))+1
+        taskSettings.use_stable_diffusion_model = modelOptions.item(modelIndex).value
+        randoms.push('use_stable_diffusion_model')
+    }
     taskSettings.randoms = randoms;
     
     return taskSettings;
-}
-
-function asyncDelay(timeout) {
-    timeout = timeout * 1000
-    return new Promise(function(resolve, reject) {
-        setTimeout(resolve, timeout, true)
-    })
 }
 
 async function render(renderType, inputTask, batchID)  {
@@ -120,7 +119,7 @@ async function render(renderType, inputTask, batchID)  {
     imageStatus.innerHTML = "Waiting in Queue..."
     let batchContainer = document.getElementById('t'+batchID)
     batchContainer.querySelector('.collapsible').append(imageStatus);
-    let result = await SD.render({
+    const result = await SD.render({
         "prompt": task.prompt,
         "negative_prompt": task.negative_prompt,
         "width": task.width,
@@ -142,10 +141,10 @@ async function render(renderType, inputTask, batchID)  {
         "metadata_output_format": task.metadata_output_format,
         "stream_image_progress": false
         }, function(event) {
-            console.log(event)
+            
             if ('update' in event) {
                 const stepUpdate = event.update
-            
+                
                 if(stepUpdate.step){
                     imageStatus.innerHTML = 'Rendering...<span style="float:right;">'+stepUpdate.step + ' of ' + stepUpdate.total_steps + '</span>';
                     imageStatus.setAttribute('style','--img-done: '+(stepUpdate.step/stepUpdate.total_steps))
@@ -154,7 +153,7 @@ async function render(renderType, inputTask, batchID)  {
                     imageStatus.addEventListener('click', collapseToggle)
                     imageStatus.setAttribute('style','--img-done: 1')
                     imageStatus.classList.add('done')
-                    batchContainer.querySelector('.count').innerHTML = batchContainer.querySelectorAll('.imageStatus.done').length
+                    batchContainer.querySelector('.count').innerHTML = parseInt(batchContainer.querySelectorAll('.done').length)
                 }
 
                 if(stepUpdate.status == 'failed'){
@@ -172,9 +171,8 @@ async function render(renderType, inputTask, batchID)  {
     if(error == "outOfMemory"){
         return(render('outOfMemory',task))
     }
-    //recordTask(task, 'history')
-    console.log(result)
-
+    recordTask(task, 'history')
+    
     return(result)
 }
 
@@ -212,7 +210,8 @@ function newRenderBatch(renderType){
     }else{
         imgContainer.setAttribute('style','--img-width:'+(100/Math.ceil(imageOutput.clientWidth/imageOutput.clientHeight*2*(parseInt(document.getElementById('width').value)/parseInt(document.getElementById('height').value)))+"%;"));
     }
-    
+
+    //imgContainer.setAttribute('style','--img-width:'+(100/Math.floor(imageOutput.clientWidth/imageOutput.clientHeight*2*(parseInt(document.getElementById('height').value)/parseInt(document.getElementById('width').value)))+"%;"));
     imgContainer.focus()
     const batchStatus = document.createElement("div")
     batchStatus.classList.add('batchStatus')
@@ -226,29 +225,21 @@ function newRenderBatch(renderType){
     batchDetails.addEventListener('click', collapseToggle)
     batchStatus.querySelector('.collapsible').append(batchDetails);
     highlightBatch(requestID)
-    /*startNext = true
-    for(let x = 1; x<=count; x++) {
-        if(startNext){
-            render(renderType, null, requestID)
-            .then((serverReady) => {startNext = serverReady});
-        }else{
-            asyncDelay(10)
-        }
-        
-    }   */
     for(let x = 1; x<=count; x++) {
         render(renderType, null, requestID)
-        .then((result) => {
-            console.log(result)
-            const imgContainer = imageOutput.querySelector('#i'+batchID)
-            let imgData = result.output.slice(-1);
+        .then((taskResult) => {
+            //console.log(taskResult.output)    
+            let imgData = taskResult.output.slice(-1);
             const img = document.createElement("div");
             img.classList.add('img')
             img.style.backgroundImage = "url('"+imgData[0].data+"')"
+            //img.style.width = 100/Math.floor(Math.ceil(Math.sqrt(count)),10)+"%"
+            //img.style.height = 100/Math.floor(Math.ceil(Math.sqrt(count)),10)+"%"
             imgContainer.appendChild(img);
             img.addEventListener('click', function(){this.classList.toggle('enlarge')})
         });
-    }  
+    }
+    
 }
 
 
@@ -306,7 +297,7 @@ function updateSelects(){
     })}
     document.getElementById('use_face_correction').value = RabbitHoleUI.currentPrompt.use_face_correction
 
-    document.getElementById('use_stable_diffusion_model').innerHTML = '<option>None</option>'
+    document.getElementById('use_stable_diffusion_model').innerHTML = '<option value="random">Random</option>'
     models.forEach(model => {
         document.getElementById('use_stable_diffusion_model').innerHTML += '<option value="'+model+'">'+model+'</option>'
     })
