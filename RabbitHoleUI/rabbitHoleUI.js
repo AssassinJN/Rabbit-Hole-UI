@@ -120,7 +120,7 @@ async function render(renderType, inputTask, batchID)  {
     imageStatus.innerHTML = "Waiting in Queue..."
     let batchContainer = document.getElementById('t'+batchID)
     batchContainer.querySelector('.collapsible').append(imageStatus);
-    const result = await SD.render({
+    let result = await SD.render({
         "prompt": task.prompt,
         "negative_prompt": task.negative_prompt,
         "width": task.width,
@@ -142,10 +142,10 @@ async function render(renderType, inputTask, batchID)  {
         "metadata_output_format": task.metadata_output_format,
         "stream_image_progress": false
         }, function(event) {
-            
+            console.log(event)
             if ('update' in event) {
                 const stepUpdate = event.update
-                
+            
                 if(stepUpdate.step){
                     imageStatus.innerHTML = 'Rendering...<span style="float:right;">'+stepUpdate.step + ' of ' + stepUpdate.total_steps + '</span>';
                     imageStatus.setAttribute('style','--img-done: '+(stepUpdate.step/stepUpdate.total_steps))
@@ -172,14 +172,8 @@ async function render(renderType, inputTask, batchID)  {
     if(error == "outOfMemory"){
         return(render('outOfMemory',task))
     }
-    recordTask(task, 'history')
-    const imgContainer = imageOutput.querySelector('#i'+batchID)
-    let imgData = result.output.slice(-1);
-    const img = document.createElement("div");
-    img.classList.add('img')
-    img.style.backgroundImage = "url('"+imgData[0].data+"')"
-    imgContainer.appendChild(img);
-    img.addEventListener('click', function(){this.classList.toggle('enlarge')})
+    //recordTask(task, 'history')
+    console.log(result)
 
     return(result)
 }
@@ -244,8 +238,15 @@ function newRenderBatch(renderType){
     }   */
     for(let x = 1; x<=count; x++) {
         render(renderType, null, requestID)
-        .then((serverReady) => {
-            
+        .then((result) => {
+            console.log(result)
+            const imgContainer = imageOutput.querySelector('#i'+batchID)
+            let imgData = result.output.slice(-1);
+            const img = document.createElement("div");
+            img.classList.add('img')
+            img.style.backgroundImage = "url('"+imgData[0].data+"')"
+            imgContainer.appendChild(img);
+            img.addEventListener('click', function(){this.classList.toggle('enlarge')})
         });
     }  
 }
