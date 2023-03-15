@@ -525,7 +525,7 @@ function rh_makeButtons(){
 		settings.zoom++;
 		updateZoom();
 	});
-	document.getElementById('save-all-images').after(GridUP);
+	document.getElementById('show-download-popup').after(GridUP);
 	let GridDown = document.createElement("button");
 	GridDown.innerHTML = "Zoom <i class='fa fa-plus'></i>";
 	GridDown.classList.add('ZoomButton');
@@ -589,6 +589,17 @@ var previewObserver = new MutationObserver(function (mutations) {
 			if(mutation.addedNodes[0].classList.contains('fa-trash-can')){
 				mutation.target.addEventListener('click' , (event) => {
 					preview.classList.remove('focused');
+				});
+			}
+			if(mutation.addedNodes[0].classList.contains('imgItem')){
+				let Xbutton = mutation.addedNodes[0].querySelector('.image_clear_btn')
+				Xbutton.addEventListener('click' , (event) => {
+					let focusedTaskContainer = preview.querySelector('.imageTaskContainer.expanded')
+					if(focusedTaskContainer.classList.contains('displayNone')){
+						focusedTaskContainer.classList.remove('expanded')
+						preview.classList.remove('focused')
+					}
+					
 				});
 			}
 		}
