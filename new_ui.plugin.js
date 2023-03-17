@@ -594,12 +594,25 @@ var previewObserver = new MutationObserver(function (mutations) {
 			if(mutation.addedNodes[0].classList.contains('imgItem')){
 				let Xbutton = mutation.addedNodes[0].querySelector('.image_clear_btn')
 				Xbutton.addEventListener('click' , (event) => {
-					let focusedTaskContainer = preview.querySelector('.imageTaskContainer.expanded')
-					if(focusedTaskContainer.classList.contains('displayNone')){
-						focusedTaskContainer.classList.remove('expanded')
-						preview.classList.remove('focused')
-					}
-					
+					let focusedTaskContainer = event.target.closest('.imageTaskContainer')
+					if(focusedTaskContainer){
+						let images = focusedTaskContainer.querySelectorAll('.imgItem')
+						let count = 0
+						images.forEach(
+							function(node) {
+								if(node.style.display != 'none'){
+									count++
+								}else{
+									node.closest('.img-batch').remove()
+								}
+							}
+						)
+						if(count == 0){
+							preview.classList.remove('focused')
+						}else if(count == 1){
+							focusedTaskContainer.classList.remove('condensed')
+						}
+					}					
 				});
 			}
 		}
