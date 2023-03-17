@@ -66,14 +66,14 @@ function loadDefaults() {
         randoms.push('seed')
     }
     if(taskSettings.sampler_name == "random"){
-        let samplerOptions = document.querySelectorAll('#sampler_name option')
-        let samplerIndex = Math.floor(Math.random() * (samplerOptions.length - 1))+1
+        let samplerOptions = document.querySelectorAll('#sampler_name option:not([value="random"])')
+        let samplerIndex = Math.floor(Math.random() * (samplerOptions.length))
         taskSettings.sampler_name = samplerOptions.item(samplerIndex).value
         randoms.push('sampler_name')
     }
     if(taskSettings.use_stable_diffusion_model == "random"){
-        let modelOptions = document.querySelectorAll('#use_stable_diffusion_model option')
-        let modelIndex = Math.floor(Math.random() * (modelOptions.length - 1))+1
+        let modelOptions = document.querySelectorAll('#use_stable_diffusion_model option:not([value="random"])')
+        let modelIndex = Math.floor(Math.random() * (modelOptions.length))
         taskSettings.use_stable_diffusion_model = modelOptions.item(modelIndex).value
         randoms.push('use_stable_diffusion_model')
     }
@@ -204,12 +204,21 @@ function newRenderBatch(renderType){
     }
     console.log('Image height: '+ parseInt(document.getElementById('height').value) + '\n Image Width: ' + parseInt(document.getElementById('width').value) +
     '\n Area Height: ' + imageOutput.clientHeight + '\n Area Width: ' + imageOutput.clientWidth)
+    let rows = 1
+    do {
+        let imagesPerRow = count/rows
+        let tempImageWidth = imageOutput.clientWidth/imagesPerRow
+        let rowImageWidth = imageOutput.clientHeight/(rows+1)*document.getElementById('width').value/document.getElementById('height').value
+        console.log(tempImageWidth+"  :  "+rowImageWidth)
+        if(tempImageWidth < rowImageWidth){
+            rows++
+        }else{
+            break
+        }
+    }while(rows < count)
+    console.log("rows:  "+rows)
 
-    if(imageOutput.clientHeight < imageOutput.clientWidth){
-        imgContainer.setAttribute('style','--img-width:'+(100/Math.ceil(imageOutput.clientWidth/imageOutput.clientHeight*2*(parseInt(document.getElementById('height').value)/parseInt(document.getElementById('width').value)))+"%;"));
-    }else{
-        imgContainer.setAttribute('style','--img-width:'+(100/Math.ceil(imageOutput.clientWidth/imageOutput.clientHeight*2*(parseInt(document.getElementById('width').value)/parseInt(document.getElementById('height').value)))+"%;"));
-    }
+    imgContainer.setAttribute('style','--img-width:'+(100/Math.ceil(count/rows))+"%;");
 
     //imgContainer.setAttribute('style','--img-width:'+(100/Math.floor(imageOutput.clientWidth/imageOutput.clientHeight*2*(parseInt(document.getElementById('height').value)/parseInt(document.getElementById('width').value)))+"%;"));
     imgContainer.focus()
