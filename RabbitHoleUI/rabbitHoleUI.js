@@ -7,11 +7,13 @@ let tempToday = new Date()
 const offset = tempToday.getTimezoneOffset()
 tempToday = new Date(tempToday.getTime() - (offset*60*1000))
 let today = tempToday.toISOString().split('T')[0]
+let queue = 'stopped'
 
 let models = []
 let gfpgans = []
 let hypernetworks = []
 let vaes = []
+let tasks = []
  
 const RABBIT_HOLE_ID = 'rh-'+today
 
@@ -82,19 +84,39 @@ function loadDefaults() {
     return taskSettings;
 }
 
-async function render(renderType, inputTask, batchID, imgID)  {
+function addTask(renderType, inputTask, batchID, imgID){
     if(inputTask){
         var task = inputTask
     } else {
         var task = loadDefaults(batchID);
     }
+    task.batchID = batchID
     textOutput.querySelector('#t'+batchID+' .batchDetails .collapsible').innerHTML = toHTML(task, 'batch')
     if(renderType == 'test'){
         task.use_upscale = '';
         task.use_face_correction = '';
         task.output_quality = 50,
         task.save_to_disk_path = '';
-    }else if(renderType == 'outOfMemory'){
+    }
+    if(document.getElementById('session_id').value){
+        task.sessionId = document.getElementById('session_id').value;
+    }else{
+        task.sessionId = RABBIT_HOLE_ID
+    }
+    const requestID = "ti_" + imgID
+    const imageStatus = document.createElement("div")
+    imageStatus.classList.add('imageStatus', 'queued')
+    imageStatus.id=requestID
+    task.requestID = requestID
+    imageStatus.innerHTML = "Waiting in Queue..."
+    let batchContainer = document.getElementById('t'+batchID)
+    batchContainer.querySelector('.collapsible').append(imageStatus);
+    task.statusContainer = imageStatus
+    tasks[imgID] = task
+}
+
+async function render(task, renderType)  {
+    if(renderType == 'outOfMemory'){
         var hwratio = task.height/task.width;
         if(task.height>=task.width){
             task.width = task.width/64 - 1
@@ -105,20 +127,11 @@ async function render(renderType, inputTask, batchID, imgID)  {
         }
         task.width = task.width*64
         task.height = task.height*64
+        task.randoms.push('height')
+        task.randoms.push('width')
     }
+    SD.sessionId = task.sessionId;
     let error = ""
-    if(document.getElementById('session_id').value){
-        SD.sessionId = document.getElementById('session_id').value;
-    }else{
-        SD.sessionId = RABBIT_HOLE_ID
-    }
-    const requestID = "bi_" + imgID
-    const imageStatus = document.createElement("div")
-    imageStatus.classList.add('imageStatus')
-    imageStatus.id=requestID
-    imageStatus.innerHTML = "Waiting in Queue..."
-    let batchContainer = document.getElementById('t'+batchID)
-    batchContainer.querySelector('.collapsible').append(imageStatus);
     const result = await SD.render({
         "prompt": task.prompt,
         "negative_prompt": task.negative_prompt,
@@ -131,7 +144,7 @@ async function render(renderType, inputTask, batchID, imgID)  {
         "use_hypernetwork_model" : task.use_hypernetwork_model,
         "use_vae_model" : task.use_vae_model,
         "session_id": task.session_id,
-        "request_id": requestID,
+        "request_id": task.requestID,
         "seed": task.seed,
         "sampler_name": task.sampler_name,
         "use_stable_diffusion_model": task.use_stable_diffusion_model,
@@ -145,13 +158,14 @@ async function render(renderType, inputTask, batchID, imgID)  {
                 const stepUpdate = event.update
                 
                 if(stepUpdate.step){
-                    imageStatus.innerHTML = 'Rendering...<span style="float:right;">'+stepUpdate.step + ' of ' + stepUpdate.total_steps + '</span>';
-                    imageStatus.setAttribute('style','--img-done: '+(stepUpdate.step/stepUpdate.total_steps))
+                    task.statusContainer.innerHTML = 'Rendering...<span style="float:right;">'+stepUpdate.step + ' of ' + stepUpdate.total_steps + '</span>';
+                    task.statusContainer.setAttribute('style','--img-done: '+(stepUpdate.step/stepUpdate.total_steps))
                 }else if(stepUpdate.status == 'succeeded'){
-                    imageStatus.innerHTML = 'Render Complete <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span><br/><div class="collapsible">'+ toHTML(task, 'image') +'</div>';
-                    imageStatus.addEventListener('click', collapseToggle)
-                    imageStatus.setAttribute('style','--img-done: 1')
-                    imageStatus.classList.add('done')
+                    task.statusContainer.innerHTML = 'Render Complete <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span><br/><div class="collapsible">'+ toHTML(task, 'image') +'</div>';
+                    task.statusContainer.addEventListener('click', collapseToggle)
+                    task.statusContainer.setAttribute('style','--img-done: 1')
+                    task.statusContainer.classList.add('done')
+                    let batchContainer = task.statusContainer.closest('.batchStatus')
                     batchContainer.querySelector('.count').innerHTML = parseInt(batchContainer.querySelectorAll('.done').length)
                 }
 
@@ -160,15 +174,15 @@ async function render(renderType, inputTask, batchID, imgID)  {
                         console.log('out of memory error, try again')
                         error = "outOfMemory"
                     }else{
-                        imageStatus.innerHTML = 'Render Failed <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span><br/><div class="collapsible">'+ toHTML(task) +'</div>';
-                        imageStatus.addEventListener('click', collapseToggle)
+                        task.statusContainer.innerHTML = 'Render Failed <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span><br/><div class="collapsible">'+ toHTML(task) +'</div>';
+                        task.statusContainer.addEventListener('click', collapseToggle)
                     }
                 }
             }
         })
         
     if(error == "outOfMemory"){
-        return(render('outOfMemory',task))
+        return(render(task, 'outOfMemory'))
     }
     recordTask(task, 'history')
     
@@ -229,11 +243,26 @@ function newRenderBatch(renderType){
     batchDetails.addEventListener('click', collapseToggle)
     batchStatus.querySelector('.collapsible').append(batchDetails);
     highlightBatch(requestID)
-    
+
     for(let x = 1; x<=count; x++) {
-        console.log(SD.activeTasks.size+'    :    '+SD.serverCapacity)
-        let imgID = new Date().getTime()
-        render(renderType, null, requestID, imgID)
+        let imgID = performance.now().toString().replace('.', 7)
+        addTask(renderType, null, requestID, imgID)
+    }
+    loopBatch()
+}
+
+function loopBatch(){
+    if(queue == 'running'){
+        return false
+    }
+    let activeTask = textOutput.querySelectorAll('.imageStatus.active')
+    if(activeTask.length == 0){
+        activeTask = textOutput.querySelector('.imageStatus.queued')
+        activeTask.classList.remove('queued')
+        activeTask.classList.add('active')
+        let imgID = activeTask.id.toString().substring(3)
+        
+        render(tasks[imgID])
         .then((taskResult) => {
             if(taskResult.output){
                 let imgData = taskResult.output.slice(-1);
@@ -243,18 +272,25 @@ function newRenderBatch(renderType){
                 img.style.backgroundImage = "url('"+imgData[0].data+"')"
                 //img.style.width = 100/Math.floor(Math.ceil(Math.sqrt(count)),10)+"%"
                 //img.style.height = 100/Math.floor(Math.ceil(Math.sqrt(count)),10)+"%"
-                imgContainer.appendChild(img);
+                imageOutput.querySelector('#i'+tasks[imgID].batchID).appendChild(img);
                 img.addEventListener('click', function(){this.classList.toggle('enlarge')})
                 img.addEventListener('mouseover', function(){
-                    document.getElementById('bi_'+imgID).classList.add('highlight')
+                    document.getElementById('ti_'+imgID).classList.add('highlight')
                 })
                 img.addEventListener('mouseout', function(){
-                    document.getElementById('bi_'+imgID).classList.remove('highlight')
+                    document.getElementById('ti_'+imgID).classList.remove('highlight')
                 })
+                activeTask.classList.remove('active')
+            }
+            if (textOutput.querySelectorAll('.imageStatus.queued').length > 0) {
+                loopBatch();
+            }else{
+                queue = 'stopped'
             }
         });
+        
     }
-    
+   
 }
 
 
@@ -407,7 +443,7 @@ async function setBeta(){
         })
         res = await res.json()
     
-        console.log('set config status response', res)
+        //console.log('set config status response', res)
     } catch (e) {
         console.log('set config status error', e)
     }
