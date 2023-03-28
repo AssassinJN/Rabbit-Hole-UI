@@ -82,7 +82,7 @@ function loadDefaults() {
     return taskSettings;
 }
 
-async function render(renderType, inputTask, batchID)  {
+async function render(renderType, inputTask, batchID, imgID)  {
     if(inputTask){
         var task = inputTask
     } else {
@@ -112,7 +112,7 @@ async function render(renderType, inputTask, batchID)  {
     }else{
         SD.sessionId = RABBIT_HOLE_ID
     }
-    const requestID = "i_" + new Date().getTime()
+    const requestID = "bi_" + imgID
     const imageStatus = document.createElement("div")
     imageStatus.classList.add('imageStatus')
     imageStatus.id=requestID
@@ -141,7 +141,6 @@ async function render(renderType, inputTask, batchID)  {
         "metadata_output_format": task.metadata_output_format,
         "stream_image_progress": false
         }, function(event) {
-            
             if ('update' in event) {
                 const stepUpdate = event.update
                 
@@ -202,21 +201,17 @@ function newRenderBatch(renderType){
     if(renderType == 'test'){
         count = 1
     }
-    console.log('Image height: '+ parseInt(document.getElementById('height').value) + '\n Image Width: ' + parseInt(document.getElementById('width').value) +
-    '\n Area Height: ' + imageOutput.clientHeight + '\n Area Width: ' + imageOutput.clientWidth)
     let rows = 1
     do {
         let imagesPerRow = count/rows
         let tempImageWidth = imageOutput.clientWidth/imagesPerRow
         let rowImageWidth = imageOutput.clientHeight/(rows+1)*document.getElementById('width').value/document.getElementById('height').value
-        console.log(tempImageWidth+"  :  "+rowImageWidth)
         if(tempImageWidth < rowImageWidth){
             rows++
         }else{
             break
         }
     }while(rows < count)
-    console.log("rows:  "+rows)
 
     imgContainer.setAttribute('style','--img-width:'+(100/Math.ceil(count/rows))+"%;");
 
@@ -234,18 +229,29 @@ function newRenderBatch(renderType){
     batchDetails.addEventListener('click', collapseToggle)
     batchStatus.querySelector('.collapsible').append(batchDetails);
     highlightBatch(requestID)
+    
     for(let x = 1; x<=count; x++) {
-        render(renderType, null, requestID)
+        console.log(SD.activeTasks.size+'    :    '+SD.serverCapacity)
+        let imgID = new Date().getTime()
+        render(renderType, null, requestID, imgID)
         .then((taskResult) => {
-            //console.log(taskResult.output)    
-            let imgData = taskResult.output.slice(-1);
-            const img = document.createElement("div");
-            img.classList.add('img')
-            img.style.backgroundImage = "url('"+imgData[0].data+"')"
-            //img.style.width = 100/Math.floor(Math.ceil(Math.sqrt(count)),10)+"%"
-            //img.style.height = 100/Math.floor(Math.ceil(Math.sqrt(count)),10)+"%"
-            imgContainer.appendChild(img);
-            img.addEventListener('click', function(){this.classList.toggle('enlarge')})
+            if(taskResult.output){
+                let imgData = taskResult.output.slice(-1);
+                const img = document.createElement("div");
+                img.classList.add('img')
+                img.id = 'i_'+imgID
+                img.style.backgroundImage = "url('"+imgData[0].data+"')"
+                //img.style.width = 100/Math.floor(Math.ceil(Math.sqrt(count)),10)+"%"
+                //img.style.height = 100/Math.floor(Math.ceil(Math.sqrt(count)),10)+"%"
+                imgContainer.appendChild(img);
+                img.addEventListener('click', function(){this.classList.toggle('enlarge')})
+                img.addEventListener('mouseover', function(){
+                    document.getElementById('bi_'+imgID).classList.add('highlight')
+                })
+                img.addEventListener('mouseout', function(){
+                    document.getElementById('bi_'+imgID).classList.remove('highlight')
+                })
+            }
         });
     }
     
