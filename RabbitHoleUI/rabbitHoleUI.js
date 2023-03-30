@@ -112,6 +112,7 @@ function addTask(renderType, inputTask, batchID, imgID){
     }else{
         task.sessionId = RABBIT_HOLE_ID
     }
+    task.imgID = imgID
     const requestID = "ti_" + imgID
     const imageStatus = document.createElement("div")
     imageStatus.classList.add('imageStatus', 'queued')
@@ -138,6 +139,8 @@ async function render(task)  {
         task.height = task.height*64
         task.randoms.push('height')
         task.randoms.push('width')
+    }else if (task.type == 'hyper'){
+        task.save_to_disk_path = ''
     }
     SD.sessionId = task.sessionId;
     let error = ""
@@ -166,7 +169,8 @@ async function render(task)  {
         "stream_image_progress": false,
         "original_prompt": task.original_prompt,
         "init_image": task.init_image,
-        "prompt_strength": task.prompt_strength
+        "prompt_strength": task.prompt_strength,
+        "lora_alpha": task.lora_alpha
     }, function(event) {
         if ('update' in event) {
             const stepUpdate = event.update
@@ -174,18 +178,23 @@ async function render(task)  {
             if(stepUpdate.step){
                 task.statusContainer.innerHTML = 'Rendering...<span style="float:right;">'+stepUpdate.step + ' of ' + stepUpdate.total_steps + '</span>';
                 task.statusContainer.setAttribute('style','--img-done: '+(stepUpdate.step/stepUpdate.total_steps))
-            }else if(stepUpdate.status == 'succeeded'){
-                task.statusContainer.innerHTML = 'Render Complete <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span><br/><div class="collapsible">'+ toHTML(task, 'image') +'</div>';
-                task.statusContainer.addEventListener('click', collapseToggle)
-                task.statusContainer.setAttribute('style','--img-done: 1')
+            }else if(stepUpdate.status == 'succeeded' && task.type != 'hyper'){
+                task.statusContainer.innerHTML = '<div class="header">Render Complete <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span></div><div class="collapsible">'+ toHTML(task, 'image') +'</div>';
+                let hyperButton = document.createElement("button")
+                hyperButton.innerHTML = 'HyperSize'
+                hyperButton.addEventListener('click', function(){addTask('hyper', task, task.batchID, task.imgID);loopBatch();})
+                task.statusContainer.querySelector('.collapsible').append(hyperButton)
+                task.statusContainer.querySelector('.header').addEventListener('click', collapseToggle)
+                task.statusContainer.setAttribute('style','--img-done: 0')
                 task.statusContainer.classList.add('done')
                 let batchContainer = task.statusContainer.closest('.batchStatus')
-                batchContainer.querySelector('.count').innerHTML = parseInt(batchContainer.querySelectorAll('.done').length)
+                batchContainer.querySelector('.count').innerHTML = parseInt(batchContainer.querySelectorAll('.done').length)+' of '+parseInt(batchContainer.querySelectorAll('.imageStatus').length)+' images done.'
             }
 
             if(stepUpdate.status == 'failed'){
                 if(stepUpdate.detail.includes('CUDA out of memory.')){
-                    console.log('out of memory error, try again')
+                    task.statusContainer.innerHTML = 'Out of Memory, trying again..'
+                    task.statusContainer.setAttribute('style','--img-done: 0')
                     error = "outOfMemory"
                 }else{
                     task.statusContainer.innerHTML = 'Render Failed <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span><br/><div class="collapsible">'+ toHTML(task) +'</div>';
@@ -195,11 +204,13 @@ async function render(task)  {
         }
     })
     if(task.type == 'hyper'){
-        console.log(result.output[0].data)
         let imgData = result.output.slice(-1);
+        task.save_to_disk_path = document.getElementById('save_to_disk_path').value
         task.type = 'img2img'
         task.sampler_name = 'ddim';
-        task.prompt_strength = 0.1;
+        task.prompt_strength = Math.round(document.getElementById('prompt_strength').value)*.01;
+        task.lora_alpha = Math.round(document.getElementById('lora_alpha').value)*.01;
+        task.lora_alpha = Math.round(document.getElementById('lora_alpha').value)*.01;
         task.init_image = imgData[0].data;
         task.use_upscale = 'RealESRGAN_x4plus'
         task.upscale_amount = 4
@@ -231,23 +242,8 @@ function recordTask(task, type){
     }
 }
 
-function newRenderBatch(renderType){
-    const requestID = "b_"+ new Date().getTime()
-    const imgContainer = document.createElement("div")
-    imgContainer.classList.add('active', 'batchContainer')
-    imgContainer.id = 'i'+requestID
-    imgContainer.tabIndex = 1
-    imgContainer.addEventListener('keydown', updateKeys)
-    let removeImageContainer = imageOutput.querySelector('div.remove');
-    if(removeImageContainer){removeImageContainer.remove();}
-    let oldImageContainer = imageOutput.querySelector('div.active');
-    imageOutput.appendChild(imgContainer);
-    
-    if(oldImageContainer){oldImageContainer.classList.remove('active');}
-    let count = document.getElementById('image_count').value
-    if(renderType == 'test' || renderType == 'hyper'){
-        count = 1
-    }
+function setRows(imgContainer){
+    let count = imgContainer.querySelectorAll('div.img').length+1
     let rows = 1
     do {
         let imagesPerRow = count/rows
@@ -261,14 +257,33 @@ function newRenderBatch(renderType){
     }while(rows < count)
 
     imgContainer.setAttribute('style','--img-width:'+(100/Math.ceil(count/rows))+"%;");
+}
+
+function newRenderBatch(renderType){
+    const requestID = "b_"+ new Date().getTime()
+    const imgContainer = document.createElement("div")
+    imgContainer.classList.add('active', 'batchContainer')
+    imgContainer.id = 'i'+requestID
+    imgContainer.tabIndex = 1
+    imgContainer.addEventListener('keydown', updateKeys)
+    let removeImageContainer = imageOutput.querySelector('div.remove');
+    if(removeImageContainer){removeImageContainer.remove();}
+    let oldImageContainer = imageOutput.querySelector('div.active');
+    imageOutput.appendChild(imgContainer);
+    let count = document.getElementById('image_count').value
+    if(oldImageContainer){oldImageContainer.classList.remove('active');}
+    if(renderType == 'test' || renderType == 'hyper'){
+        count = 1
+    }
+    
 
     //imgContainer.setAttribute('style','--img-width:'+(100/Math.floor(imageOutput.clientWidth/imageOutput.clientHeight*2*(parseInt(document.getElementById('height').value)/parseInt(document.getElementById('width').value)))+"%;"));
     imgContainer.focus()
     const batchStatus = document.createElement("div")
     batchStatus.classList.add('batchStatus')
     batchStatus.id='t'+requestID
-    batchStatus.innerHTML = '<div class="batchHeader"><a href="#" onclick="showBatch(\''+requestID+'\');event.stopPropagation();">Batch '+requestID+'</a><span class="f-right"><img width="15" class="arrow down" src="images/down-arrow.svg"></span><br/><div><small><span class="count">0</span> of '+count+' Image'+((count>1)?'s':'')+' done.</small></div></div><div class="collapsible show"></div>'
-    batchStatus.addEventListener('click', collapseToggle)
+    batchStatus.innerHTML = '<div class="batchHeader"><a href="#" onclick="showBatch(\''+requestID+'\');event.stopPropagation();">Batch '+requestID+'</a><span class="f-right"><img width="15" class="arrow down" src="images/down-arrow.svg"></span><br/><div><small><span class="count">0 of '+count+' Image'+((count>1)?'s':'')+' done.</span></small></div></div><div class="collapsible show"></div>'
+    batchStatus.querySelector('.batchHeader').addEventListener('click', collapseToggle)
     textOutput.prepend(batchStatus);
     const batchDetails = document.createElement("div")
     batchDetails.classList.add('batchDetails')
@@ -298,6 +313,7 @@ function loopBatch(){
         render(tasks[imgID])
         .then((taskResult) => {
             if(taskResult.output){
+                setRows(imageOutput.querySelector('#i'+tasks[imgID].batchID))
                 let imgData = taskResult.output.slice(-1);
                 const img = document.createElement("div");
                 img.classList.add('img')
@@ -306,7 +322,7 @@ function loopBatch(){
                 //img.style.width = 100/Math.floor(Math.ceil(Math.sqrt(count)),10)+"%"
                 //img.style.height = 100/Math.floor(Math.ceil(Math.sqrt(count)),10)+"%"
                 imageOutput.querySelector('#i'+tasks[imgID].batchID).appendChild(img);
-                img.addEventListener('click', function(){this.classList.toggle('enlarge')})
+                img.addEventListener('click', function(){focusImage(this)})
                 img.addEventListener('mouseover', function(){
                     document.getElementById('ti_'+imgID).classList.add('highlight')
                 })
@@ -324,6 +340,16 @@ function loopBatch(){
         
     }
    
+}
+
+function focusImage(img){
+    let statusBlock = textOutput.querySelector('#t'+img.id+' .collapsible')
+    if(img.classList.contains('enlarge')){
+        statusBlock.classList.remove('show')
+    }else{
+        statusBlock.classList.add('show')
+    }
+    img.classList.toggle('enlarge')
 }
 
 
@@ -621,12 +647,18 @@ updateKeys = function(e){
 }
 
 function showLog(){
-    textOutput.classList.toggle('show')
+    
+    if(textOutput.classList.contains('show')){
+        textOutput.classList.remove('show')
+        imageOutput.querySelector('.batchContainer.active').focus()
+    }else{
+        textOutput.classList.add('show')
+    }
 }
 
 function collapseToggle(event) {
-    this.querySelector('.collapsible').classList.toggle('show')
-    this.querySelector('.arrow').classList.toggle('down')
+    this.parentElement.querySelector('.collapsible').classList.toggle('show')
+    this.parentElement.querySelector('.arrow').classList.toggle('down')
     event.stopImmediatePropagation()
 }
 

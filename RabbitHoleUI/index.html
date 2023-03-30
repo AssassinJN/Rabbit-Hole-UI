@@ -178,20 +178,20 @@
 					<option value="ddim">DDIM</option>
 					<option value="heun">Heun</option>
 					<option value="euler">Euler</option>
-					<option value="euler_a" selected>Euler Ancestral</option>
+					<option value="euler_a" selected="">Euler Ancestral</option>
 					<option value="dpm2">DPM2</option>
 					<option value="dpm2_a">DPM2 Ancestral</option>
 					<option value="lms">LMS</option>
 					<option value="dpm_solver_stability">DPM Solver (Stability AI)</option>
-					<option value="dpmpp_2s_a">DPM++ 2s Ancestral</option>
-					<option value="dpmpp_2m">DPM++ 2m</option>
-					<option value="dpmpp_sde">DPM++ SDE</option>
-					<option value="dpm_fast">DPM Fast</option>
-					<option value="dpm_adaptive">DPM Adaptive</option>
+					<option value="dpmpp_2s_a">DPM++ 2s Ancestral (Karras)</option>
+					<option value="dpmpp_2m">DPM++ 2m (Karras)</option>
+					<option value="dpmpp_sde">DPM++ SDE (Karras)</option>
+					<option value="dpm_fast">DPM Fast (Karras)</option>
+					<option value="dpm_adaptive">DPM Adaptive (Karras)</option>
 					<option value="unipc_snr">UniPC SNR</option>
 					<option value="unipc_tu">UniPC TU</option>
 					<option value="unipc_snr_2">UniPC SNR 2</option>
-					<option value="unipc_tu_2">UniPC TC 2</option>
+					<option value="unipc_tu_2">UniPC TU 2</option>
 					<option value="unipc_tq">UniPC TQ</option>
 				</select>
 				<label for="use_stable_diffusion_model">Model: </label>
@@ -215,6 +215,10 @@
 				</select>
 				<label for="image_count">Max Images: </label>
 				<input type="number" id="image_count" value="1" />
+				<label for="prompt_strength">Prompt Strength (%): </label>
+				<input type="number" id="prompt_strength" value="10" />
+				<label for="lora_alpha">LORA Alpha (%): </label>
+				<input type="number" id="lora_alpha" value="10" />
 			</div>
 			<div class="footer">
 				<button class="" onclick="saveFavorite(event)">Save as Favorite</button>
