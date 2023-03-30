@@ -2,6 +2,7 @@ var textOutput = document.querySelector('#textOutput');
 var imageOutput = document.querySelector('#imageOutput');
 var newBatchButton = document.querySelector('#newBatch');
 var newTestButton = document.querySelector('#newTest');
+var newHyperButton = document.querySelector('#newHyperImage');
 
 let tempToday = new Date()
 const offset = tempToday.getTimezoneOffset()
@@ -13,6 +14,7 @@ let models = []
 let gfpgans = []
 let hypernetworks = []
 let vaes = []
+let loras = []
 let tasks = []
  
 const RABBIT_HOLE_ID = 'rh-'+today
@@ -50,6 +52,7 @@ function loadDefaults() {
         "use_upscale" : document.getElementById('use_upscale').value,
         "use_hypernetwork_model" : document.getElementById('use_hypernetwork_model').value,
         "use_vae_model" : document.getElementById('use_vae_model').value,
+        "use_lora_model" : document.getElementById('use_lora_model').value,
         //"session_id" : RABBIT_HOLE_ID, //document.getElementById('session_id').value,
         "seed" : parseInt(document.getElementById('seed').value),
         "sampler_name" : document.getElementById('sampler_name').value,
@@ -93,10 +96,16 @@ function addTask(renderType, inputTask, batchID, imgID){
     task.batchID = batchID
     textOutput.querySelector('#t'+batchID+' .batchDetails .collapsible').innerHTML = toHTML(task, 'batch')
     if(renderType == 'test'){
-        task.use_upscale = '';
-        task.use_face_correction = '';
-        task.output_quality = 50,
-        task.save_to_disk_path = '';
+        task.use_upscale = ''
+        task.use_face_correction = ''
+        task.output_quality = 50
+        task.save_to_disk_path = ''
+        task.type = 'test'
+    }
+    if(renderType == 'hyper'){
+        task.use_upscale = 'RealESRGAN_x4plus'
+        task.upscale_amount = 4
+        task.type = 'hyper'
     }
     if(document.getElementById('session_id').value){
         task.sessionId = document.getElementById('session_id').value;
@@ -115,8 +124,8 @@ function addTask(renderType, inputTask, batchID, imgID){
     tasks[imgID] = task
 }
 
-async function render(task, renderType)  {
-    if(renderType == 'outOfMemory'){
+async function render(task)  {
+    if(task.type == 'outOfMemory'){
         var hwratio = task.height/task.width;
         if(task.height>=task.width){
             task.width = task.width/64 - 1
@@ -141,8 +150,10 @@ async function render(task, renderType)  {
         "show_only_filtered_image": task.show_only_filtered_image,
         "use_face_correction": task.use_face_correction,
         "use_upscale": task.use_upscale,
+        "upscale_amount": task.upscale_amount,
         "use_hypernetwork_model" : task.use_hypernetwork_model,
         "use_vae_model" : task.use_vae_model,
+        "use_lora_model" : task.use_lora_model,
         "session_id": task.session_id,
         "request_id": task.requestID,
         "seed": task.seed,
@@ -152,37 +163,59 @@ async function render(task, renderType)  {
         "output_quality": task.output_quality,
         "save_to_disk_path": task.save_to_disk_path,
         "metadata_output_format": task.metadata_output_format,
-        "stream_image_progress": false
-        }, function(event) {
-            if ('update' in event) {
-                const stepUpdate = event.update
-                
-                if(stepUpdate.step){
-                    task.statusContainer.innerHTML = 'Rendering...<span style="float:right;">'+stepUpdate.step + ' of ' + stepUpdate.total_steps + '</span>';
-                    task.statusContainer.setAttribute('style','--img-done: '+(stepUpdate.step/stepUpdate.total_steps))
-                }else if(stepUpdate.status == 'succeeded'){
-                    task.statusContainer.innerHTML = 'Render Complete <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span><br/><div class="collapsible">'+ toHTML(task, 'image') +'</div>';
-                    task.statusContainer.addEventListener('click', collapseToggle)
-                    task.statusContainer.setAttribute('style','--img-done: 1')
-                    task.statusContainer.classList.add('done')
-                    let batchContainer = task.statusContainer.closest('.batchStatus')
-                    batchContainer.querySelector('.count').innerHTML = parseInt(batchContainer.querySelectorAll('.done').length)
-                }
+        "stream_image_progress": false,
+        "original_prompt": task.original_prompt,
+        "init_image": task.init_image,
+        "prompt_strength": task.prompt_strength
+    }, function(event) {
+        if ('update' in event) {
+            const stepUpdate = event.update
+            
+            if(stepUpdate.step){
+                task.statusContainer.innerHTML = 'Rendering...<span style="float:right;">'+stepUpdate.step + ' of ' + stepUpdate.total_steps + '</span>';
+                task.statusContainer.setAttribute('style','--img-done: '+(stepUpdate.step/stepUpdate.total_steps))
+            }else if(stepUpdate.status == 'succeeded'){
+                task.statusContainer.innerHTML = 'Render Complete <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span><br/><div class="collapsible">'+ toHTML(task, 'image') +'</div>';
+                task.statusContainer.addEventListener('click', collapseToggle)
+                task.statusContainer.setAttribute('style','--img-done: 1')
+                task.statusContainer.classList.add('done')
+                let batchContainer = task.statusContainer.closest('.batchStatus')
+                batchContainer.querySelector('.count').innerHTML = parseInt(batchContainer.querySelectorAll('.done').length)
+            }
 
-                if(stepUpdate.status == 'failed'){
-                    if(stepUpdate.detail.includes('CUDA out of memory.')){
-                        console.log('out of memory error, try again')
-                        error = "outOfMemory"
-                    }else{
-                        task.statusContainer.innerHTML = 'Render Failed <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span><br/><div class="collapsible">'+ toHTML(task) +'</div>';
-                        task.statusContainer.addEventListener('click', collapseToggle)
-                    }
+            if(stepUpdate.status == 'failed'){
+                if(stepUpdate.detail.includes('CUDA out of memory.')){
+                    console.log('out of memory error, try again')
+                    error = "outOfMemory"
+                }else{
+                    task.statusContainer.innerHTML = 'Render Failed <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span><br/><div class="collapsible">'+ toHTML(task) +'</div>';
+                    task.statusContainer.addEventListener('click', collapseToggle)
                 }
             }
-        })
-        
+        }
+    })
+    if(task.type == 'hyper'){
+        console.log(result.output[0].data)
+        let imgData = result.output.slice(-1);
+        task.type = 'img2img'
+        task.sampler_name = 'ddim';
+        task.prompt_strength = 0.1;
+        task.init_image = imgData[0].data;
+        task.use_upscale = 'RealESRGAN_x4plus'
+        task.upscale_amount = 4
+        task.height = task.height * 4
+        task.width = task.width * 4
+        task.original_prompt = task.prompt
+        task.use_lora_model = ''
+        task.use_hypernetwork_model = ''
+        /*if(maskSetting.checked == false){
+            delete task.mask;
+        }*/
+        return(render(task))
+    }
     if(error == "outOfMemory"){
-        return(render(task, 'outOfMemory'))
+        task.type = 'outOfMemory'
+        return(render(task))
     }
     recordTask(task, 'history')
     
@@ -212,7 +245,7 @@ function newRenderBatch(renderType){
     
     if(oldImageContainer){oldImageContainer.classList.remove('active');}
     let count = document.getElementById('image_count').value
-    if(renderType == 'test'){
+    if(renderType == 'test' || renderType == 'hyper'){
         count = 1
     }
     let rows = 1
@@ -339,6 +372,7 @@ promptInputs.forEach(input => {
 });
 newBatchButton.addEventListener('click', newRenderBatch);
 newTestButton.addEventListener('click', function(){newRenderBatch('test')}, false);
+newHyperButton.addEventListener('click', function(){newRenderBatch('hyper')}, false);
 
 function updateSelects(){
     if(gfpgans.length > 0){
@@ -365,6 +399,12 @@ function updateSelects(){
         document.getElementById('use_vae_model').innerHTML += '<option value="'+vae+'">'+vae+'</option>'
     })
     document.getElementById('use_vae_model').value = RabbitHoleUI.currentPrompt.use_vae_model
+
+    document.getElementById('use_lora_model').innerHTML = '<option>None</option>'
+    loras.forEach(lora => {
+        document.getElementById('use_lora_model').innerHTML += '<option value="'+lora+'">'+lora+'</option>'
+    })
+    document.getElementById('use_lora_model').value = RabbitHoleUI.currentPrompt.use_lora_model
 }
 
 async function rhLoadModels() {
@@ -376,10 +416,12 @@ async function rhLoadModels() {
         let gfpganOptions = modelOptions['gfpgan']
         let hypernetworkOptions = modelOptions['hypernetwork']
         let vaeOptions = modelOptions['vae']
+        let loraOptions = modelOptions['lora']
         models = []
         gfpgans = []
         hypernetworks = []
         vaes = []
+        loras = []
         stableDiffusionOptions.forEach(modelName => {
             if(Array.isArray(modelName)){
                 modelName[1].forEach(subModel => {
@@ -419,6 +461,16 @@ async function rhLoadModels() {
                 vaes.push(vaeName);
             }
         })}
+        if(loraOptions){
+            loraOptions.forEach(loraName => {
+                if(Array.isArray(loraName)){
+                    loraName[1].forEach(sublora => {
+                        loras.push(loraName[0]+"/"+sublora);
+                    })
+                } else {
+                    loras.push(loraName);
+                }
+            })}
         updateSelects();
     } catch (e) {
         console.log('get models error', e)

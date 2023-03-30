@@ -10,6 +10,7 @@ var RabbitHoleUI = {
         use_upscale : document.getElementById('use_upscale').value,
         use_hypernetwork_model : document.getElementById('use_hypernetwork_model').value,
         use_vae_model : document.getElementById('use_vae_model').value,
+        use_lora_model : document.getElementById('use_lora_model').value,
         session_id : document.getElementById('session_id').value,
         seed : document.getElementById('seed').value,
         sampler_name : document.getElementById('sampler_name').value,
@@ -35,6 +36,7 @@ function save(){
             use_upscale : document.getElementById('use_upscale').value,
             use_hypernetwork_model : document.getElementById('use_hypernetwork_model').value,
             use_vae_model : document.getElementById('use_vae_model').value,
+            use_lora_model : document.getElementById('use_lora_model').value,
             session_id : document.getElementById('session_id').value,
             seed : document.getElementById('seed').value,
             sampler_name : document.getElementById('sampler_name').value,
@@ -63,6 +65,7 @@ function load() {
     document.getElementById('use_upscale').value = RabbitHoleUI.currentPrompt.use_upscale
     document.getElementById('use_hypernetwork_model').value = RabbitHoleUI.currentPrompt.use_hypernetwork_model
     document.getElementById('use_vae_model').value = RabbitHoleUI.currentPrompt.use_vae_model
+    document.getElementById('use_lora_model').value = RabbitHoleUI.currentPrompt.use_lora_model
     document.getElementById('session_id').value = RabbitHoleUI.currentPrompt.session_id
     document.getElementById('seed').value = RabbitHoleUI.currentPrompt.seed
     document.getElementById('sampler_name').value = RabbitHoleUI.currentPrompt.sampler_name

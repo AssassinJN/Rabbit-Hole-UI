@@ -164,6 +164,7 @@
 				<label for="use_upscale">Use Upscaler: </label>
 				<select id="use_upscale">
 					<option value="RealESRGAN_x4plus" selected>RealESRGAN_x4plus</option>
+					<option value="RealESRGAN_x4plus_anime_6B">RealESRGAN_x4plus_anime_6B</option>
 					<option value="">None</option>
 				</select>
 				<label for="session_id">Save Folder Name: </label>
@@ -199,6 +200,8 @@
 				<select id="use_hypernetwork_model"></select>
 				<label for="use_vae_model">VAE: </label>
 				<select id="use_vae_model"></select>
+				<label for="use_lora_model">LORA: </label>
+				<select id="use_lora_model"></select>
 				<label for="guidance_scale">Guidance Scale: </label>
 				<input type="number" id="guidance_scale" value="7" />
 				<label for="output_quality">Output Quality: </label>
@@ -220,6 +223,7 @@
 		</div>
 		<div id="bottom-bar">
 			<ul>
+				<li><button id="newHyperImage" alt="Start Hyper Image">Start Hyper Image</button><button class="reflection">Start Hyper Image</button></li>
 				<li><button id="newBatch" class="primary" alt="Start New Bath">Start New Batch</button><button class="reflection primary">Start New Batch</button></li>
 				<li><button id="newTest" alt="Start Test Image">Start Test Image</button><button class="reflection">Start Test Image</button></li>
 				
