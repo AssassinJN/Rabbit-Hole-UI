@@ -142,10 +142,11 @@ async function render(task)  {
     }else if (task.type == 'hyper'){
         task.save_to_disk_path = ''
     }
+    let combinedPrompt = loadModelText(task.use_stable_diffusion_model)+loadModelText(task.use_hypernetwork_model)+loadModelText(task.use_vae_model)+loadModelText(task.use_lora_model)+task.prompt
     SD.sessionId = task.sessionId;
     let error = ""
     const result = await SD.render({
-        "prompt": task.prompt,
+        "prompt": combinedPrompt,
         "negative_prompt": task.negative_prompt,
         "width": task.width,
         "height": task.height,
@@ -382,13 +383,30 @@ function saveImage(){
 }
 
 function showPromptEditor() {
+    closeModal()
     var promptEditor = document.getElementById('prompt-editor')
     promptEditor.classList.add('show')
 }
+function showFileSettings() {
+    closeModal()
+    var fileSettings = document.getElementById('file-settings')
+    fileSettings.classList.add('show')
+}
+function showModelManager() {
+    closeModal()
+    var modelManager = document.getElementById('model-manager')
+    modelManager.classList.add('show')
+    document.getElementById('txt_stable_diffusion').value = loadModelText(document.getElementById('txt_stable_diffusion_model').value).slice(0,-2)
+    document.getElementById('txt_hypernetwork').value = loadModelText(document.getElementById('txt_hypernetwork_model').value).slice(0,-2)
+    document.getElementById('txt_vae').value = loadModelText(document.getElementById('txt_vae_model').value).slice(0,-2)
+    document.getElementById('txt_lora').value = loadModelText(document.getElementById('txt_lora_model').value).slice(0,-2)
+}
 
 
-function closeModal(event) {
-    event.target.closest('.modal').classList.remove('show');
+function closeModal() {
+    if(document.querySelector('.modal.show')){
+        document.querySelector('.modal.show').classList.remove('show');
+    }
 }
 
 var promptInputs = document.querySelectorAll('#prompt-editor input, #prompt-editor textarea, #prompt-editor select')
@@ -396,6 +414,20 @@ promptInputs.forEach(input => {
     input.addEventListener('input', save);
     input.addEventListener('change', save);
 });
+var modelManagerInputs = document.querySelectorAll('#model-manager input')
+modelManagerInputs.forEach(input => {
+    input.addEventListener('input', save);
+    input.addEventListener('change', save);
+});
+var modelManagerInputs = document.querySelectorAll('#model-manager select')
+modelManagerInputs.forEach(input => {
+    input.addEventListener('change', function(){
+        modelText = loadModelText(this.value).slice(0,-2)
+        target = this.id.slice(0, -6)
+        document.getElementById('model-manager').querySelector('#'+target).value = modelText
+    });
+});
+
 newBatchButton.addEventListener('click', newRenderBatch);
 newTestButton.addEventListener('click', function(){newRenderBatch('test')}, false);
 newHyperButton.addEventListener('click', function(){newRenderBatch('hyper')}, false);
@@ -411,24 +443,28 @@ function updateSelects(){
     document.getElementById('use_stable_diffusion_model').innerHTML = '<option value="random">Random</option>'
     models.forEach(model => {
         document.getElementById('use_stable_diffusion_model').innerHTML += '<option value="'+model+'">'+model+'</option>'
+        document.getElementById('txt_stable_diffusion_model').innerHTML += '<option value="'+model+'">'+model+'</option>'
     })
     document.getElementById('use_stable_diffusion_model').value = RabbitHoleUI.currentPrompt.use_stable_diffusion_model
 
     document.getElementById('use_hypernetwork_model').innerHTML = '<option>None</option>'
     hypernetworks.forEach(hypernetwork => {
         document.getElementById('use_hypernetwork_model').innerHTML += '<option value="'+hypernetwork+'">'+hypernetwork+'</option>'
+        document.getElementById('txt_hypernetwork_model').innerHTML += '<option value="'+hypernetwork+'">'+hypernetwork+'</option>'
     })
     document.getElementById('use_hypernetwork_model').value = RabbitHoleUI.currentPrompt.use_hypernetwork_model
 
     document.getElementById('use_vae_model').innerHTML = '<option>None</option>'
     vaes.forEach(vae => {
         document.getElementById('use_vae_model').innerHTML += '<option value="'+vae+'">'+vae+'</option>'
+        document.getElementById('txt_vae_model').innerHTML += '<option value="'+vae+'">'+vae+'</option>'
     })
     document.getElementById('use_vae_model').value = RabbitHoleUI.currentPrompt.use_vae_model
 
     document.getElementById('use_lora_model').innerHTML = '<option>None</option>'
     loras.forEach(lora => {
         document.getElementById('use_lora_model').innerHTML += '<option value="'+lora+'">'+lora+'</option>'
+        document.getElementById('txt_lora_model').innerHTML += '<option value="'+lora+'">'+lora+'</option>'
     })
     document.getElementById('use_lora_model').value = RabbitHoleUI.currentPrompt.use_lora_model
 }

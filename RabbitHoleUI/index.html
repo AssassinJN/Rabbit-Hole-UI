@@ -43,7 +43,8 @@
 				</li>
 				<li><a href="#">Settings</a>
 					<ul>
-						<li><a href="">File Settings</a></li>
+						<li><a href="#" onclick="showFileSettings()">File Settings</a></li>
+						<li><a href="#" onclick="showModelManager()">Model Manager</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -208,7 +209,7 @@
 				<input type="number" id="output_quality" value="100" />
 				<label for="save_to_disk_path">Save Disk Path: </label>
 				<input type="text" id="save_to_disk_path" value="j:/output" />
-				<label for="metadata_output_format">Model: </label>
+				<label for="metadata_output_format">Meta Filetype: </label>
 				<select id="metadata_output_format">
 					<option value="json" selected>JSON</option>
 					<option value="txt">TXT</option>
@@ -225,6 +226,36 @@
 				<button class="close-button" onclick="closeModal(event)">Done</button>
 			</div>
 		</div>
+		<div id="file-settings" class="modal">
+			<div class="header">File Settings</div>
+			<div class="body">
+				
+			</div>
+			<div class="footer">
+				<button class="close-button" onclick="closeModal(event)">Done</button>
+			</div>
+		</div>
+		<div id="model-manager" class="modal">
+			<div class="header">Model Manager</div>
+			<div class="body">
+				<p>Here you can set some keyword to auto insert into your prompt for various models.</p>
+				<label for="txt_stable_diffusion_model">Model: </label>
+				<select id="txt_stable_diffusion_model"></select>
+				<input type="text" id="txt_stable_diffusion" class="long-text" />
+				<label for="txt_hypernetwork_model">Hypernetwork: </label>
+				<select id="txt_hypernetwork_model"></select>
+				<input type="text" id="txt_hypernetwork" class="long-text" />
+				<label for="txt_vae_model">VAE: </label>
+				<select id="txt_vae_model"></select>
+				<input type="text" id="txt_vae" class="long-text" />
+				<label for="txt_lora_model">LORA: </label>
+				<select id="txt_lora_model"></select>
+				<input type="text" id="txt_lora" class="long-text" />
+			</div>
+			<div class="footer">
+				<button class="close-button" onclick="closeModal(event)">Done</button>
+			</div>
+		</div>
 		<div id="bottom-bar">
 			<ul>
 				<li><button id="newHyperImage" alt="Start Hyper Image">Start Hyper Image</button><button class="reflection">Start Hyper Image</button></li>
@@ -234,7 +265,7 @@
 			</ul>
 		</div>
 			
-		</div></div>
+
 	</body>
 	<script src="js/utils.js"></script>
 	<script src="js/localData.js"></script>

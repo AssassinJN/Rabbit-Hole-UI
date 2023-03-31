@@ -19,7 +19,9 @@ var RabbitHoleUI = {
         output_quality : document.getElementById('output_quality').value,
         save_to_disk_path : document.getElementById('save_to_disk_path').value,
         metadata_output_format : document.getElementById('metadata_output_format').value,
-        image_count : document.getElementById('image_count').value
+        image_count : document.getElementById('image_count').value,
+        prompt_strength : document.getElementById('prompt_strength').value,
+        lora_alpha : document.getElementById('lora_alpha').value,
     }
 };
 
@@ -45,9 +47,35 @@ function save(){
             output_quality : document.getElementById('output_quality').value,
             save_to_disk_path : document.getElementById('save_to_disk_path').value,
             metadata_output_format : document.getElementById('metadata_output_format').value,
-            image_count : document.getElementById('image_count').value
-        }
+            image_count : document.getElementById('image_count').value,
+            prompt_strength : document.getElementById('prompt_strength').value,
+            lora_alpha : document.getElementById('lora_alpha').value,
+        },
+        model_keywords : JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords
     };
+    if(!RabbitHoleUI.model_keywords){
+        RabbitHoleUI.model_keywords = {}
+    }
+    if(document.getElementById('txt_stable_diffusion').value == ''){
+        delete RabbitHoleUI.model_keywords[document.getElementById('txt_stable_diffusion_model').value]
+    }else{
+        RabbitHoleUI.model_keywords[document.getElementById('txt_stable_diffusion_model').value] = document.getElementById('txt_stable_diffusion').value+', '
+    }
+    if(document.getElementById('txt_hypernetwork').value == ''){
+        delete RabbitHoleUI.model_keywords[document.getElementById('txt_hypernetwork_model').value]
+    }else{
+        RabbitHoleUI.model_keywords[document.getElementById('txt_hypernetwork_model').value] = document.getElementById('txt_hypernetwork').value+', '
+    }
+    if(document.getElementById('txt_vae').value == ''){
+        delete RabbitHoleUI.model_keywords[document.getElementById('txt_vae_model').value]
+    }else{
+        RabbitHoleUI.model_keywords[document.getElementById('txt_vae_model').value] = document.getElementById('txt_vae').value+', '
+    }
+    if(document.getElementById('txt_lora').value == ''){
+        delete RabbitHoleUI.model_keywords[document.getElementById('txt_lora_model').value]
+    }else{
+        RabbitHoleUI.model_keywords[document.getElementById('txt_lora_model').value] = document.getElementById('txt_lora').value+', '
+    }
     localStorage.setItem('RabbitHoleUI', JSON.stringify(RabbitHoleUI));
 }
 function load() {
@@ -75,6 +103,15 @@ function load() {
     document.getElementById('save_to_disk_path').value = RabbitHoleUI.currentPrompt.save_to_disk_path
     document.getElementById('metadata_output_format').value = RabbitHoleUI.currentPrompt.metadata_output_format
     document.getElementById('image_count').value = RabbitHoleUI.currentPrompt.image_count
+    document.getElementById('prompt_strength').value = RabbitHoleUI.currentPrompt.prompt_strength
+    document.getElementById('lora_alpha').value = RabbitHoleUI.currentPrompt.lora_alpha
+}
+function loadModelText(modelName){
+    let model_keywords = JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords
+    if(model_keywords[modelName]){
+        return(model_keywords[modelName])
+    }
+    return('');
 }
 function setup() {
 	//If local storage doesn't exist, save a copy, else load existing.
