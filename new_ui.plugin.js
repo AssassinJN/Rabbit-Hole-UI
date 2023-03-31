@@ -1383,7 +1383,7 @@ function addSettingsTabInfo(){
 				</div>
 			</div>
 		</div>
-		<p>Don't expect this to have everything: <a href="/plugins/user/RabbitHoleUI/index.html">New RabbitHoleUI Alpha</a></p>
+		<p>Don't expect this to have everything: <a href="/plugins/user/RabbitHoleUI/index.html" target="_rh">New RabbitHoleUI Alpha</a></p>
 		<p>These settings auto-save, reload browser after changing.</p>
 			
 
