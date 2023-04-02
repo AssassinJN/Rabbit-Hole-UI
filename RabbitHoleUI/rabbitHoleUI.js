@@ -34,7 +34,16 @@ async function startServer() {
 function rhSetup(){
     rhLoadModels()
     startServer()
-    setBeta()
+
+    changeAppConfig({
+        //'render_devices': getCurrentRenderDeviceSelection(),
+        'update_branch': 'beta',
+        //'ui_open_browser_on_start': uiOpenBrowserOnStartField.checked,
+        //'listen_to_network': listenToNetworkField.checked,
+        //'listen_port': listenPortField.value,
+        'test_diffusers': document.getElementById('use_test_samplers').value
+    })
+
     setup()
 }
 
@@ -53,6 +62,7 @@ function loadDefaults() {
         "use_hypernetwork_model" : document.getElementById('use_hypernetwork_model').value,
         "use_vae_model" : document.getElementById('use_vae_model').value,
         "use_lora_model" : document.getElementById('use_lora_model').value,
+        "lora_alpha" : Math.round(document.getElementById('lora_alpha').value)*.01,
         //"session_id" : RABBIT_HOLE_ID, //document.getElementById('session_id').value,
         "seed" : parseInt(document.getElementById('seed').value),
         "sampler_name" : document.getElementById('sampler_name').value,
@@ -210,7 +220,6 @@ async function render(task)  {
         task.type = 'img2img'
         task.sampler_name = 'ddim';
         task.prompt_strength = Math.round(document.getElementById('prompt_strength').value)*.01;
-        task.lora_alpha = Math.round(document.getElementById('lora_alpha').value)*.01;
         task.lora_alpha = Math.round(document.getElementById('lora_alpha').value)*.01;
         task.init_image = imgData[0].data;
         task.use_upscale = 'RealESRGAN_x4plus'
@@ -387,10 +396,10 @@ function showPromptEditor() {
     var promptEditor = document.getElementById('prompt-editor')
     promptEditor.classList.add('show')
 }
-function showFileSettings() {
+function showGeneralSettings() {
     closeModal()
-    var fileSettings = document.getElementById('file-settings')
-    fileSettings.classList.add('show')
+    var generalSettings = document.getElementById('general-settings')
+    generalSettings.classList.add('show')
 }
 function showModelManager() {
     closeModal()
@@ -409,7 +418,7 @@ function closeModal() {
     }
 }
 
-var promptInputs = document.querySelectorAll('#prompt-editor input, #prompt-editor textarea, #prompt-editor select')
+var promptInputs = document.querySelectorAll('#prompt-editor input, #prompt-editor textarea, #prompt-editor select, #general-settings input')
 promptInputs.forEach(input => {
     input.addEventListener('input', save);
     input.addEventListener('change', save);
@@ -539,25 +548,18 @@ async function rhLoadModels() {
     }
 }
 
-async function setBeta(){
-    /*if (!isServerAvailable()) {
-        // logError('The server is still starting up..')
-        const tryagain = setTimeout(setBeta, 3000)
-        return false
-    }*/
+async function changeAppConfig(configDelta) {
     try {
         let res = await fetch('/app_config', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                'update_branch': "beta"
-            })
+            body: JSON.stringify(configDelta)
         })
         res = await res.json()
-    
-        //console.log('set config status response', res)
+
+        console.log('set config status response', res)
     } catch (e) {
         console.log('set config status error', e)
     }

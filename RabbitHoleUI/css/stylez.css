@@ -207,8 +207,19 @@ ul, li { padding:0; margin:0; }
 .modal .body {
     padding:15px;
 }
+.modal .body .row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}
+.modal .body .col {
+    flex-direction: column;
+    flex-basis: 100%;
+    flex: 1;
+    padding:0 5px;
+}
 .modal .body textarea {
-    width:calc(100% - 7px);
     height:80px;
 }
 .modal .footer {
@@ -218,10 +229,10 @@ ul, li { padding:0; margin:0; }
 }
 .modal label {
     display:inline-block;
-    width:20%;
     height:30px;
     line-height:30px;
     margin:3px 0;
+    white-space: nowrap;
 }
 .modal input, .modal select {
     display:inline-block;
@@ -229,15 +240,23 @@ ul, li { padding:0; margin:0; }
     line-height:30px;
 }
 .modal input.long-text {
-    width:calc(50% - 10px);
     height:26px;
 }
 .modal select.multi {
     height:100px;
     margin:3px 0;
 }
-.modal input {width: calc(30% - 16px);}
-.modal select {width: calc(30% - 10px);}
+.modal label { width:40%; }
+.modal input { width: calc(60% - 11px); }
+.modal input.long-text { width:calc(100% - 5px); }
+.modal select { width: calc(60% - 5px); }
+.modal .body textarea { width:calc(100% - 7px); }
+.modal#model-manager label { width:15%; }
+.modal#model-manager select { width:35%; }
+.modal#model-manager input { width:calc(50% - 15px); }
+
+
+
 input, textarea, select {
     border:1px solid #999999;
 }

@@ -22,6 +22,9 @@ var RabbitHoleUI = {
         image_count : document.getElementById('image_count').value,
         prompt_strength : document.getElementById('prompt_strength').value,
         lora_alpha : document.getElementById('lora_alpha').value,
+    },
+    generalSettings : {
+        use_test_samplers : document.getElementById('use_test_samplers').value
     }
 };
 
@@ -51,7 +54,10 @@ function save(){
             prompt_strength : document.getElementById('prompt_strength').value,
             lora_alpha : document.getElementById('lora_alpha').value,
         },
-        model_keywords : JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords
+        model_keywords : JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords,
+        generalSettings : {
+            use_test_samplers : document.getElementById('use_test_samplers').value
+        }
     };
     if(!RabbitHoleUI.model_keywords){
         RabbitHoleUI.model_keywords = {}
@@ -105,6 +111,11 @@ function load() {
     document.getElementById('image_count').value = RabbitHoleUI.currentPrompt.image_count
     document.getElementById('prompt_strength').value = RabbitHoleUI.currentPrompt.prompt_strength
     document.getElementById('lora_alpha').value = RabbitHoleUI.currentPrompt.lora_alpha
+    document.getElementById('use_test_samplers').value = RabbitHoleUI.generalSettings.use_test_samplers
+    if(RabbitHoleUI.generalSettings.use_test_samplers == 'true'){
+        let non_lora_samplers = document.getElementById('non-lora-samplers')
+        non_lora_samplers.parentNode.removeChild(non_lora_samplers)
+    }
 }
 function loadModelText(modelName){
     let model_keywords = JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords
