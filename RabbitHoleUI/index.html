@@ -248,6 +248,13 @@
 							<option value="true" selected>TRUE</option>
 							<option value="false">FALSE</option>
 						</select>
+						<label for="display_mode">Image Display Mode: </label>
+						<select id="display_mode" onchange="setDisplay">
+							<option value="scroll" selected>Scrolling</option>
+							<option value="page">Pages</option>
+						</select>
+						<label for="delay_between">Delay Between Renders (secs): </label>
+						<input type="number" id="delay_between" value="10" />
 					</div>
 				</div>
 			</div>

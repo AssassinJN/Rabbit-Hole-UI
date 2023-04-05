@@ -59,6 +59,9 @@ ul, li { padding:0; margin:0; }
     width: 100%;
     overflow: hidden;
 }
+#imageOutput.scrollMode {
+    overflow: auto;
+}
 
 #imageOutput>div.batchContainer {
     width: 100%;
@@ -71,6 +74,10 @@ ul, li { padding:0; margin:0; }
     flex-wrap: wrap;
     z-index:10;
     opacity: 0;
+}
+#imageOutput.scrollMode>div.batchContainer {
+    position:relative;
+    opacity: 1;
 }
 #imageOutput>div div.img {
     background-repeat: no-repeat;
@@ -220,7 +227,7 @@ ul, li { padding:0; margin:0; }
     padding:0 5px;
 }
 .modal .body textarea {
-    height:80px;
+    height:150px;
 }
 .modal .footer {
     padding:10px 15px;

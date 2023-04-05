@@ -9,6 +9,7 @@ const offset = tempToday.getTimezoneOffset()
 tempToday = new Date(tempToday.getTime() - (offset*60*1000))
 let today = tempToday.toISOString().split('T')[0]
 let queue = 'stopped'
+let display_mode = document.getElementById('display_mode').value
 
 let models = []
 let gfpgans = []
@@ -43,7 +44,7 @@ function rhSetup(){
         //'listen_port': listenPortField.value,
         'test_diffusers': document.getElementById('use_test_samplers').value
     })
-
+    if(display_mode == "scroll"){imageOutput.classList.add('scrollMode')}
     setup()
 }
 
@@ -104,7 +105,7 @@ function addTask(renderType, inputTask, batchID, imgID){
         var task = loadDefaults(batchID);
     }
     task.batchID = batchID
-    textOutput.querySelector('#t'+batchID+' .batchDetails .collapsible').innerHTML = toHTML(task, 'batch')
+    console.log(task.seed)
     if(renderType == 'test'){
         task.use_upscale = ''
         task.use_face_correction = ''
@@ -122,17 +123,25 @@ function addTask(renderType, inputTask, batchID, imgID){
     }else{
         task.sessionId = RABBIT_HOLE_ID
     }
-    task.imgID = imgID
-    const requestID = "ti_" + imgID
-    const imageStatus = document.createElement("div")
-    imageStatus.classList.add('imageStatus', 'queued')
-    imageStatus.id=requestID
-    task.requestID = requestID
-    imageStatus.innerHTML = "Waiting in Queue..."
-    let batchContainer = document.getElementById('t'+batchID)
-    batchContainer.querySelector('.collapsible').append(imageStatus);
-    task.statusContainer = imageStatus
-    tasks[imgID] = task
+    let prompts = document.getElementById('prompt').value.split("\n")
+    prompts.forEach((prompt, index) => {
+        let newImgID = imgID + index
+        let tempTask = { ...task }
+        tempTask.imgID = newImgID
+        tempTask.prompt = prompt
+        textOutput.querySelector('#t'+batchID+' .batchDetails .collapsible').innerHTML = toHTML(tempTask, 'batch')
+        let requestID = "ti_" + newImgID
+        let imageStatus = document.createElement("div")
+        imageStatus.classList.add('imageStatus', 'queued')
+        imageStatus.id=requestID
+        tempTask.requestID = requestID
+        imageStatus.innerHTML = "Waiting in Queue..."
+        let batchContainer = document.getElementById('t'+batchID)
+        batchContainer.querySelector('.collapsible').append(imageStatus);
+        tempTask.statusContainer = imageStatus
+        tempTask.randoms.push('prompt')
+        tasks[newImgID] = tempTask
+    })
 }
 
 async function render(task)  {
@@ -270,6 +279,10 @@ function setRows(imgContainer){
 }
 
 function newRenderBatch(renderType){
+    if(document.getElementById('prompt').value.split("\n").length > 1){
+        renderType = 'multiPrompt'
+    }
+
     const requestID = "b_"+ new Date().getTime()
     const imgContainer = document.createElement("div")
     imgContainer.classList.add('active', 'batchContainer')
@@ -294,16 +307,20 @@ function newRenderBatch(renderType){
     batchStatus.id='t'+requestID
     batchStatus.innerHTML = '<div class="batchHeader"><a href="#" onclick="showBatch(\''+requestID+'\');event.stopPropagation();">Batch '+requestID+'</a><span class="f-right"><img width="15" class="arrow down" src="images/down-arrow.svg"></span><br/><div><small><span class="count">0 of '+count+' Image'+((count>1)?'s':'')+' done.</span></small></div></div><div class="collapsible show"></div>'
     batchStatus.querySelector('.batchHeader').addEventListener('click', collapseToggle)
-    textOutput.prepend(batchStatus);
+    textOutput.append(batchStatus);
     const batchDetails = document.createElement("div")
     batchDetails.classList.add('batchDetails')
     batchDetails.innerHTML = 'Batch Settings<span class="f-right"><img width="15" class="arrow down" src="images/down-arrow.svg"></span><br/><div class="collapsible"></div>'
     batchDetails.addEventListener('click', collapseToggle)
     batchStatus.querySelector('.collapsible').append(batchDetails);
     highlightBatch(requestID)
-
+    let lastID 
     for(let x = 1; x<=count; x++) {
         let imgID = performance.now().toString().replace('.', 7)
+        if(imgID == lastID){
+            imgID = imgID + "1"
+        }
+        lastID = imgID
         addTask(renderType, null, requestID, imgID)
     }
     loopBatch()
@@ -315,12 +332,10 @@ function loopBatch(){
     }
     let activeTask = textOutput.querySelectorAll('.imageStatus.active')
     if(activeTask.length == 0){
-        let queuedTasks = textOutput.querySelectorAll('.imageStatus.queued')
-        activeTask = queuedTasks[[queuedTasks.length - 1]]
+        let activeTask = textOutput.querySelector('.imageStatus.queued')
         activeTask.classList.remove('queued')
         activeTask.classList.add('active')
         let imgID = activeTask.id.toString().substring(3)
-        
         render(tasks[imgID])
         .then((taskResult) => {
             if(taskResult.output){
@@ -343,7 +358,7 @@ function loopBatch(){
                 activeTask.classList.remove('active')
             }
             if (textOutput.querySelectorAll('.imageStatus.queued').length > 0) {
-                loopBatch();
+                setTimeout(loopBatch, document.getElementById('delay_between').value * 1000);
             }else{
                 queue = 'stopped'
             }
@@ -582,6 +597,9 @@ function showBatch(batchID) {
     batchList.forEach(function (node, currentIndex) {
         if(node.id == 'i'+batchID){
             batchList.item(currentIndex).classList.add('active')
+            if(display_mode == 'scroll'){
+                batchList.item(currentIndex).scrollIntoView();
+            }
         }else{
             batchList.item(currentIndex).classList.remove('active')
         }
@@ -601,11 +619,16 @@ function nextBatch(){
     if(batchIndex+1 < batchList.length){
         batchList.item(batchIndex+1).classList.add('active')
         highlightBatch(batchList[batchIndex+1].id.substring(1))
+        if(display_mode == 'scroll'){
+            batchList.item(batchIndex+1).scrollIntoView();
+        }
     }else{
         batchList.item(0).classList.add('active')
         highlightBatch(batchList[0].id.substring(1))
-    }
-    
+        if(display_mode == 'scroll'){
+            batchList.item(0).scrollIntoView();
+        }
+    }    
 }
 
 function prevBatch(){
@@ -620,9 +643,15 @@ function prevBatch(){
     if(batchIndex-1 >= 0){
         batchList.item(batchIndex-1).classList.add('active')
         highlightBatch(batchList[batchIndex-1].id.substring(1))
+        if(display_mode == 'scroll'){
+            batchList.item(batchIndex-1).scrollIntoView();
+        }
     }else{
         batchList.item(batchList.length-1).classList.add('active')
         highlightBatch(batchList[batchList.length-1].id.substring(1))
+        if(display_mode == 'scroll'){
+            batchList.item(batchList.length-1).scrollIntoView();
+        }
     }
     
 }
@@ -717,6 +746,16 @@ function toHTML(task, option){
         }
     }
     return output
+}
+
+function setDisplay(){
+    display_mode = document.getElementById('display_mode').value
+    if(display_mode.value == 'scroll'){
+        imageOutput.classList.add('scrollMode')
+    }else if (display_mode.value == 'page'){
+        imageOutput.classList.remove('scrollMode')
+    }
+    
 }
 
 rhSetup();
