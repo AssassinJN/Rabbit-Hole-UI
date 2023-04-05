@@ -315,7 +315,8 @@ function loopBatch(){
     }
     let activeTask = textOutput.querySelectorAll('.imageStatus.active')
     if(activeTask.length == 0){
-        activeTask = textOutput.querySelector('.imageStatus.queued')
+        let queuedTasks = textOutput.querySelectorAll('.imageStatus.queued')
+        activeTask = queuedTasks[[queuedTasks.length - 1]]
         activeTask.classList.remove('queued')
         activeTask.classList.add('active')
         let imgID = activeTask.id.toString().substring(3)
