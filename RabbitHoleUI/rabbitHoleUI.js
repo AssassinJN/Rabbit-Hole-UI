@@ -46,7 +46,9 @@ function rhSetup(){
         'test_diffusers': document.getElementById('use_test_samplers').value
     })
     if(display_mode == "scroll"){imageOutput.classList.add('scrollMode')}
+    startServer()
     setup()
+
 }
 
 
@@ -125,6 +127,9 @@ function addTask(renderType, inputTask, batchID, imgID){
     }
     let prompts = document.getElementById('prompt').value.split("\n")
     prompts.forEach((prompt, index) => {
+        if(prompt == ''){
+            return
+        }
         let newImgID = imgID + index
         let tempTask = { ...task }
         tempTask.imgID = newImgID
@@ -634,6 +639,7 @@ function showBatch(batchID) {
 
 function nextBatch(){
     var batchList = imageOutput.querySelectorAll('.batchContainer')
+    if(batchList.length == 0){return}
     var batchIndex
     batchList.forEach(function (node, currentIndex) {
         if(node.classList.contains('active')){

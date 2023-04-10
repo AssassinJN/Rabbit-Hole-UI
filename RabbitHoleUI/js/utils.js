@@ -90,7 +90,6 @@ const TASK_MAPPING = {
     },
     width: { name: 'Width',
         setUI: (width) => {
-            console.log('width: ', width)
             const oldVal = widthField.value
             widthField.value = width
             if (!widthField.value) {
@@ -509,7 +508,6 @@ function parseTaskFromText(str) {
     }
     if (!knownKeyOnFirstLine) {
         taskReqBody.prompt = lines[0]
-        console.log('Prompt:', taskReqBody.prompt)
     }
 
     for (const key in TASK_TEXT_MAPPING) {
@@ -552,7 +550,6 @@ async function parseContent(text) {
             if (!('reqBody' in task)) { // support the format saved to the disk, by the UI
                 task.reqBody = Object.assign({}, task)
             }
-            console.log('task', task)
             restoreTaskToUI(task)
             return true
         } catch (e) {
