@@ -1,8 +1,9 @@
-var textOutput = document.querySelector('#textOutput');
-var imageOutput = document.querySelector('#imageOutput');
-var newBatchButton = document.querySelector('#newBatch');
-var newTestButton = document.querySelector('#newTest');
-var newHyperButton = document.querySelector('#newHyperImage');
+var textOutput = document.querySelector('#textOutput')
+var imageOutput = document.querySelector('#imageOutput')
+var newBatchButton = document.querySelector('#newBatch')
+var newTestButton = document.querySelector('#newTest')
+var newHyperButton = document.querySelector('#newHyperImage')
+var cancelQueueButton = document.querySelector('#cancelQueue')
 
 let tempToday = new Date()
 const offset = tempToday.getTimezoneOffset()
@@ -105,7 +106,6 @@ function addTask(renderType, inputTask, batchID, imgID){
         var task = loadDefaults(batchID);
     }
     task.batchID = batchID
-    console.log(task.seed)
     if(renderType == 'test'){
         task.use_upscale = ''
         task.use_face_correction = ''
@@ -279,10 +279,6 @@ function setRows(imgContainer){
 }
 
 function newRenderBatch(renderType){
-    if(document.getElementById('prompt').value.split("\n").length > 1){
-        renderType = 'multiPrompt'
-    }
-
     const requestID = "b_"+ new Date().getTime()
     const imgContainer = document.createElement("div")
     imgContainer.classList.add('active', 'batchContainer')
@@ -313,6 +309,11 @@ function newRenderBatch(renderType){
     batchDetails.innerHTML = 'Batch Settings<span class="f-right"><img width="15" class="arrow down" src="images/down-arrow.svg"></span><br/><div class="collapsible"></div>'
     batchDetails.addEventListener('click', collapseToggle)
     batchStatus.querySelector('.collapsible').append(batchDetails);
+    let removeButton = document.createElement("button")
+    removeButton.innerHTML = 'Remove Batch'
+    removeButton.classList.add('removeBatch')
+    removeButton.addEventListener('click', function(){removeBatch(requestID);})
+    batchDetails.append(removeButton)
     highlightBatch(requestID)
     let lastID 
     for(let x = 1; x<=count; x++) {
@@ -366,6 +367,29 @@ function loopBatch(){
         
     }
    
+}
+
+function removeBatch(requestID) {
+    let imageContainer = document.getElementById('i'+requestID)
+    let statusContainer = document.getElementById('t'+requestID)
+    imageContainer.parentNode.removeChild(imageContainer)
+    statusContainer.parentNode.removeChild(statusContainer)
+    nextBatch()
+}
+
+function cancelQueue() {
+    let cancelList = textOutput.querySelectorAll('.queued')
+    cancelList.forEach(task => {
+        task.classList.replace('queued', 'cancelled')
+        task.innerHTML = 'Cancelled.<button class="restartImageButton" onclick="restartImage(this)">Restart Image</button>'
+    })
+}
+
+function restartImage(button){
+    let task = button.parentNode;
+    task.classList.replace('cancelled', 'queued')
+    task.innerHTML = 'Waiting in Queue...'
+    loopBatch()
 }
 
 function focusImage(img){
@@ -456,6 +480,7 @@ modelManagerInputs.forEach(input => {
 newBatchButton.addEventListener('click', newRenderBatch);
 newTestButton.addEventListener('click', function(){newRenderBatch('test')}, false);
 newHyperButton.addEventListener('click', function(){newRenderBatch('hyper')}, false);
+cancelQueueButton.addEventListener('click', cancelQueue);
 
 function updateSelects(){
     if(gfpgans.length > 0){
