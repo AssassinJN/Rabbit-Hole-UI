@@ -7,3 +7,4 @@ Invoke-WebRequest -Uri https://raw.githubusercontent.com/AssassinJN/Rabbit-Hole-
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/AssassinJN/Rabbit-Hole-UI/master/RabbitHoleUI/js/utils.js -OutFile .\js\utils.js
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/AssassinJN/Rabbit-Hole-UI/master/RabbitHoleUI/images/down-arrow.svg -OutFile .\images\down-arrow.svg
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/AssassinJN/Rabbit-Hole-UI/master/RabbitHoleUI/images/more.svg -OutFile .\images\more.svg
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/AssassinJN/Rabbit-Hole-UI/master/RabbitHoleUI/updateRabbitHole.ps1 -OutFile .\updateRabbitHole.ps1
