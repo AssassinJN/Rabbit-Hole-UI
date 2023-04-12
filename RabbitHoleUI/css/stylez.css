@@ -228,6 +228,7 @@ ul, li { padding:0; margin:0; }
 #save-favorite { max-height: 150px; width:400px; }
 #general-settings { max-height: 210px; width:800px; }
 #model-manager { max-height: 290px; }
+#favorites-manager { max-height: 800px; width: 500px; }
 .modal {
     display:none;
     font-size: 14px;
@@ -235,9 +236,10 @@ ul, li { padding:0; margin:0; }
     top: 50%;
     margin-left: auto;
     margin-right: auto;
-    background: #ffffff;
-    border: 1px solid #ddd;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+    background: #eee;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    box-shadow: 2px 2px 15px rgba(0,0,0,0.6);
     z-index: 9999;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -259,6 +261,8 @@ ul, li { padding:0; margin:0; }
     bottom: 42px;
     position: absolute;
     overflow: hidden auto;
+    left:0;
+    right:0;
 }
 .modal .body .row {
     display: flex;
@@ -283,6 +287,10 @@ ul, li { padding:0; margin:0; }
     bottom: 0;
     left: 0;
     right: 0;
+}
+.modal .footer .fav-title {
+    font-style: italic;
+    font-weight: bold;
 }
 .modal label {
     display:inline-block;
@@ -326,6 +334,23 @@ input, textarea, select {
 #init_image_preview {
     max-width:100px;
     max-height:100px;
+}
+
+#favorites-manager .row {
+    height: 40px;
+    line-height: 40px;
+    border:1px solid #ccc;
+    margin-top:-1px;
+    background-color: #fff;
+}
+#favorites-manager .row:first-of-type {
+    height: 50px;
+    line-height: 50px;
+    border-bottom:1px solid #888;
+    background-color: #b7cee0;
+}
+#favorites-manager .row:nth-of-type(2n) {
+    background-color: #d7e0e9;
 }
 
 /* -------------------- Gradients ----------------------- */

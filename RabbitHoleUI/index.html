@@ -19,25 +19,7 @@
 				<li><a>Prompt</a>
 					<ul>
 						<li><a href="#" onclick="showPromptEditor()">Prompt Editor</a></li>
-						<hr />
-						<li class="parent">
-							<a href="#">Favorite Prompts</a>
-							<ul>
-								<li><a href="#">Edit Saved Prompt</a></li>
-								<hr />
-								<li><a href="#">Prompt 1</a></li>
-								<li><a href="#">Prompt 2</a></li>
-							</ul>
-						</li>
-						<!--<li class="parent">
-							<a href="#">Prompt History</a>
-							<ul>
-								<li><a href="#">Edit History</a></li>
-								<hr />
-								<li><a href="#">Prompt 1</a></li>
-								<li><a href="#">Prompt 2</a></li>
-							</ul>
-						</li>-->
+						<li><a href="#" onclick="showFavoriteModal()">Favorited Prompts</a></li>
 					</ul>
 				</li>
 				<li><a href="#">Settings</a>
@@ -233,6 +215,7 @@
 				</div>
 			</div>
 			<div class="footer">
+				<span class="fav-title"></span>
 				<button class="" onclick="showSaveFavorite(event)">Save as Favorite</button>
 				<button class="close-button" onclick="closeModal(event)">Done</button>
 			</div>
@@ -249,6 +232,15 @@
 			</div>
 			<div class="footer">
 				<button class="close-button" onclick="saveFavorite(event)">Done</button>
+			</div>
+		</div>
+		<div id="favorites-manager" class="modal">
+			<div class="header">Favorites Manager</div>
+			<div class="body">
+				
+			</div>
+			<div class="footer">
+				<button class="close-button" onclick="closeModal(event)">Done</button>
 			</div>
 		</div>
 		<div id="general-settings" class="modal">

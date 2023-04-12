@@ -27,7 +27,8 @@ var RabbitHoleUI = {
         use_test_samplers : document.getElementById('use_test_samplers').value,
         delay_between : document.getElementById('delay_between').value,
     },
-    model_keywords : JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords
+    model_keywords : JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords,
+    favorites : JSON.parse(localStorage.getItem('RabbitHoleUI')).favorites,
 };
 
 function save(){
@@ -61,6 +62,7 @@ function save(){
             delay_between : document.getElementById('delay_between').value,
         },
         model_keywords : JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords,
+        favorites : RabbitHoleUI.favorites,
     };
     if(!RabbitHoleUI.model_keywords){
         RabbitHoleUI.model_keywords = {}
@@ -120,6 +122,7 @@ function load() {
         let non_lora_samplers = document.getElementById('non-lora-samplers')
         non_lora_samplers.parentNode.removeChild(non_lora_samplers)
     }
+    loadFavorites();
 }
 function loadModelText(modelName){
     let model_keywords = JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords
@@ -146,4 +149,49 @@ function saveFavorite(event){
     localStorage.setItem('RabbitHoleUI', JSON.stringify(RabbitHoleUI))
     var saveFavoriteModal = document.getElementById('save-favorite')
     saveFavoriteModal.classList.remove('show')
+}
+
+function loadFavorites(){
+    let favorites = RabbitHoleUI.favorites
+    if(favorites){
+        document.querySelector('#favorites-manager .body').innerHTML = `
+                    <div class="row">
+                    <div class="col">
+                        Name
+                    </div>
+                    <div class="col">
+                        Actions
+                    </div>
+                </div>
+            `
+        for(var fav in favorites){
+            document.querySelector('#favorites-manager .body').innerHTML += `
+                    <div class="row">
+                    <div class="col">
+                        `+fav+`
+                    </div>
+                    <div class="col">
+                        <button onclick="loadFav('`+fav+`')">Load</button>
+                        <button onclick="delFav('`+fav+`')">Delete</button>
+                    </div>
+                </div>
+            `
+        }
+    } else {
+        document.querySelector('#favorites-manager .body').innerHTML += "<div class='row'>No Favorites Found</div>"
+    }
+}
+
+function loadFav(fav) {
+    let favorite = RabbitHoleUI.favorites[fav]
+    for(var key in favorite){
+        document.getElementById(key).value = favorite[key]
+    }
+    showPromptEditor(fav)
+}
+
+function delFav(fav) {
+    delete RabbitHoleUI.favorites[fav]
+    save()
+    loadFavorites()
 }

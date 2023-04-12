@@ -436,10 +436,17 @@ function showSaveFavorite() {
     var saveFavoriteModal = document.getElementById('save-favorite')
     saveFavoriteModal.classList.add('show')
 }
-function showPromptEditor() {
+function showFavoriteModal() {
+    closeModal()
+    var favoriteManagerModal = document.getElementById('favorites-manager')
+    favoriteManagerModal.classList.add('show')
+    loadFavorites()
+}
+function showPromptEditor(fav) {
     closeModal()
     var promptEditor = document.getElementById('prompt-editor')
     promptEditor.classList.add('show')
+    promptEditor.querySelector('.fav-title').textContent = fav
 }
 function showGeneralSettings() {
     closeModal()
@@ -465,8 +472,14 @@ function closeModal() {
 
 var promptInputs = document.querySelectorAll('#prompt-editor input, #prompt-editor textarea, #prompt-editor select, #general-settings input')
 promptInputs.forEach(input => {
-    input.addEventListener('input', save);
-    input.addEventListener('change', save);
+    input.addEventListener('input', function(){
+        document.querySelector('#prompt-editor .fav-title').textContent = ""
+        save()
+    });
+    input.addEventListener('change', function(){
+        document.querySelector('#prompt-editor .fav-title').textContent = ""
+        save()
+    });
 });
 var modelManagerInputs = document.querySelectorAll('#model-manager input')
 modelManagerInputs.forEach(input => {
@@ -628,8 +641,7 @@ function showBatch(batchID) {
         if(node.id == 'i'+batchID){
             batchList.item(currentIndex).classList.add('active')
             if(display_mode == 'scroll'){
-                console.log(batchList.item(currentIndex))
-                batchList.item(currentIndex).scrollIntoView();
+                imageOutput.scrollTo(0, batchList.item(currentIndex).offsetTop);
             }
         }else{
             batchList.item(currentIndex).classList.remove('active')
@@ -652,13 +664,13 @@ function nextBatch(){
         batchList.item(batchIndex+1).classList.add('active')
         highlightBatch(batchList[batchIndex+1].id.substring(1))
         if(display_mode == 'scroll'){
-            batchList.item(batchIndex+1).scrollIntoView();
+            imageOutput.scrollTo(0, batchList.item(batchIndex+1).offsetTop);
         }
     }else{
         batchList.item(0).classList.add('active')
         highlightBatch(batchList[0].id.substring(1))
         if(display_mode == 'scroll'){
-            batchList.item(0).scrollIntoView();
+            imageOutput.scrollTo(0, batchList.item(0).offsetTop);
         }
     }    
 }
@@ -676,14 +688,13 @@ function prevBatch(){
         batchList.item(batchIndex-1).classList.add('active')
         highlightBatch(batchList[batchIndex-1].id.substring(1))
         if(display_mode == 'scroll'){
-            batchList.item(batchIndex-1).scrollIntoView();
-            console.log(batchList.item(batchIndex-1))
+            imageOutput.scrollTo(0, batchList.item(batchIndex-1).offsetTop);
         }
     }else{
         batchList.item(batchList.length-1).classList.add('active')
         highlightBatch(batchList[batchList.length-1].id.substring(1))
         if(display_mode == 'scroll'){
-            batchList.item(batchList.length-1).scrollIntoView();
+            imageOutput.scrollTo(0, batchList.item(batchList.length-1).offsetTop);
         }
     }
     
