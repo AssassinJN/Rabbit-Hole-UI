@@ -26,7 +26,8 @@ var RabbitHoleUI = {
     generalSettings : {
         use_test_samplers : document.getElementById('use_test_samplers').value,
         delay_between : document.getElementById('delay_between').value,
-    }
+    },
+    model_keywords : JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords
 };
 
 function save(){
@@ -55,11 +56,11 @@ function save(){
             prompt_strength : document.getElementById('prompt_strength').value,
             lora_alpha : document.getElementById('lora_alpha').value,
         },
-        model_keywords : JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords,
         generalSettings : {
             use_test_samplers : document.getElementById('use_test_samplers').value,
             delay_between : document.getElementById('delay_between').value,
-        }
+        },
+        model_keywords : JSON.parse(localStorage.getItem('RabbitHoleUI')).model_keywords,
     };
     if(!RabbitHoleUI.model_keywords){
         RabbitHoleUI.model_keywords = {}
@@ -84,10 +85,10 @@ function save(){
     }else{
         RabbitHoleUI.model_keywords[document.getElementById('txt_lora_model').value] = document.getElementById('txt_lora').value+', '
     }
-    localStorage.setItem('RabbitHoleUI', JSON.stringify(RabbitHoleUI));
+    localStorage.setItem('RabbitHoleUI', JSON.stringify(RabbitHoleUI))
 }
 function load() {
-	var tempSettings = JSON.parse(localStorage.getItem('RabbitHoleUI'));
+	var tempSettings = JSON.parse(localStorage.getItem('RabbitHoleUI'))
 	for(var key in tempSettings){
 		RabbitHoleUI[key] = tempSettings[key];
 	}
@@ -134,4 +135,15 @@ function setup() {
 	}else{
 		load();
 	}
+}
+
+function saveFavorite(event){
+    RabbitHoleUI = JSON.parse(localStorage.getItem('RabbitHoleUI'))
+    if(!RabbitHoleUI.favorites){
+        RabbitHoleUI.favorites = {}
+    }
+    RabbitHoleUI.favorites[document.getElementById('new_favorite_name').value] = RabbitHoleUI.currentPrompt
+    localStorage.setItem('RabbitHoleUI', JSON.stringify(RabbitHoleUI))
+    var saveFavoriteModal = document.getElementById('save-favorite')
+    saveFavoriteModal.classList.remove('show')
 }

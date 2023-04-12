@@ -34,7 +34,7 @@ body { margin:0px; padding:0px; overflow-x:hidden; font-family:Arial, Helvetica,
 #bottom-bar ul li button.cancel { background-color:#470000; }
 #bottom-bar ul li button:hover { box-shadow:inset 0 0 40px rgba(0,0,0,0.7); }
 #bottom-bar ul li button:active { box-shadow:inset 0 0 40px rgba(255,255,255,0.3); }
-#bottom-bar ul li .reflection { position:absolute; opacity:0.2;	transform: translate(-100%, calc(100% - 17px)) scaleY(-1); filter: flipv; }
+#bottom-bar ul li .reflection { position:absolute; opacity:0.2;	transform: translate(-100%, calc(100% - 17px)) scaleY(-1); filter: flipv; color:rgba(255,255,255,0.5); }
 #bottom-bar ul li .reflection.primary { transform: translate(-100%, calc(100% - 25px)) scaleY(-1); }
 
 #bottom-bar ul li a { height:50px; width:50px; display:block; }
@@ -197,6 +197,7 @@ ul, li { padding:0; margin:0; }
     border: none;
     padding: 0;
     margin-top: 10px;
+    cursor: pointer;
 }
 
 #textOutput .restartImageButton {
@@ -209,29 +210,55 @@ ul, li { padding:0; margin:0; }
     text-decoration: underline;
 }
 
+#textOutput .batchDetails .buttonContainer {
+    padding:5px 0;
+}
+
+#textOutput .batchDetails .buttonContainer button {
+    background:none;
+    border:1px solid #fff;
+    padding:2px;
+    color:#fff;
+    border-radius:4px;
+}
+
 /* -------------------- Modals -------------------------- */
 
+#prompt-editor { max-height: 800px; }
+#save-favorite { max-height: 150px; width:400px; }
+#general-settings { max-height: 210px; width:800px; }
+#model-manager { max-height: 290px; }
 .modal {
     display:none;
-    position:fixed;
-    top:100px;
-    margin-left:auto;
-    margin-right:auto;
-    background:#ffffff;
-    border:1px solid #ddd;
-    box-shadow:2px 2px 10px rgba(0,0,0,0.4);
-    z-index:9999;
+    font-size: 14px;
+    position: absolute;
+    top: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+    z-index: 9999;
     left: 50%;
-    transform: translateX(-50%);
-    min-width:400px;
-    max-height:90%;
+    transform: translate(-50%, -50%);
+    min-width: 400px;
+    width: 950px;
+    height: calc(100% - 100px);
+    max-height: 900px;
 }
 .modal .header {
-    padding:10px 15px;
-    border-bottom:1px solid #333;
+    padding: 10px 15px;
+    border-bottom: 1px solid #333;
+    position: absolute;
+    left: 0;
+    right: 0;
 }
 .modal .body {
-    padding:15px;
+    padding: 15px;
+    top: 38px;
+    bottom: 42px;
+    position: absolute;
+    overflow: hidden auto;
 }
 .modal .body .row {
     display: flex;
@@ -249,21 +276,26 @@ ul, li { padding:0; margin:0; }
     height:150px;
 }
 .modal .footer {
-    padding:10px 15px;
-    border-top:1px solid #333;
+    padding: 10px 15px;
+    border-top: 1px solid #333;
     text-align: right;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 .modal label {
     display:inline-block;
-    height:30px;
-    line-height:30px;
+    height:25px;
+    line-height:25px;
     margin:3px 0;
     white-space: nowrap;
 }
 .modal input, .modal select {
     display:inline-block;
-    height:30px;
-    line-height:30px;
+    height:25px;
+    line-height:25px;
+    padding:0px;
 }
 .modal input.long-text {
     height:26px;
@@ -273,13 +305,13 @@ ul, li { padding:0; margin:0; }
     margin:3px 0;
 }
 .modal label { width:40%; }
-.modal input { width: calc(60% - 11px); }
+.modal input { width: calc(60% - 17px); padding:0 5px; }
 .modal input.long-text { width:calc(100% - 5px); }
 .modal select { width: calc(60% - 5px); }
 .modal .body textarea { width:calc(100% - 7px); }
 .modal#model-manager label { width:15%; }
 .modal#model-manager select { width:35%; }
-.modal#model-manager input { width:calc(50% - 15px); }
+.modal#model-manager input { width:calc(50% - 25px); }
 
 
 

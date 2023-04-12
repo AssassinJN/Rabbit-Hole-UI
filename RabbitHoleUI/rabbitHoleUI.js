@@ -144,7 +144,9 @@ function addTask(renderType, inputTask, batchID, imgID){
         let batchContainer = document.getElementById('t'+batchID)
         batchContainer.querySelector('.collapsible').append(imageStatus);
         tempTask.statusContainer = imageStatus
-        tempTask.randoms.push('prompt')
+        if(prompts.length > 1){
+            tempTask.randoms.push('prompt')
+        }
         tasks[newImgID] = tempTask
     })
 }
@@ -205,10 +207,13 @@ async function render(task)  {
                 task.statusContainer.setAttribute('style','--img-done: '+(stepUpdate.step/stepUpdate.total_steps))
             }else if(stepUpdate.status == 'succeeded' && task.type != 'hyper'){
                 task.statusContainer.innerHTML = '<div class="header">Render Complete <span class="f-right"><img width="15" class="arrow" src="images/down-arrow.svg"></span></div><div class="collapsible">'+ toHTML(task, 'image') +'</div>';
+                let buttonContainer = document.createElement('div')
+                buttonContainer.classList.add('buttonContainer')
                 let hyperButton = document.createElement("button")
                 hyperButton.innerHTML = 'HyperSize'
                 hyperButton.addEventListener('click', function(){addTask('hyper', task, task.batchID, task.imgID);loopBatch();})
-                task.statusContainer.querySelector('.collapsible').append(hyperButton)
+                buttonContainer.append(hyperButton)
+                task.statusContainer.querySelector('.collapsible').append(buttonContainer)
                 task.statusContainer.querySelector('.header').addEventListener('click', collapseToggle)
                 task.statusContainer.setAttribute('style','--img-done: 0')
                 task.statusContainer.classList.add('done')
@@ -289,7 +294,6 @@ function newRenderBatch(renderType){
     imgContainer.classList.add('active', 'batchContainer')
     imgContainer.id = 'i'+requestID
     imgContainer.tabIndex = 1
-    imgContainer.addEventListener('keydown', updateKeys)
     let removeImageContainer = imageOutput.querySelector('div.remove');
     if(removeImageContainer){removeImageContainer.remove();}
     let oldImageContainer = imageOutput.querySelector('div.active');
@@ -397,15 +401,7 @@ function restartImage(button){
     loopBatch()
 }
 
-function focusImage(img){
-    let statusBlock = textOutput.querySelector('#t'+img.id+' .collapsible')
-    if(img.classList.contains('enlarge')){
-        statusBlock.classList.remove('show')
-    }else{
-        statusBlock.classList.add('show')
-    }
-    img.classList.toggle('enlarge')
-}
+
 
 
 function saveImage(){
@@ -436,6 +432,10 @@ function saveImage(){
     imgDownload.click()
 }
 
+function showSaveFavorite() {
+    var saveFavoriteModal = document.getElementById('save-favorite')
+    saveFavoriteModal.classList.add('show')
+}
 function showPromptEditor() {
     closeModal()
     var promptEditor = document.getElementById('prompt-editor')
@@ -628,6 +628,7 @@ function showBatch(batchID) {
         if(node.id == 'i'+batchID){
             batchList.item(currentIndex).classList.add('active')
             if(display_mode == 'scroll'){
+                console.log(batchList.item(currentIndex))
                 batchList.item(currentIndex).scrollIntoView();
             }
         }else{
@@ -676,6 +677,7 @@ function prevBatch(){
         highlightBatch(batchList[batchIndex-1].id.substring(1))
         if(display_mode == 'scroll'){
             batchList.item(batchIndex-1).scrollIntoView();
+            console.log(batchList.item(batchIndex-1))
         }
     }else{
         batchList.item(batchList.length-1).classList.add('active')
@@ -685,6 +687,20 @@ function prevBatch(){
         }
     }
     
+}
+
+function focusImage(img){
+    let openStatuses = textOutput.querySelectorAll('.imageStatus .collapsible.show')
+    openStatuses.forEach(target => {
+        target.classList.remove('show')
+    })
+    let statusBlock = textOutput.querySelector('#t'+img.id+' .collapsible')
+    if(img.classList.contains('enlarge')){
+        statusBlock.classList.remove('show')
+    }else{
+        statusBlock.classList.add('show')
+    }
+    img.classList.toggle('enlarge')
 }
 
 function nextImage(){
@@ -697,9 +713,9 @@ function nextImage(){
     })
     imageList.item(imageIndex).classList.remove('enlarge')
     if(imageIndex+1 < imageList.length){
-        imageList.item(imageIndex+1).classList.add('enlarge')
+        focusImage(imageList.item(imageIndex+1))
     }else{
-        imageList.item(0).classList.add('enlarge')
+        focusImage(imageList.item(0))
     }
 }
 
@@ -713,15 +729,18 @@ function prevImage(){
     })
     imageList.item(imageIndex).classList.remove('enlarge')
     if(imageIndex-1 >= 0){
-        imageList.item(imageIndex-1).classList.add('enlarge')
+        focusImage(imageList.item(imageIndex-1))
     }else{
-        imageList.item(imageList.length-1).classList.add('enlarge')
+        focusImage(imageList.item(imageList.length-1))
     }
 }
 
 updateKeys = function(e){
     //set current key
     currentKey = e.keyCode
+    if(e.target.tagName == "INPUT" || e.target.tagName == "TEXTAREA" || e.target.tagName == "SELECT"){
+        return
+    }
     var imageList = imageOutput.querySelectorAll('.active .img')
     var imageIndex
     imageList.forEach(function (node, currentIndex) {
@@ -744,6 +763,7 @@ updateKeys = function(e){
         }
     }
 }
+document.addEventListener('keydown', updateKeys)
 
 function showLog(){
     

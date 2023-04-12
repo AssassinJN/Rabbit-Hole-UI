@@ -19,7 +19,6 @@
 				<li><a>Prompt</a>
 					<ul>
 						<li><a href="#" onclick="showPromptEditor()">Prompt Editor</a></li>
-						<li><a href="#">Load Prompt</a></li>
 						<hr />
 						<li class="parent">
 							<a href="#">Favorite Prompts</a>
@@ -30,7 +29,7 @@
 								<li><a href="#">Prompt 2</a></li>
 							</ul>
 						</li>
-						<li class="parent">
+						<!--<li class="parent">
 							<a href="#">Prompt History</a>
 							<ul>
 								<li><a href="#">Edit History</a></li>
@@ -38,7 +37,7 @@
 								<li><a href="#">Prompt 1</a></li>
 								<li><a href="#">Prompt 2</a></li>
 							</ul>
-						</li>
+						</li>-->
 					</ul>
 				</li>
 				<li><a href="#">Settings</a>
@@ -234,8 +233,22 @@
 				</div>
 			</div>
 			<div class="footer">
-				<button class="" onclick="saveFavorite(event)">Save as Favorite</button>
+				<button class="" onclick="showSaveFavorite(event)">Save as Favorite</button>
 				<button class="close-button" onclick="closeModal(event)">Done</button>
+			</div>
+		</div>
+		<div id="save-favorite" class="modal">
+			<div class="header">Save Favorite</div>
+			<div class="body">
+				<div class="row">
+					<div class="col">
+						<label for="new_favorite_name">Name Favorite: </label>
+						<input type="text" id="new_favorite_name" value="" />
+					</div>
+				</div>
+			</div>
+			<div class="footer">
+				<button class="close-button" onclick="saveFavorite(event)">Done</button>
 			</div>
 		</div>
 		<div id="general-settings" class="modal">
