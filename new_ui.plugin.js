@@ -946,43 +946,43 @@ preview.addEventListener("keydown", (event) => {
 			var category = mods[m];
 			if(category.category === "Artist"){
 				for (let c = 0; c < category.modifiers.length; c++) {
-					artists[c] = category.modifiers[c]['modifier'];
+					artists[c] = ', '+category.modifiers[c]['modifier'];
 				}
 			}else if(category.category === "CGI Rendering"){
 				for (let c = 0; c < category.modifiers.length; c++) {
-					cgi_renderings[c] = category.modifiers[c]['modifier'];
+					cgi_renderings[c] = ', '+category.modifiers[c]['modifier'];
 				}
 			}else if(category.category === "CGI Software"){
 				for (let c = 0; c < category.modifiers.length; c++) {
-					cgi_softwares[c] = category.modifiers[c]['modifier'];
+					cgi_softwares[c] = ', '+category.modifiers[c]['modifier'];
 				}
 			}else if(category.category === "Camera"){
 				for (let c = 0; c < category.modifiers.length; c++) {
-					cameras[c] = category.modifiers[c]['modifier'];
+					cameras[c] = ', '+category.modifiers[c]['modifier'];
 				}
 			}else if(category.category === "Carving and Etching"){
 				for (let c = 0; c < category.modifiers.length; c++) {
-					carving_and_etchings[c] = category.modifiers[c]['modifier'];
+					carving_and_etchings[c] = ', '+category.modifiers[c]['modifier'];
 				}
 			}else if(category.category === "Color"){
 				for (let c = 0; c < category.modifiers.length; c++) {
-					colors[c] = category.modifiers[c]['modifier'];
+					colors[c] = ', '+category.modifiers[c]['modifier'];
 				}
 			}else if(category.category === "Drawing Style"){
 				for (let c = 0; c < category.modifiers.length; c++) {
-					drawing_styles[c] = category.modifiers[c]['modifier'];
+					drawing_styles[c] = ', '+category.modifiers[c]['modifier'];
 				}
 			}else if(category.category === "Emotions"){
 				for (let c = 0; c < category.modifiers.length; c++) {
-					emotions[c] = category.modifiers[c]['modifier'];
+					emotions[c] = ', '+category.modifiers[c]['modifier'];
 				}
 			}else if(category.category === "Pen"){
 				for (let c = 0; c < category.modifiers.length; c++) {
-					pens[c] = category.modifiers[c]['modifier'];
+					pens[c] = ', '+category.modifiers[c]['modifier'];
 				}
 			}else if(category.category === "Visual Style"){
 				for (let c = 0; c < category.modifiers.length; c++) {
-					visual_styles[c] = category.modifiers[c]['modifier'];
+					visual_styles[c] = ', '+category.modifiers[c]['modifier'];
 				}
 			}
 		}
@@ -998,6 +998,9 @@ preview.addEventListener("keydown", (event) => {
 			customModifierList = [];
 			document.getElementById('customModifierInput').style.display = "none";
 		}else{
+			for (let c = 0; c < customModifierList.length; c++) {
+				customModifierList[c] = ', '+customModifierList[c];
+			}
 			document.getElementById('customModifierInput').style.display = "revert";
 		}
 	}
@@ -1093,91 +1096,90 @@ preview.addEventListener("keydown", (event) => {
 			tempGfpgans = gfpgans;
 			tempGfpgans.push('');
 			shuffle(tempGfpgans);
-			tempGfpgans = tempGfpgans.slice(0,settings.useGfpgans-1);
+			tempGfpgans = tempGfpgans.slice(0,settings.useGfpgans);
 		}
 		if(settings.useHypernetworks>0){
 			tempHypernetworks = hypernetworks;
 			tempHypernetworks.push('');
 			shuffle(tempHypernetworks);
-			tempHypernetworks = tempHypernetworks.slice(0,settings.useHypernetworks - 1);
+			tempHypernetworks = tempHypernetworks.slice(0,settings.useHypernetworks);
 		}
 		if(settings.useVaes>0){
 			tempVaes = vaes;
 			tempVaes.push('');
 			shuffle(tempVaes);
-			tempVaes = tempVaes.slice(0,settings.useVaes-1);
+			tempVaes = tempVaes.slice(0,settings.useVaes);
 		}
 		if(settings.useSamplers>0){
 			tempSamplers = samplers;
-			tempSamplers.push('');
 			shuffle(tempSamplers);
-			tempSamplers = tempSamplers.slice(0,settings.useSamplers-1);
+			tempSamplers = tempSamplers.slice(0,settings.useSamplers);
 		}
 		if(settings.useArtists>0){
 			tempArtists = artists;
 			tempArtists.push('');
 			shuffle(tempArtists);
-			tempArtists = tempArtists.slice(0,settings.useArtists-1);
+			tempArtists = tempArtists.slice(0,settings.useArtists);
 		}
 		if(settings.useCGIRendering>0){
 			tempCgi_renderings = cgi_renderings;
 			tempCgi_renderings.push('');
 			shuffle(tempCgi_renderings);
-			tempCgi_renderings = tempCgi_renderings.slice(0,settings.useCGIRendering-1);
+			tempCgi_renderings = tempCgi_renderings.slice(0,settings.useCGIRendering);
 		}
 		if(settings.useCGISoftware>0){
 			tempCgi_softwares = cgi_softwares;
 			tempCgi_softwares.push('');
 			shuffle(tempCgi_softwares);
-			tempCgi_softwares = tempCgi_softwares.slice(0,settings.useCGISoftware-1);
+			tempCgi_softwares = tempCgi_softwares.slice(0,settings.useCGISoftware);
 		}
 		if(settings.useCamera>0){
 			tempCameras = cameras;
 			tempCameras.push('');
 			shuffle(tempCameras);
-			tempCameras = tempCameras.slice(0,settings.useCamera-1);
+			tempCameras = tempCameras.slice(0,settings.useCamera);
 		}
 		if(settings.useCarvingAndEtching>0){
 			tempCarving_and_etchings = carving_and_etchings;
 			tempCarving_and_etchings.push('');
 			shuffle(tempCarving_and_etchings);
-			tempCarving_and_etchings = tempCarving_and_etchings.slice(0,settings.useCarvingAndEtching-1);
+			tempCarving_and_etchings = tempCarving_and_etchings.slice(0,settings.useCarvingAndEtching);
 		}
 		if(settings.useColor>0){
 			tempColors = colors;
 			tempColors.push('');
 			shuffle(tempColors);
-			tempColors = tempColors.slice(0,settings.useColor-1);
+			tempColors = tempColors.slice(0,settings.useColor);
 		}
 		if(settings.useDrawingStyle>0){
 			tempDrawing_styles = drawing_styles;
 			tempDrawing_styles.push('');
 			shuffle(tempDrawing_styles);
-			tempDrawing_styles = tempDrawing_styles.slice(0,settings.useDrawingStyle-1);
+			tempDrawing_styles = tempDrawing_styles.slice(0,settings.useDrawingStyle);
 		}
 		if(settings.useEmotions>0){
 			tempEmotions = emotions;
 			tempEmotions.push('');
 			shuffle(tempEmotions);
-			tempEmotions = tempEmotions.slice(0,settings.useEmotions-1);
+			tempEmotions = tempEmotions.slice(0,settings.useEmotions);
 		}
 		if(settings.usePen>0){
 			tempPens = pens;
 			tempPens.push('');
 			shuffle(tempPens);
-			tempPens = tempPens.slice(0,settings.usePen-1);
+			tempPens = tempPens.slice(0,settings.usePen);
 		}
 		if(settings.useVisualStyle>0){
 			tempVisual_styles = visual_styles;
 			tempVisual_styles.push('');
 			shuffle(tempVisual_styles);
-			tempVisual_styles = tempVisual_styles.slice(0,settings.useVisualStyle-1);
+			tempVisual_styles = tempVisual_styles.slice(0,settings.useVisualStyle);
 		}
 		if(settings.useCustomModifiers>0){
 			tempCusomModifiers = customModifierList;
 			tempCusomModifiers.push('');
 			shuffle(tempCusomModifiers);
-			tempCusomModifiers = tempCusomModifiers.slice(0,settings.useCustomModifiers-1);
+			tempCusomModifiers = tempCusomModifiers.slice(0,settings.useCustomModifiers);
 		}
 		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempSamplers.length,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1));
 		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
@@ -1194,17 +1196,17 @@ preview.addEventListener("keydown", (event) => {
 				hypernetwork: (settings.useHypernetworks>0 ? tempHypernetworks[Math.round(Math.random() * (tempHypernetworks.length - 1))]: reqBody.use_hypernetwork_model),
 				vae: (settings.useVaes>0 ? tempVaes[Math.round(Math.random() * (tempVaes.length - 1))]: reqBody.use_vae_model),
 				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]: reqBody.sampler_name),
-				artist: (settings.useArtists>0 ? ', '+tempArtists[Math.round(Math.random() * (tempArtists.length - 1))] : ''),
-				cgi_rendering: (settings.useCGIRendering>0 ? ', '+tempCgi_renderings[Math.round(Math.random() * (tempCgi_renderings.length - 1))] : ''),
-				cgi_software: (settings.useCGISoftware>0 ? ', '+tempCgi_softwares[Math.round(Math.random() * (tempCgi_softwares.length - 1))] : ''),
-				camera: (settings.useCamera>0 ? ', '+tempCameras[Math.round(Math.random() * (tempCameras.length - 1))] : ''),
-				carving_and_etching: (settings.useCarvingAndEtching>0 ? ', '+tempCarving_and_etchings[Math.round(Math.random() * (tempCarving_and_etchings.length - 1))] : ''),
-				color: (settings.useColor>0 ? ', '+tempColors[Math.round(Math.random() * (tempColors.length - 1))] : ''),
-				drawing_style: (settings.useDrawingStyle>0 ? ', '+tempDrawing_styles[Math.round(Math.random() * (tempDrawing_styles.length - 1))] : ''),
-				emotion: (settings.useEmotions>0 ? ', '+tempEmotions[Math.round(Math.random() * (tempEmotions.length - 1))] : ''),
-				pen: (settings.usePen>0 ? ', '+tempPens[Math.round(Math.random() * (tempPens.length - 1))] : ''),
-				visual_style: (settings.useVisualStyle>0 ? ', '+tempVisual_styles[Math.round(Math.random() * (tempVisual_styles.length - 1))] : ''),
-				customModifier: (settings.useCustomModifiers>0 ? ', '+tempCusomModifiers[Math.round(Math.random() * (tempCusomModifiers.length - 1))] : ''),
+				artist: (settings.useArtists>0 ? tempArtists[Math.round(Math.random() * (tempArtists.length - 1))] : ''),
+				cgi_rendering: (settings.useCGIRendering>0 ? tempCgi_renderings[Math.round(Math.random() * (tempCgi_renderings.length - 1))] : ''),
+				cgi_software: (settings.useCGISoftware>0 ? tempCgi_softwares[Math.round(Math.random() * (tempCgi_softwares.length - 1))] : ''),
+				camera: (settings.useCamera>0 ? tempCameras[Math.round(Math.random() * (tempCameras.length - 1))] : ''),
+				carving_and_etching: (settings.useCarvingAndEtching>0 ? tempCarving_and_etchings[Math.round(Math.random() * (tempCarving_and_etchings.length - 1))] : ''),
+				color: (settings.useColor>0 ? tempColors[Math.round(Math.random() * (tempColors.length - 1))] : ''),
+				drawing_style: (settings.useDrawingStyle>0 ? tempDrawing_styles[Math.round(Math.random() * (tempDrawing_styles.length - 1))] : ''),
+				emotion: (settings.useEmotions>0 ? tempEmotions[Math.round(Math.random() * (tempEmotions.length - 1))] : ''),
+				pen: (settings.usePen>0 ? tempPens[Math.round(Math.random() * (tempPens.length - 1))] : ''),
+				visual_style: (settings.useVisualStyle>0 ? tempVisual_styles[Math.round(Math.random() * (tempVisual_styles.length - 1))] : ''),
+				customModifier: (settings.useCustomModifiers>0 ? tempCusomModifiers[Math.round(Math.random() * (tempCusomModifiers.length - 1))] : ''),
 			}
 			var inTasks = false;
 			
@@ -1328,7 +1330,7 @@ function addRabbitHoleSettings(){
 	document.getElementById('newRabbitHoleBtn').addEventListener("click", function () {
 		const taskTemplate = getCurrentUserRequest();
 		const newTaskRequests = [];
-		console.log(taskTemplate);
+		//console.log(taskTemplate);
 		getPrompts().forEach((prompt) => newTaskRequests.push(Object.assign({}, taskTemplate, {
 			reqBody: Object.assign({ prompt: prompt }, taskTemplate.reqBody)
 		})));
@@ -1339,7 +1341,7 @@ function addRabbitHoleSettings(){
 		if(document.getElementById('editor').classList.contains('img2img')){
 			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
 		} else {
-			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
 		}
 		setSettings();
 	});
