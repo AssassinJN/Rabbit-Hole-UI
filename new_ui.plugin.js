@@ -364,6 +364,9 @@ var settings = {
 	promptStrengthCount: 0,
 	promptStrengthStep: 0,
 	promptStrengthMid: 0,
+	hyperStrengthCount: 0,
+	hyperStrengthStep: 0,
+	hyperStrengthMid: 0,
 	ISCount: 0,
 	ISStep: 0,
 	ISMid: 0,
@@ -766,6 +769,9 @@ preview.addEventListener("keydown", (event) => {
 		settings.promptStrengthCount = parseInt(promptStrengthCount_input.value);
 		settings.promptStrengthStep = parseFloat(promptStrengthStep_input.value);
 		settings.promptStrengthMid = parseFloat(promptStrengthMid_input.value);
+		settings.hyperStrengthCount = parseInt(hyperStrengthCount_input.value);
+		settings.hyperStrengthStep = parseFloat(hyperStrengthStep_input.value);
+		settings.hyperStrengthMid = parseFloat(hyperStrengthMid_input.value);
 		//Inference Steps, works the same as Guidance Scale
 		settings.ISCount = parseInt(ISCount_input.value);
 		settings.ISStep = parseInt(ISStep_input.value);
@@ -1021,16 +1027,22 @@ preview.addEventListener("keydown", (event) => {
 		var tempCusomModifiers=[];
 		var tempScales = [];
 		var tempISs = [];
-		var tempMaxImagesToGenerate, tempScaleMid, tempISMid, tempPromptStrengthMid, tempPromptStrengthCount, tempScaleCount, tempISCount, tempPromptStrengthStep, tempScaleStep, tempISStep;
+		var tempMaxImagesToGenerate, tempScaleMid, tempISMid, tempPromptStrengthMid, tempHyperStrengthMid, 
+			tempPromptStrengthCount, tempScaleCount, tempISCount, tempHyperStrengthCount, 
+			tempPromptStrengthStep, tempScaleStep, tempISStep, tempHyperStrengthStep;
 		var tempSamplers = [];
 		var tempPromptStrengths = [];
+		var tempHyperStrengths = [];
 		tempPromptStrengthMid = (settings.promptStrengthMid ? settings.promptStrengthMid : parseFloat(reqBody.prompt_strength));
+		tempHyperStrengthMid = (settings.hyperStrengthMid ? settings.hyperStrengthMid : parseFloat(reqBody.hypernetwork_strength));
 		tempScaleMid = (settings.scaleMid ? settings.scaleMid : parseFloat(reqBody.guidance_scale));
 		tempISMid = (settings.ISMid ? settings.ISMid : parseInt(reqBody.num_inference_steps));
 		tempPromptStrengthCount = (settings.promptStrengthCount ? settings.promptStrengthCount : 1);
+		tempHyperStrengthCount = (settings.hyperStrengthCount ? settings.hyperStrengthCount : 1);
 		tempScaleCount = (settings.scaleCount ? settings.scaleCount : 1);
 		tempISCount = (settings.ISCount ? settings.ISCount : 1);
 		tempPromptStrengthStep = (settings.promptStrengthStep ? settings.promptStrengthStep : 0.1);
+		tempHyperStrengthStep = (settings.hyperStrengthStep ? settings.hyperStrengthStep : 0.1);
 		tempScaleStep = (settings.scaleStep ? settings.scaleStep : 1.0);
 		tempISStep = (settings.ISStep ? settings.ISStep : 5);
 
@@ -1041,6 +1053,13 @@ preview.addEventListener("keydown", (event) => {
 				}else{
 					console.log("invalid prompt strength: "+(tempPromptStrengthMid + i));
 				}
+			}
+		}
+		for (let i = (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1); i <= (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep); i+=tempHyperStrengthStep) {
+			if((tempHyperStrengthMid + i)>0 && (tempHyperStrengthMid + i)<1){
+				tempHyperStrengths.push(Math.round((tempHyperStrengthMid + i)*100)/100);
+			}else{
+				console.log("invalid prompt strength: "+(tempHyperStrengthMid + i));
 			}
 		}
 		for (let i = (Math.floor(tempScaleCount/2)*tempScaleStep*-1); i <= (Math.floor(tempScaleCount/2)*tempScaleStep); i+=tempScaleStep) {
@@ -1072,80 +1091,95 @@ preview.addEventListener("keydown", (event) => {
 		}
 		if(settings.useGfpgans>0){
 			tempGfpgans = gfpgans;
+			tempGfpgans.push('');
 			shuffle(tempGfpgans);
-			tempGfpgans = tempGfpgans.slice(0,settings.useGfpgans);
+			tempGfpgans = tempGfpgans.slice(0,settings.useGfpgans-1);
 		}
 		if(settings.useHypernetworks>0){
 			tempHypernetworks = hypernetworks;
+			tempHypernetworks.push('');
 			shuffle(tempHypernetworks);
-			tempHypernetworks = tempHypernetworks.slice(0,settings.useHypernetworks);
+			tempHypernetworks = tempHypernetworks.slice(0,settings.useHypernetworks - 1);
 		}
 		if(settings.useVaes>0){
 			tempVaes = vaes;
+			tempVaes.push('');
 			shuffle(tempVaes);
-			tempVaes = tempVaes.slice(0,settings.useVaes);
+			tempVaes = tempVaes.slice(0,settings.useVaes-1);
 		}
 		if(settings.useSamplers>0){
 			tempSamplers = samplers;
+			tempSamplers.push('');
 			shuffle(tempSamplers);
-			tempSamplers = tempSamplers.slice(0,settings.useSamplers);
+			tempSamplers = tempSamplers.slice(0,settings.useSamplers-1);
 		}
 		if(settings.useArtists>0){
 			tempArtists = artists;
+			tempArtists.push('');
 			shuffle(tempArtists);
-			tempArtists = tempArtists.slice(0,settings.useArtists);
+			tempArtists = tempArtists.slice(0,settings.useArtists-1);
 		}
 		if(settings.useCGIRendering>0){
 			tempCgi_renderings = cgi_renderings;
+			tempCgi_renderings.push('');
 			shuffle(tempCgi_renderings);
-			tempCgi_renderings = tempCgi_renderings.slice(0,settings.useCGIRendering);
+			tempCgi_renderings = tempCgi_renderings.slice(0,settings.useCGIRendering-1);
 		}
 		if(settings.useCGISoftware>0){
 			tempCgi_softwares = cgi_softwares;
+			tempCgi_softwares.push('');
 			shuffle(tempCgi_softwares);
-			tempCgi_softwares = tempCgi_softwares.slice(0,settings.useCGISoftware);
+			tempCgi_softwares = tempCgi_softwares.slice(0,settings.useCGISoftware-1);
 		}
 		if(settings.useCamera>0){
 			tempCameras = cameras;
+			tempCameras.push('');
 			shuffle(tempCameras);
-			tempCameras = tempCameras.slice(0,settings.useCamera);
+			tempCameras = tempCameras.slice(0,settings.useCamera-1);
 		}
 		if(settings.useCarvingAndEtching>0){
 			tempCarving_and_etchings = carving_and_etchings;
+			tempCarving_and_etchings.push('');
 			shuffle(tempCarving_and_etchings);
-			tempCarving_and_etchings = tempCarving_and_etchings.slice(0,settings.useCarvingAndEtching);
+			tempCarving_and_etchings = tempCarving_and_etchings.slice(0,settings.useCarvingAndEtching-1);
 		}
 		if(settings.useColor>0){
 			tempColors = colors;
+			tempColors.push('');
 			shuffle(tempColors);
-			tempColors = tempColors.slice(0,settings.useColor);
+			tempColors = tempColors.slice(0,settings.useColor-1);
 		}
 		if(settings.useDrawingStyle>0){
 			tempDrawing_styles = drawing_styles;
+			tempDrawing_styles.push('');
 			shuffle(tempDrawing_styles);
-			tempDrawing_styles = tempDrawing_styles.slice(0,settings.useDrawingStyle);
+			tempDrawing_styles = tempDrawing_styles.slice(0,settings.useDrawingStyle-1);
 		}
 		if(settings.useEmotions>0){
 			tempEmotions = emotions;
+			tempEmotions.push('');
 			shuffle(tempEmotions);
-			tempEmotions = tempEmotions.slice(0,settings.useEmotions);
+			tempEmotions = tempEmotions.slice(0,settings.useEmotions-1);
 		}
 		if(settings.usePen>0){
 			tempPens = pens;
+			tempPens.push('');
 			shuffle(tempPens);
-			tempPens = tempPens.slice(0,settings.usePen);
+			tempPens = tempPens.slice(0,settings.usePen-1);
 		}
 		if(settings.useVisualStyle>0){
 			tempVisual_styles = visual_styles;
+			tempVisual_styles.push('');
 			shuffle(tempVisual_styles);
-			tempVisual_styles = tempVisual_styles.slice(0,settings.useVisualStyle);
+			tempVisual_styles = tempVisual_styles.slice(0,settings.useVisualStyle-1);
 		}
 		if(settings.useCustomModifiers>0){
 			tempCusomModifiers = customModifierList;
+			tempCusomModifiers.push('');
 			shuffle(tempCusomModifiers);
-			tempCusomModifiers = tempCusomModifiers.slice(0,settings.useCustomModifiers);
+			tempCusomModifiers = tempCusomModifiers.slice(0,settings.useCustomModifiers-1);
 		}
-		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempSamplers.length,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1));
+		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempSamplers.length,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1));
 		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
 		for(let i = 0; i<tempMaxImagesToGenerate; i++){
 			var tempTask = {};
@@ -1153,6 +1187,7 @@ preview.addEventListener("keydown", (event) => {
 				IS: tempISs[Math.round(Math.random() * (tempISs.length - 1))],
 				GS: tempScales[Math.round(Math.random() * (tempScales.length - 1))],
 				PS: tempPromptStrengths[Math.round(Math.random() * (tempPromptStrengths.length - 1))],
+				HS: tempHyperStrengths[Math.round(Math.random() * (tempHyperStrengths.length - 1))],
 				seed: tempSeeds[Math.round(Math.random() * (tempSeeds.length - 1))],
 				model: (settings.useModels>0 ? tempModels[Math.round(Math.random() * (tempModels.length - 1))]: reqBody.use_stable_diffusion_model),
 				gfpgan: (settings.useGfpgans>0 ? tempGfpgans[Math.round(Math.random() * (tempGfpgans.length - 1))]: reqBody.use_face_correction),
@@ -1222,6 +1257,9 @@ preview.addEventListener("keydown", (event) => {
 				newTaskRequest.reqBody.prompt_strength = taskSetting.PS;
 				newTaskRequest.reqBody.sampler_name = "ddim";
 			}
+			if(newTaskRequest.use_hypernetwork_model != ''){
+				newTaskRequest.reqBody.hypernetwork_strength = taskSetting.HS
+			}
 			//delete newTaskRequest.reqBody.mask;
 			newTaskList.push(newTaskRequest);
 		});
@@ -1262,6 +1300,9 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthStep_input">Prompt Strength Step Size:</label></td><td> <input id="promptStrengthStep_input" name="promptStrengthStep_input" size="10" value="`+settings.promptStrengthStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthMid_input">Prompt Strength Midpoint:</label></td><td> <input id="promptStrengthMid_input" name="promptStrengthMid_input" size="10" value="`+settings.promptStrengthMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useHypernetworks_input">Random Hypernetworks:</label></td><td> <input id="useHypernetworks_input" name="useHypernetworks_input" size="10" value="`+settings.useHypernetworks+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="hyperStrengthCount_input">Hyper Strength Count:</label></td><td> <input id="hyperStrengthCount_input" name="hyperStrengthCount_input" size="10" value="`+settings.hyperStrengthCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="hyperStrengthStep_input">Hyper Strength Step Size:</label></td><td> <input id="hyperStrengthStep_input" name="hyperStrengthStep_input" size="10" value="`+settings.hyperStrengthStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="hyperStrengthMid_input">Hyper Strength Midpoint:</label></td><td> <input id="hyperStrengthMid_input" name="hyperStrengthMid_input" size="10" value="`+settings.hyperStrengthMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useGfpgans_input">Random GFPGANs:</label></td><td> <input id="useGfpgans_input" name="useGfpgans_input" size="10" value="`+settings.useGfpgans+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					
 					<tr><td>&nbsp;</td></tr>
@@ -1296,7 +1337,7 @@ function addRabbitHoleSettings(){
 	});
 	document.getElementById('calcMaxButton').addEventListener("click", function () {
 		if(document.getElementById('editor').classList.contains('img2img')){
-			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
 		} else {
 			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useSamplers,1)*Math.max(settings.useArtists,1)*Math.max(settings.useCGIRendering,1)*Math.max(settings.useCGISoftware,1)*Math.max(settings.useCamera,1)*Math.max(settings.useCarvingAndEtching,1)*Math.max(settings.useColor,1)*Math.max(settings.useDrawingStyle,1)*Math.max(settings.useEmotions,1)*Math.max(settings.usePen,1)*Math.max(settings.useVisualStyle,1);
 		}
