@@ -1220,11 +1220,12 @@ preview.addEventListener("keydown", (event) => {
 				outputTasks.push(tempTask);
 			}
 		}
-		outputTasks.sort((firstItem, secondItem) => (firstItem.PS > secondItem.PS) ? 1 : -1);
-		outputTasks.sort((firstItem, secondItem) => (firstItem.GS > secondItem.GS) ? 1 : -1);
-		outputTasks.sort((firstItem, secondItem) => (firstItem.IS > secondItem.IS) ? 1 : -1);
-		outputTasks.sort((firstItem, secondItem) => (firstItem.seed > secondItem.seed) ? 1 : -1);
-		outputTasks.sort((firstItem, secondItem) => (firstItem.model > secondItem.model) ? 1 : -1);
+		//Finish fixing sort order for lowest first
+		outputTasks.sort((firstItem, secondItem) => (firstItem.PS < secondItem.PS) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.GS < secondItem.GS) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.IS < secondItem.IS) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.seed < secondItem.seed) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.model < secondItem.model) ? 1 : -1);
 		return outputTasks;
 	}
 	

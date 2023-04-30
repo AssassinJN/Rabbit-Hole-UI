@@ -224,7 +224,7 @@ ul, li { padding:0; margin:0; }
 
 /* -------------------- Modals -------------------------- */
 
-#prompt-editor { max-height: 800px; }
+#prompt-editor { max-height: 850px; }
 #save-favorite { max-height: 150px; width:400px; }
 #general-settings { max-height: 210px; width:800px; }
 #model-manager { max-height: 290px; }
@@ -244,7 +244,7 @@ ul, li { padding:0; margin:0; }
     left: 50%;
     transform: translate(-50%, -50%);
     min-width: 400px;
-    width: 950px;
+    width: 1000px;
     height: calc(100% - 100px);
     max-height: 900px;
 }

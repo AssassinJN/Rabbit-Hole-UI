@@ -67,6 +67,7 @@ function loadDefaults() {
         "use_vae_model" : document.getElementById('use_vae_model').value,
         "use_lora_model" : document.getElementById('use_lora_model').value,
         "lora_alpha" : Math.round(document.getElementById('lora_alpha').value)*.01,
+        "hypernetwork_strength" : Math.round(document.getElementById('hypernetwork_strength').value)*.01,
         //"session_id" : RABBIT_HOLE_ID, //document.getElementById('session_id').value,
         "seed" : parseInt(document.getElementById('seed').value),
         "sampler_name" : document.getElementById('sampler_name').value,
@@ -197,7 +198,8 @@ async function render(task)  {
         "original_prompt": task.original_prompt,
         "init_image": task.init_image,
         "prompt_strength": task.prompt_strength,
-        "lora_alpha": task.lora_alpha
+        "lora_alpha": task.lora_alpha,
+        "hypernetwork_strength": task.hypernetwork_strength,
     }, function(event) {
         if ('update' in event) {
             const stepUpdate = event.update
@@ -240,6 +242,7 @@ async function render(task)  {
         task.sampler_name = 'ddim';
         task.prompt_strength = Math.round(document.getElementById('prompt_strength').value)*.01;
         task.lora_alpha = Math.round(document.getElementById('lora_alpha').value)*.01;
+        task.hypernetwork_strength = Math.round(document.getElementById('hypernetwork_strength').value)*.01;
         task.init_image = imgData[0].data;
         task.use_upscale = 'RealESRGAN_x4plus'
         task.upscale_amount = 4

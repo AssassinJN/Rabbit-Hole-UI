@@ -22,6 +22,7 @@ var RabbitHoleUI = {
         image_count : document.getElementById('image_count').value,
         prompt_strength : document.getElementById('prompt_strength').value,
         lora_alpha : document.getElementById('lora_alpha').value,
+        hypernetwork_strength : document.getElementById('hypernetwork_strength').value,
     },
     generalSettings : {
         use_test_samplers : document.getElementById('use_test_samplers').value,
@@ -56,6 +57,7 @@ function save(){
             image_count : document.getElementById('image_count').value,
             prompt_strength : document.getElementById('prompt_strength').value,
             lora_alpha : document.getElementById('lora_alpha').value,
+            hypernetwork_strength : document.getElementById('hypernetwork_strength').value,
         },
         generalSettings : {
             use_test_samplers : document.getElementById('use_test_samplers').value,
@@ -116,6 +118,7 @@ function load() {
     document.getElementById('image_count').value = RabbitHoleUI.currentPrompt.image_count
     document.getElementById('prompt_strength').value = RabbitHoleUI.currentPrompt.prompt_strength
     document.getElementById('lora_alpha').value = RabbitHoleUI.currentPrompt.lora_alpha
+    document.getElementById('hypernetwork_strength').value = RabbitHoleUI.currentPrompt.hypernetwork_strength
     document.getElementById('use_test_samplers').value = RabbitHoleUI.generalSettings.use_test_samplers
     document.getElementById('delay_between').value = RabbitHoleUI.generalSettings.delay_between
     if(RabbitHoleUI.generalSettings.use_test_samplers == 'true'){
