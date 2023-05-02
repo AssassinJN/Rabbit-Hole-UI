@@ -1073,9 +1073,12 @@ preview.addEventListener("keydown", (event) => {
 		tempLoraAlphaStep = (settings.loraAlphaStep ? settings.loraAlphaStep : 0.1);
 		tempScaleStep = (settings.scaleStep ? settings.scaleStep : 1.0);
 		tempISStep = (settings.ISStep ? settings.ISStep : 5);
-
 		if(reqBody.init_image != null){
-			for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1) + tempPromptStrengthCount*(tempPromptStrengthStep-1); i+=tempPromptStrengthStep) {
+			console.log("tempPromptStrengthCount  ", tempPromptStrengthCount)
+			console.log("tempPromptStrengthMid  ", tempPromptStrengthMid)
+			console.log("tempPromptStrengthStep  ", tempPromptStrengthStep)
+			for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= ((Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1) + tempPromptStrengthStep*(tempPromptStrengthCount-1)); i+=tempPromptStrengthStep) {
+				console.log("i  ", i)
 				if((tempPromptStrengthMid + i)>0 && (tempPromptStrengthMid + i)<1){
 					tempPromptStrengths.push(Math.round((tempPromptStrengthMid + i)*100)/100);
 				}else{
