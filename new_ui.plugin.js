@@ -460,10 +460,19 @@ function setup() {
 	if(settings.disable_hover_on_group){
 		document.getElementById('container').classList.add('noGroupHover');
 		document.getElementById('disable_hover_on_group_input').checked = true;
-	}	
+	}
+	document.querySelector('#reset-rh-settings').addEventListener('click', resetRH);
 }
 
-
+function resetRH(event){
+	let rhinputs = document.querySelectorAll('#rabbit-settings-entries input');
+	rhinputs.forEach(rhinput => {
+		if(rhinput.id != 'useSeeds_input' && rhinput.id != 'maxImagesToGenerate_input'){
+			rhinput.value = 0;
+		}
+	})
+	event.stopPropagation();
+}
 
 function rh_makeButtons(){
 	UIButton.innerHTML = "Show Classic View";
@@ -1331,7 +1340,13 @@ function addRabbitHoleSettings(){
 	rabbitHoleSettings.id = 'rabbit-settings';
 	rabbitHoleSettings.classList.add('panel-box');
 	rabbitHoleSettings.innerHTML = 
-			`<h4 class="collapsible `+openCheck+`">Rabbit Hole Settings</h4>
+			`<h4 class="collapsible `+openCheck+`">Rabbit Hole Settings
+				<i id="reset-rh-settings" class="fa-solid fa-arrow-rotate-left section-button">
+					<span class="simple-tooltip top-left">
+						Reset Rabbit Hole Settings
+					</span>
+				</i>
+			</h4>
 			<div id="rabbit-settings-entries" class="collapsible-content" style="display: block;margin-top:15px;">
 				<table><tbody>
 					<tr><td><b class="settings-subheader">Image Settings</b></td></tr>
