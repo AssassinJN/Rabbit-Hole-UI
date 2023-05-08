@@ -618,7 +618,7 @@ var previewObserver = new MutationObserver(function (mutations) {
 			if(mutation.addedNodes[0].classList.contains('imgItem')){
 				let Xbutton = mutation.addedNodes[0].querySelector('.image_clear_btn')
 				Xbutton.addEventListener('click' , (event) => {
-					let focusedTaskContainer = event.target.closest('.imageTaskContainer')
+					let focusedTaskContainer = preview.querySelector('.imageTaskContainer.expanded')
 					if(focusedTaskContainer){
 						let images = focusedTaskContainer.querySelectorAll('.imgItem')
 						let count = 0
@@ -631,11 +631,12 @@ var previewObserver = new MutationObserver(function (mutations) {
 								}
 							}
 						)
-						if(count == 0){
-							preview.classList.remove('focused')
-						}else if(count == 1){
+						console.log('count', count)
+						if(count == 1){
 							focusedTaskContainer.classList.remove('condensed')
 						}
+					}else{
+						preview.classList.remove('focused')
 					}					
 				});
 			}
