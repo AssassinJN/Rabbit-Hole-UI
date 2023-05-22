@@ -631,7 +631,6 @@ var previewObserver = new MutationObserver(function (mutations) {
 								}
 							}
 						)
-						console.log('count', count)
 						if(count == 1){
 							focusedTaskContainer.classList.remove('condensed')
 						}
@@ -1414,6 +1413,17 @@ function addRabbitHoleSettings(){
 		setSettings();
 	});
 	createCollapsibles(rabbitHoleSettings);
+	if(document.querySelector(settings.rabitHoleOpen == false)){
+		document.querySelector('#rabbit-settings h4').classList.remove('active')
+	}
+	document.querySelector('#rabbit-settings h4').addEventListener("click", function () {
+		if(settings.rabbitHoleOpen == true){
+			settings.rabbitHoleOpen = false
+		}else{
+			settings.rabbitHoleOpen = true
+		}
+		save()
+	});
 }
 
 
