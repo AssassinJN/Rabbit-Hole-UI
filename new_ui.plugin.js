@@ -1276,6 +1276,11 @@ preview.addEventListener("keydown", (event) => {
 		outputTasks.sort((firstItem, secondItem) => (firstItem.PS < secondItem.PS) ? 1 : -1);
 		outputTasks.sort((firstItem, secondItem) => (firstItem.GS < secondItem.GS) ? 1 : -1);
 		outputTasks.sort((firstItem, secondItem) => (firstItem.IS < secondItem.IS) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.HS < secondItem.HS) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.LS < secondItem.LS) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.sampler < secondItem.sampler) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.hypernetwork < secondItem.hypernetwork) ? 1 : -1);
+		outputTasks.sort((firstItem, secondItem) => (firstItem.lora < secondItem.lora) ? 1 : -1);
 		outputTasks.sort((firstItem, secondItem) => (firstItem.seed < secondItem.seed) ? 1 : -1);
 		outputTasks.sort((firstItem, secondItem) => (firstItem.model < secondItem.model) ? 1 : -1);
 		return outputTasks;
