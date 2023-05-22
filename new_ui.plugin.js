@@ -570,25 +570,34 @@ function rh_makeButtons(){
 	PrevBut.after(NextBut);
 
 	var stepList = [settings.ISButton1,settings.ISButton2,settings.ISButton3,settings.ISButton4,settings.ISButton5];
+	let showLabel = false;
 	let rhbuttons = [{ html: '<span>IS: </span>' }]
 	stepList.forEach((count) => {
 		if(count != 0){
+			showLabel = true;
 			rhbuttons.push(
 				{ html: count, on_click: getStartNewTaskHandler(count, 'IS'), class: "is-button" }
 			);
 		}
 	});
-	PLUGINS['IMAGE_INFO_BUTTONS'].push(rhbuttons)
+	if(showLabel){
+		PLUGINS['IMAGE_INFO_BUTTONS'].push(rhbuttons)
+	}
 	var stepList = [settings.GSButton1,settings.GSButton2,settings.GSButton3,settings.GSButton4,settings.GSButton5];
+	showLabel = false;
 	rhbuttons = [{ html: '<span>GS: </span>' }]
 	stepList.forEach((count) => {
 		if(count != 0){
+			showLabel = true;
 			rhbuttons.push(
 				{ html: count, on_click: getStartNewTaskHandler(count, 'GS'), class: "gs-button" }
 			);
 		}
 	});
-	PLUGINS['IMAGE_INFO_BUTTONS'].push(rhbuttons)
+	if(showLabel){
+		PLUGINS['IMAGE_INFO_BUTTONS'].push(rhbuttons)
+	}
+	
 	var stepList = [5];
 	stepList.forEach((count) => {
 		if(count > 0){
