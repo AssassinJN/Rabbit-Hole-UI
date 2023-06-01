@@ -1492,22 +1492,22 @@ function addSettingsTabInfo(){
 				<div><i class="fa fa-gear"></i></div>
 				<div><label for="">Inference Steps Buttons</label><small>set values for 4 action buttons, a value of 0 removes a button</small></div>
 				<div>
-					<input id="ISButton1_input" name="ISButton1_input" size="4" value="`+settings.ISButton1+`" pattern="^[0-9\-]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="ISButton2_input" name="ISButton1_input" size="4" value="`+settings.ISButton2+`" pattern="^[0-9\-]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="ISButton3_input" name="ISButton1_input" size="4" value="`+settings.ISButton3+`" pattern="^[0-9\-]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="ISButton4_input" name="ISButton1_input" size="4" value="`+settings.ISButton4+`" pattern="^[0-9\-]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="ISButton5_input" name="ISButton1_input" size="4" value="`+settings.ISButton5+`" pattern="^[0-9\-]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">
+					<input id="ISButton1_input" name="ISButton1_input" size="4" value="`+settings.ISButton1+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="ISButton2_input" name="ISButton1_input" size="4" value="`+settings.ISButton2+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="ISButton3_input" name="ISButton1_input" size="4" value="`+settings.ISButton3+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="ISButton4_input" name="ISButton1_input" size="4" value="`+settings.ISButton4+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="ISButton5_input" name="ISButton1_input" size="4" value="`+settings.ISButton5+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">
 				</div>
 			</div>
 			<div>
 				<div><i class="fa fa-gear"></i></div>
 				<div><label for="">Guidance Scale Buttons</label><small>set values for 4 action buttons, a value of 0 removes a button</small></div>
 				<div>
-					<input id="GSButton1_input" name="GSButton1_input" size="4" value="`+settings.GSButton1+`" pattern="^[0-9\.\-]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="GSButton2_input" name="GSButton1_input" size="4" value="`+settings.GSButton2+`" pattern="^[0-9\.\-]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="GSButton3_input" name="GSButton1_input" size="4" value="`+settings.GSButton3+`" pattern="^[0-9\.\-]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="GSButton4_input" name="GSButton1_input" size="4" value="`+settings.GSButton4+`" pattern="^[0-9\.\-]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="GSButton5_input" name="GSButton1_input" size="4" value="`+settings.GSButton5+`" pattern="^[0-9\.\-]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">
+					<input id="GSButton1_input" name="GSButton1_input" size="4" value="`+settings.GSButton1+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="GSButton2_input" name="GSButton1_input" size="4" value="`+settings.GSButton2+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="GSButton3_input" name="GSButton1_input" size="4" value="`+settings.GSButton3+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="GSButton4_input" name="GSButton1_input" size="4" value="`+settings.GSButton4+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="GSButton5_input" name="GSButton1_input" size="4" value="`+settings.GSButton5+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">
 				</div>
 			</div>
 			<div>
