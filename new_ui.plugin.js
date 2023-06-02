@@ -1370,22 +1370,22 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5"><td><label for="useVaes_input">Random VAEs:</label></td><td> <input id="useVaes_input" name="useVaes_input" size="10" value="`+settings.useVaes+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useLoras_input">Random LORAs:</label></td><td> <input id="useLoras_input" name="useLoras_input" size="10" value="`+settings.useLoras+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="loraAlphaCount_input">LORA Strength Count:</label></td><td> <input id="loraAlphaCount_input" name="loraAlphaCount_input" size="10" value="`+settings.loraAlphaCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="loraAlphaStep_input">LORA Strength Step Size:</label></td><td> <input id="loraAlphaStep_input" name="loraAlphaStep_input" size="10" value="`+settings.loraAlphaStep+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="loraAlphaMid_input">LORA Strength Midpoint:</label></td><td> <input id="loraAlphaMid_input" name="loraAlphaMid_input" size="10" value="`+settings.loraAlphaMid+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="loraAlphaStep_input">LORA Strength Step Size:</label></td><td> <input id="loraAlphaStep_input" name="loraAlphaStep_input" size="10" value="`+settings.loraAlphaStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="loraAlphaMid_input">LORA Strength Midpoint:</label></td><td> <input id="loraAlphaMid_input" name="loraAlphaMid_input" size="10" value="`+settings.loraAlphaMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5 notImg2img"><td><label for="useSamplers_input">Random Samplers:</label></td><td> <input id="useSamplers_input" name="useSamplers_input" size="10" value="`+settings.useSamplers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISCount_input">Inference Steps Count:</label></td><td> <input id="ISCount_input" name="ISCount_input" size="10" value="`+settings.ISCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISStep_input">Inference Steps Step Size:</label></td><td> <input id="ISStep_input" name="ISStep_input" size="10" value="`+settings.ISStep+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISMid_input">Inference Steps Midpoint:</label></td><td> <input id="ISMid_input" name="ISMid_input" size="10" value="`+settings.ISMid+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="scaleCount_input">Guidance Scale Count:</label></td><td> <input id="scaleCount_input" name="scaleCount_input" size="10" value="`+settings.scaleCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="scaleStep_input">Guidance Scale Step Size:</label></td><td> <input id="scaleStep_input" name="scaleStep_input" size="10" value="`+settings.scaleStep+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="scaleMid_input">Guidance Scale Midpoint:</label></td><td> <input id="scaleMid_input" name="scaleMid_input" size="10" value="`+settings.scaleMid+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="scaleStep_input">Guidance Scale Step Size:</label></td><td> <input id="scaleStep_input" name="scaleStep_input" size="10" value="`+settings.scaleStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="scaleMid_input">Guidance Scale Midpoint:</label></td><td> <input id="scaleMid_input" name="scaleMid_input" size="10" value="`+settings.scaleMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthCount_input">Prompt Strength Count:</label></td><td> <input id="promptStrengthCount_input" name="promptStrengthCount_input" size="10" value="`+settings.promptStrengthCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthStep_input">Prompt Strength Step Size:</label></td><td> <input id="promptStrengthStep_input" name="promptStrengthStep_input" size="10" value="`+settings.promptStrengthStep+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthMid_input">Prompt Strength Midpoint:</label></td><td> <input id="promptStrengthMid_input" name="promptStrengthMid_input" size="10" value="`+settings.promptStrengthMid+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthStep_input">Prompt Strength Step Size:</label></td><td> <input id="promptStrengthStep_input" name="promptStrengthStep_input" size="10" value="`+settings.promptStrengthStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthMid_input">Prompt Strength Midpoint:</label></td><td> <input id="promptStrengthMid_input" name="promptStrengthMid_input" size="10" value="`+settings.promptStrengthMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useHypernetworks_input">Random Hypernetworks:</label></td><td> <input id="useHypernetworks_input" name="useHypernetworks_input" size="10" value="`+settings.useHypernetworks+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="hyperStrengthCount_input">Hyper Strength Count:</label></td><td> <input id="hyperStrengthCount_input" name="hyperStrengthCount_input" size="10" value="`+settings.hyperStrengthCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="hyperStrengthStep_input">Hyper Strength Step Size:</label></td><td> <input id="hyperStrengthStep_input" name="hyperStrengthStep_input" size="10" value="`+settings.hyperStrengthStep+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="hyperStrengthMid_input">Hyper Strength Midpoint:</label></td><td> <input id="hyperStrengthMid_input" name="hyperStrengthMid_input" size="10" value="`+settings.hyperStrengthMid+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="hyperStrengthStep_input">Hyper Strength Step Size:</label></td><td> <input id="hyperStrengthStep_input" name="hyperStrengthStep_input" size="10" value="`+settings.hyperStrengthStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="hyperStrengthMid_input">Hyper Strength Midpoint:</label></td><td> <input id="hyperStrengthMid_input" name="hyperStrengthMid_input" size="10" value="`+settings.hyperStrengthMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useGfpgans_input">Random GFPGANs:</label></td><td> <input id="useGfpgans_input" name="useGfpgans_input" size="10" value="`+settings.useGfpgans+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					
 					<tr><td>&nbsp;</td></tr>
@@ -1492,22 +1492,22 @@ function addSettingsTabInfo(){
 				<div><i class="fa fa-gear"></i></div>
 				<div><label for="">Inference Steps Buttons</label><small>set values for 4 action buttons, a value of 0 removes a button</small></div>
 				<div>
-					<input id="ISButton1_input" name="ISButton1_input" size="4" value="`+settings.ISButton1+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="ISButton2_input" name="ISButton1_input" size="4" value="`+settings.ISButton2+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="ISButton3_input" name="ISButton1_input" size="4" value="`+settings.ISButton3+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="ISButton4_input" name="ISButton1_input" size="4" value="`+settings.ISButton4+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="ISButton5_input" name="ISButton1_input" size="4" value="`+settings.ISButton5+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">
+					<input id="ISButton1_input" name="ISButton1_input" size="4" value="`+settings.ISButton1+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="ISButton2_input" name="ISButton1_input" size="4" value="`+settings.ISButton2+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="ISButton3_input" name="ISButton1_input" size="4" value="`+settings.ISButton3+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="ISButton4_input" name="ISButton1_input" size="4" value="`+settings.ISButton4+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="ISButton5_input" name="ISButton1_input" size="4" value="`+settings.ISButton5+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">
 				</div>
 			</div>
 			<div>
 				<div><i class="fa fa-gear"></i></div>
 				<div><label for="">Guidance Scale Buttons</label><small>set values for 4 action buttons, a value of 0 removes a button</small></div>
 				<div>
-					<input id="GSButton1_input" name="GSButton1_input" size="4" value="`+settings.GSButton1+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="GSButton2_input" name="GSButton1_input" size="4" value="`+settings.GSButton2+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="GSButton3_input" name="GSButton1_input" size="4" value="`+settings.GSButton3+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="GSButton4_input" name="GSButton1_input" size="4" value="`+settings.GSButton4+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
-					<input id="GSButton5_input" name="GSButton1_input" size="4" value="`+settings.GSButton5+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">
+					<input id="GSButton1_input" name="GSButton1_input" size="4" value="`+settings.GSButton1+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="GSButton2_input" name="GSButton1_input" size="4" value="`+settings.GSButton2+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="GSButton3_input" name="GSButton1_input" size="4" value="`+settings.GSButton3+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="GSButton4_input" name="GSButton1_input" size="4" value="`+settings.GSButton4+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">&nbsp;
+					<input id="GSButton5_input" name="GSButton1_input" size="4" value="`+settings.GSButton5+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings();">
 				</div>
 			</div>
 			<div>
