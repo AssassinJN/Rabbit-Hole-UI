@@ -862,7 +862,12 @@ preview.addEventListener("keydown", (event) => {
 	}
 	
 	function rhLoadSamplers() {
-		var samplerList = document.querySelectorAll('#sampler_name option');
+		if(test_diffusers.checked == true){
+			var samplerList = document.querySelectorAll('#sampler_name option:not(.k_diffusion-only)');
+		}else{
+			var samplerList = document.querySelectorAll('#sampler_name option');
+		}
+		
 		samplers = [];
 		samplerList.forEach((samplerOption) => {
 			samplers.push(samplerOption.value);
