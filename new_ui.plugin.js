@@ -1052,7 +1052,7 @@ preview.addEventListener("keydown", (event) => {
 		tempISStep = (settings.ISStep ? settings.ISStep : 5);
 		if(reqBody.init_image != null){
 			for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= ((Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1) + tempPromptStrengthStep*(tempPromptStrengthCount-1)); i+=tempPromptStrengthStep) {
-				if((tempPromptStrengthMid + i)>0 && (tempPromptStrengthMid + i)<=1){
+				if((tempPromptStrengthMid + i)>=0 && (tempPromptStrengthMid + i)<1){
 					tempPromptStrengths.push(Math.round((tempPromptStrengthMid + i)*100)/100);
 				}else{
 					console.log("invalid prompt strength: "+(tempPromptStrengthMid + i));
@@ -1060,7 +1060,7 @@ preview.addEventListener("keydown", (event) => {
 			}
 		}
 		for (let i = (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1); i <= (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1)+tempHyperStrengthStep*(tempHyperStrengthCount-1); i+=tempHyperStrengthStep) {
-			if((tempHyperStrengthMid + i)>0 && (tempHyperStrengthMid + i)<=1){
+			if((tempHyperStrengthMid + i)>=0 && (tempHyperStrengthMid + i)<=1){
 				tempHyperStrengths.push(Math.round((tempHyperStrengthMid + i)*100)/100);
 			}else{
 				console.log("invalid prompt strength: "+(tempHyperStrengthMid + i));
@@ -1075,7 +1075,7 @@ preview.addEventListener("keydown", (event) => {
 			}
 		}
 		for (let i = (Math.floor(tempScaleCount/2)*tempScaleStep*-1); i <= (Math.floor(tempScaleCount/2)*tempScaleStep*-1)+tempScaleStep*(tempScaleCount-1); i+=tempScaleStep) {
-			if((tempScaleMid + i)>0){
+			if((tempScaleMid + i)>=1.1 && (tempScaleMid + i)<=50){
 				tempScales.push(Math.round((tempScaleMid + i)*100)/100);
 			} else {
 				console.log("invalid guidance scale: "+(tempScaleMid + i));
