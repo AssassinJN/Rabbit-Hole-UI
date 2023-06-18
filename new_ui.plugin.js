@@ -1037,7 +1037,7 @@ preview.addEventListener("keydown", (event) => {
 		var tempLoraAlphas = [];
 		tempPromptStrengthMid = (settings.promptStrengthMid ? settings.promptStrengthMid : parseFloat(reqBody.prompt_strength));
 		tempHyperStrengthMid = (settings.hyperStrengthMid ? settings.hyperStrengthMid : parseFloat(reqBody.hypernetwork_strength));
-		tempLoraAlphaMid = (settings.loraAlphaMid ? settings.loraAlphaMid : parseFloat(reqBody.lora_alpha));
+		tempLoraAlphaMid = settings.loraAlphaMid;
 		tempScaleMid = (settings.scaleMid ? settings.scaleMid : parseFloat(reqBody.guidance_scale));
 		tempISMid = (settings.ISMid ? settings.ISMid : parseInt(reqBody.num_inference_steps));
 		tempPromptStrengthCount = (settings.promptStrengthCount ? settings.promptStrengthCount : 1);
@@ -1052,7 +1052,7 @@ preview.addEventListener("keydown", (event) => {
 		tempISStep = (settings.ISStep ? settings.ISStep : 5);
 		if(reqBody.init_image != null){
 			for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= ((Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1) + tempPromptStrengthStep*(tempPromptStrengthCount-1)); i+=tempPromptStrengthStep) {
-				if((tempPromptStrengthMid + i)>0 && (tempPromptStrengthMid + i)<1){
+				if((tempPromptStrengthMid + i)>0 && (tempPromptStrengthMid + i)<=1){
 					tempPromptStrengths.push(Math.round((tempPromptStrengthMid + i)*100)/100);
 				}else{
 					console.log("invalid prompt strength: "+(tempPromptStrengthMid + i));
@@ -1060,14 +1060,15 @@ preview.addEventListener("keydown", (event) => {
 			}
 		}
 		for (let i = (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1); i <= (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1)+tempHyperStrengthStep*(tempHyperStrengthCount-1); i+=tempHyperStrengthStep) {
-			if((tempHyperStrengthMid + i)>0 && (tempHyperStrengthMid + i)<1){
+			if((tempHyperStrengthMid + i)>0 && (tempHyperStrengthMid + i)<=1){
 				tempHyperStrengths.push(Math.round((tempHyperStrengthMid + i)*100)/100);
 			}else{
 				console.log("invalid prompt strength: "+(tempHyperStrengthMid + i));
 			}
 		}
 		for (let i = (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1); i <= (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1)+tempLoraAlphaStep*(tempLoraAlphaCount-1); i+=tempLoraAlphaStep) {
-			if((tempLoraAlphaMid + i)>0 && (tempLoraAlphaMid + i)<1){
+			console.log('tempLoraMid',i)
+			if((tempLoraAlphaMid + i)>=-2 && (tempLoraAlphaMid + i)<=2){
 				tempLoraAlphas.push(Math.round((tempLoraAlphaMid + i)*100)/100);
 			}else{
 				console.log("invalid prompt strength: "+(tempLoraAlphaMid + i));
