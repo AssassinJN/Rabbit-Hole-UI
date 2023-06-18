@@ -1041,7 +1041,8 @@ preview.addEventListener("keydown", (event) => {
 		var tempLoraAlphas = [];
 		tempPromptStrengthMid = (settings.promptStrengthMid ? settings.promptStrengthMid : parseFloat(reqBody.prompt_strength));
 		tempHyperStrengthMid = (settings.hyperStrengthMid ? settings.hyperStrengthMid : parseFloat(reqBody.hypernetwork_strength));
-		tempLoraAlphaMid = settings.loraAlphaMid;
+		tempLoraAlphaMid = (settings.loraAlphaCount>0 ? settings.loraAlphaMid : parseFloat(reqBody.lora_alpha));
+		console.log('tempLoraAlphaMid',tempLoraAlphaMid)
 		tempScaleMid = (settings.scaleMid ? settings.scaleMid : parseFloat(reqBody.guidance_scale));
 		tempISMid = (settings.ISMid ? settings.ISMid : parseInt(reqBody.num_inference_steps));
 		tempPromptStrengthCount = (settings.promptStrengthCount ? settings.promptStrengthCount : 1);
