@@ -1056,7 +1056,7 @@ preview.addEventListener("keydown", (event) => {
 		tempISStep = (settings.ISStep ? settings.ISStep : 5);
 		if(reqBody.init_image != null){
 			for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= ((Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1) + tempPromptStrengthStep*(tempPromptStrengthCount-1)); i+=tempPromptStrengthStep) {
-				if((tempPromptStrengthMid + i)>=0.01 && (tempPromptStrengthMid + i)<=PS_slider.getAttribute('max')/100){
+				if((tempPromptStrengthMid + i)>=0.05 && (tempPromptStrengthMid + i)<=PS_slider.getAttribute('max')/100){
 					tempPromptStrengths.push(Math.round((tempPromptStrengthMid + i)*100)/100);
 				}else{
 					console.log("invalid prompt strength: "+(tempPromptStrengthMid + i));
