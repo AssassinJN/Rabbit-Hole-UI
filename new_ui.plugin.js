@@ -346,6 +346,10 @@ document.getElementById('container').classList.add('minimalUI');
 let rhModifiers = {}, models = [], gfpgans = [], hypernetworks = [], vaes = [], loras = [], customModifierList = [];
 var editor = document.getElementById('editor');
 var preview = document.getElementById('preview');
+var GS_slider = document.getElementById('guidance_scale_slider');
+var PS_slider = document.getElementById('prompt_strength_slider');
+var LORA_slider = document.getElementById('lora_alpha_slider');
+var HS_slider = document.getElementById('hypernetwork_strength_slider');
 var imageTaskContainer = document.getElementsByClassName('imageTaskContainer');
 let UIButton = document.createElement("button");
 let ActionButtonGallery = document.createElement("button");
@@ -1052,7 +1056,7 @@ preview.addEventListener("keydown", (event) => {
 		tempISStep = (settings.ISStep ? settings.ISStep : 5);
 		if(reqBody.init_image != null){
 			for (let i = (Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1); i <= ((Math.floor(tempPromptStrengthCount/2)*tempPromptStrengthStep*-1) + tempPromptStrengthStep*(tempPromptStrengthCount-1)); i+=tempPromptStrengthStep) {
-				if((tempPromptStrengthMid + i)>=0 && (tempPromptStrengthMid + i)<1){
+				if((tempPromptStrengthMid + i)>=0.01 && (tempPromptStrengthMid + i)<=PS_slider.getAttribute('max')/100){
 					tempPromptStrengths.push(Math.round((tempPromptStrengthMid + i)*100)/100);
 				}else{
 					console.log("invalid prompt strength: "+(tempPromptStrengthMid + i));
@@ -1060,7 +1064,7 @@ preview.addEventListener("keydown", (event) => {
 			}
 		}
 		for (let i = (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1); i <= (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1)+tempHyperStrengthStep*(tempHyperStrengthCount-1); i+=tempHyperStrengthStep) {
-			if((tempHyperStrengthMid + i)>=0 && (tempHyperStrengthMid + i)<=1){
+			if((tempHyperStrengthMid + i)>=HS_slider.getAttribute('min')/100 && (tempHyperStrengthMid + i)<=HS_slider.getAttribute('max')/100){
 				tempHyperStrengths.push(Math.round((tempHyperStrengthMid + i)*100)/100);
 			}else{
 				console.log("invalid prompt strength: "+(tempHyperStrengthMid + i));
@@ -1068,14 +1072,14 @@ preview.addEventListener("keydown", (event) => {
 		}
 		for (let i = (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1); i <= (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1)+tempLoraAlphaStep*(tempLoraAlphaCount-1); i+=tempLoraAlphaStep) {
 			console.log('tempLoraMid',i)
-			if((tempLoraAlphaMid + i)>=-2 && (tempLoraAlphaMid + i)<=2){
+			if((tempLoraAlphaMid + i)>=LORA_slider.getAttribute('min')/100 && (tempLoraAlphaMid + i)<=LORA_slider.getAttribute('max')/100){
 				tempLoraAlphas.push(Math.round((tempLoraAlphaMid + i)*100)/100);
 			}else{
 				console.log("invalid prompt strength: "+(tempLoraAlphaMid + i));
 			}
 		}
 		for (let i = (Math.floor(tempScaleCount/2)*tempScaleStep*-1); i <= (Math.floor(tempScaleCount/2)*tempScaleStep*-1)+tempScaleStep*(tempScaleCount-1); i+=tempScaleStep) {
-			if((tempScaleMid + i)>=1.1 && (tempScaleMid + i)<=50){
+			if((tempScaleMid + i)>=GS_slider.getAttribute('min')/10 && (tempScaleMid + i)<=GS_slider.getAttribute('max')/10){
 				tempScales.push(Math.round((tempScaleMid + i)*100)/100);
 			} else {
 				console.log("invalid guidance scale: "+(tempScaleMid + i));
