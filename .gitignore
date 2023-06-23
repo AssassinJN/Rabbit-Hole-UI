@@ -1,2 +1,5 @@
 image-modifier-improvements-1.2.plugin.js
 plugin-manager-1.11.plugin.js
+plugin-manager.plugin.js
+.gitignore
+plugin-manager._plugin.js

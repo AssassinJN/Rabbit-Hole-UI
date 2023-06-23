@@ -407,18 +407,15 @@ function load() {
 	tempSettings = JSON.parse(localStorage.getItem('rh_settings'));
 	for(var key in tempSettings){
 		if(key == 'useModifiers'){
-			console.log(tempSettings[key])
 			for(var mod in tempSettings[key]){
 				
 				settings[key][mod] = tempSettings[key][mod];
-				console.log('mod',settings[key][mod],tempSettings[key][mod])
 			}
 		}else{
 			settings[key] = tempSettings[key];
 		}
 		
 	}
-	console.log(tempSettings,settings)
 }
 function setup() {
 	//If local storage doesn't exist, save a copy, else load existing.
@@ -691,7 +688,6 @@ var modifierObserver = new MutationObserver(function (mutations) {
 		if(customModifierList[0] === "" || customModifierList.length == 0){document.getElementById('useCustomModifiersContainer').style.display = "none";}
 		else{document.getElementById('useCustomModifiersContainer').style.display = "revert";}
 	})
-	console.log(customModifierList)
 })
 modifierObserver.observe((rh_modifierContainer), {
 	childList: true,
@@ -815,9 +811,7 @@ preview.addEventListener("keydown", (event) => {
 		
 		rhLoadModifiers();
 		loadCustomModifierList();
-		console.log('useCustomModifiers',useCustomModifiers_input)
 		settings.useCustomModifiers = parseInt(useCustomModifiers_input.value);
-		console.log('useCustomModifiers',settings.useCustomModifiers)
 		
 		useModifierCount = 0;
 		for (const group in rhModifiers) {
@@ -827,9 +821,7 @@ preview.addEventListener("keydown", (event) => {
 				document.getElementById('use'+group+'_input').value = rhModifiers[group].length;
 			}
 			useModifierCount += parseInt(settings.useModifiers[group]);
-			console.log('settings group: ',group,settings.useModifiers[group])
 		}
-		console.log('settings',settings)
 
 		settings.ISButton1 = parseInt(ISButton1_input.value);
 		settings.ISButton2 = parseInt(ISButton2_input.value);
@@ -1042,7 +1034,6 @@ preview.addEventListener("keydown", (event) => {
 		tempPromptStrengthMid = (settings.promptStrengthMid ? settings.promptStrengthMid : parseFloat(reqBody.prompt_strength));
 		tempHyperStrengthMid = (settings.hyperStrengthMid ? settings.hyperStrengthMid : parseFloat(reqBody.hypernetwork_strength));
 		tempLoraAlphaMid = (settings.loraAlphaCount>0 ? settings.loraAlphaMid : parseFloat(reqBody.lora_alpha));
-		console.log('tempLoraAlphaMid',tempLoraAlphaMid)
 		tempScaleMid = (settings.scaleMid ? settings.scaleMid : parseFloat(reqBody.guidance_scale));
 		tempISMid = (settings.ISMid ? settings.ISMid : parseInt(reqBody.num_inference_steps));
 		tempPromptStrengthCount = (settings.promptStrengthCount ? settings.promptStrengthCount : 1);
@@ -1072,7 +1063,6 @@ preview.addEventListener("keydown", (event) => {
 			}
 		}
 		for (let i = (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1); i <= (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1)+tempLoraAlphaStep*(tempLoraAlphaCount-1); i+=tempLoraAlphaStep) {
-			console.log('tempLoraMid',i)
 			if((tempLoraAlphaMid + i)>=LORA_slider.getAttribute('min')/100 && (tempLoraAlphaMid + i)<=LORA_slider.getAttribute('max')/100){
 				tempLoraAlphas.push(Math.round((tempLoraAlphaMid + i)*100)/100);
 			}else{
@@ -1151,7 +1141,6 @@ preview.addEventListener("keydown", (event) => {
 			shuffle(tempCusomModifiers);
 			
 			tempCusomModifiers = tempCusomModifiers.slice(0,settings.useCustomModifiers);
-			console.log('tempCusomModifiers',tempCusomModifiers)
 		}
 		
 		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max(tempLoraAlphas.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempLoras.length,1)*Math.max(tempSamplers.length,1)*Math.max(useModifierCount,1)*Math.max(tempCusomModifiers.length,1));
