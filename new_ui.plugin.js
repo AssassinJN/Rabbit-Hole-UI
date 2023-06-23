@@ -401,10 +401,10 @@ var settings = {
 };
 
 function save(){
-	localStorage.setItem('settings', JSON.stringify(settings));
+	localStorage.setItem('rh_settings', JSON.stringify(settings));
 }
 function load() {
-	tempSettings = JSON.parse(localStorage.getItem('settings'));
+	tempSettings = JSON.parse(localStorage.getItem('rh_settings'));
 	for(var key in tempSettings){
 		if(key == 'useModifiers'){
 			console.log(tempSettings[key])
@@ -422,7 +422,7 @@ function load() {
 }
 function setup() {
 	//If local storage doesn't exist, save a copy, else load existing.
-	if(localStorage.getItem('settings') === null){
+	if(localStorage.getItem('rh_settings') === null){
 		save();
 	}else{
 		load();
