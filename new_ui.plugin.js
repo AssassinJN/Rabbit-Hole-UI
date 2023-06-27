@@ -54,6 +54,7 @@ style.textContent = `
 	#editor-modifiers {
 		overflow-x:unset;
 		overflow-y:unset;
+		position:fixed;
 	}
 	#preview {
 		margin-left:510px;
