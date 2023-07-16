@@ -480,7 +480,13 @@ function resetRH(event){
 }
 
 function rh_makeButtons(){
-	UIButton.innerHTML = "Show Classic View";
+	if(settings.rh_classicDefault){
+		UIButton.innerHTML = "Show Gallery View";
+		document.getElementById('container').classList.toggle('minimalUI');
+	}else{
+		UIButton.innerHTML = "Show Classic View";
+	}
+	
 	UIButton.classList.add('UIButton');
 	UIButton.addEventListener("click", function () {
 		document.getElementById('container').classList.toggle('minimalUI');
@@ -817,9 +823,9 @@ preview.addEventListener("keydown", (event) => {
 		useModifierCount = 0;
 		for (const group in rhModifiers) {
 			settings.useModifiers[group] = parseInt(document.getElementById('use'+group+'_input').value)
-			if(settings.useModifiers[group] > rhModifiers[group].length){
-				settings.useModifiers[group] = rhModifiers[group].length; 
-				document.getElementById('use'+group+'_input').value = rhModifiers[group].length;
+			if(settings.useModifiers[group] > rhModifiers[group].length+1){
+				settings.useModifiers[group] = rhModifiers[group].length+1; 
+				document.getElementById('use'+group+'_input').value = rhModifiers[group].length+1;
 			}
 			useModifierCount += parseInt(settings.useModifiers[group]);
 		}
@@ -835,6 +841,7 @@ preview.addEventListener("keydown", (event) => {
 		settings.GSButton4 = parseFloat(GSButton4_input.value);
 		settings.GSButton5 = parseFloat(GSButton5_input.value);
 		settings.disable_hover_on_group = disable_hover_on_group_input.checked;
+		settings.rh_classicDefault = rh_classicDefault_input.checked;
 		settings.rabbitHoleOpen = document.getElementById('rabbit-settings').getElementsByTagName('h4')[0].classList.contains('active');
 		
 		if(settings.disable_hover_on_group){document.getElementById('container').classList.add('noGroupHover');}
@@ -1406,6 +1413,13 @@ function addSettingsTabInfo(){
 				<div><label for="disable_hover_on_group">Disable Hover on Groups</label><small>when set to hover, actions won't show on grouped images</small></div>
 				<div>
 					<div class="input-toggle"><input id="disable_hover_on_group_input" name="disable_hover_on_group_input" type="checkbox" onchange="setSettings();"><label for="disable_hover_on_group_input"></label></div>
+				</div>
+			</div>
+			<div>
+				<div><i class="fa fa-gear"></i></div>
+				<div><label for="rh_classicDefault">Default to Classic View</label><small>Rabbit Hole will start in Classic View</small></div>
+				<div>
+					<div class="input-toggle"><input id="rh_classicDefault_input" name="rh_classicDefault_input" type="checkbox" onchange="setSettings();"><label for="rh_classicDefault_input"></label></div>
 				</div>
 			</div>
 		</div>
