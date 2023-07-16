@@ -27,7 +27,7 @@ style.textContent = `
 		margin-top:58px;
 	}
 	#editor {
-		width:500px;
+		width:550px;
 		position:fixed;
 		overflow-y: auto;
 		overflow-x:hidden;
@@ -49,7 +49,7 @@ style.textContent = `
 		display:none;
 	}
 	.hidden #editor {
-		left:-500px;
+		left:-550px;
 	}
 	#editor-modifiers {
 		overflow-x:unset;
@@ -57,7 +57,7 @@ style.textContent = `
 		position:fixed;
 	}
 	#preview {
-		margin-left:510px;
+		margin-left:560px;
 		margin-right:0;
 		padding-left:0;
 		padding-top:40px;
@@ -70,7 +70,7 @@ style.textContent = `
 		padding:8px 25px 8px 0;
 		background:var(--background-color1);
 		right:0;
-		left:513px;
+		left:563px;
 		z-index:100;
 	}
 	.hidden #preview {
@@ -397,6 +397,7 @@ var settings = {
 	GSButton4: 2.0,
 	GSButton5: 3.0,
 	disable_hover_on_group: false,
+	rh_classicDefault: false,
 	rabbitHoleOpen: false,
 	useModifiers: {}
 };
@@ -465,6 +466,9 @@ function setup() {
 	if(settings.disable_hover_on_group){
 		document.getElementById('container').classList.add('noGroupHover');
 		document.getElementById('disable_hover_on_group_input').checked = true;
+	}
+	if(settings.rh_classicDefault){
+		document.getElementById('rh_classicDefault_input').checked = true;
 	}
 	document.querySelector('#reset-rh-settings').addEventListener('click', resetRH);
 }
