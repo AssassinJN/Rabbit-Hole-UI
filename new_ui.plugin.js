@@ -1064,7 +1064,7 @@ preview.addEventListener("keydown", (event) => {
 			}
 		}
 		for (let i = (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1); i <= (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1)+tempLoraAlphaStep*(tempLoraAlphaCount-1); i+=tempLoraAlphaStep) {
-			if((tempLoraAlphaMid + i)>=LORA_slider.getAttribute('min')/100 && (tempLoraAlphaMid + i)<=LORA_slider.getAttribute('max')/100){
+			if((tempLoraAlphaMid + i)>=0 && (tempLoraAlphaMid + i)<=9.9){
 				tempLoraAlphas.push(Math.round((tempLoraAlphaMid + i)*100)/100);
 			}else{
 				console.log("invalid prompt strength: "+(tempLoraAlphaMid + i));
