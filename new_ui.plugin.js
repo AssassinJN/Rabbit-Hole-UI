@@ -298,7 +298,7 @@ style.textContent = `
 			margin-left: 0;
 			padding-top:0;
 			min-height:revert;
-			margin-bottom:0;
+			margin-bottom:150px;
 		}
 		#preview-tools {
 			position:revert;
@@ -309,6 +309,12 @@ style.textContent = `
 		}
 		#footer {
 			left:0;
+		}
+		#preview-tools button i {
+			font-size: 12pt;
+		}
+		#preview-tools button.ActionButtonGallery, #preview-tools button.UIButton, #preview-tools button.ActionButton {
+			font-size: 10pt;
 		}
 	}
 	#newRabbitHoleBtn {
