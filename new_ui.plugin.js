@@ -299,6 +299,7 @@ style.textContent = `
 			padding-top:0;
 			min-height:revert;
 			margin-bottom:150px;
+			z-index:1000;
 		}
 		#preview-tools {
 			position:revert;
