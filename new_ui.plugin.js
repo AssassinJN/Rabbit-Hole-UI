@@ -74,7 +74,7 @@ style.textContent = `
 		z-index:100;
 	}
 	.hidden #preview {
-		margin-left:0;
+		margin-left:10px;
 	}
 	.model-list {
 		max-width: 310px;
@@ -82,10 +82,10 @@ style.textContent = `
 	#footer {
 		position:absolute;
 		bottom:0;
-		left:500px;
+		left:550px;
 		right:0;
 	}
-	.hidden #footer {
+	.hidden ~ #footer {
 		left:0;
 	}
 	#top-nav {
@@ -751,6 +751,7 @@ function updateZoom(){
 	for(let i = 0; i < imageTaskContainer.length; i++){
 		imageTaskContainer[i].setAttribute('style','--grid_num:'+settings.zoom);
 	}
+	document.getElementById('preview').style.paddingTop = document.getElementById('preview-tools').clientHeight+'px';
 	save();
 }
 
