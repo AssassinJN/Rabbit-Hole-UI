@@ -478,6 +478,11 @@ function setup() {
 		document.getElementById('rh_classicDefault_input').checked = true;
 	}
 	document.querySelector('#reset-rh-settings').addEventListener('click', resetRH);
+	document.querySelector('#upscale_amount').innerHTML += `
+		<option id="upscale_amount_6x" value="6">6x</option>
+		<option id="upscale_amount_8x" value="8">8x</option>
+		<option id="upscale_amount_12x" value="12">12x</option>
+		<option id="upscale_amount_16x" value="16">16x</option>`;
 }
 
 function resetRH(event){
