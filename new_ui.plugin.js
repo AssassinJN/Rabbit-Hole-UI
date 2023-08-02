@@ -876,6 +876,7 @@ preview.addEventListener("keydown", (event) => {
 		if(settings.useVaes > vaes.length){settings.useVaes = vaes.length; useVaes_input.value = vaes.length;}
 		if(settings.useLoras > loras.length){settings.useLoras = loras.length; useLoras_input.value = loras.length;}
 		if(settings.useSamplers > samplers.length){settings.useSamplers = samplers.length; useSamplers_input.value = samplers.length;}
+		if(settings.useCustomModifiers > customModifierList.length){settings.useCustomModifiers = customModifierList.length; useCustomModifiers_input.value = customModifierList.length;}
 
 		save();
 		
@@ -1046,7 +1047,7 @@ preview.addEventListener("keydown", (event) => {
 		var tempVaes=[];
 		var tempLoras=[];
 		var tempModifiers = {};
-		var tempCusomModifiers=[];
+		var tempCustomModifiers=[];
 		var tempScales = [];
 		var tempISs = [];
 		var tempMaxImagesToGenerate, tempScaleMid, tempISMid, tempPromptStrengthMid, tempHyperStrengthMid, tempLoraAlphaMid, 
@@ -1161,14 +1162,14 @@ preview.addEventListener("keydown", (event) => {
 		}
 		
 		if(settings.useCustomModifiers>0){
-			tempCusomModifiers = customModifierList;
-			tempCusomModifiers.push('');
-			shuffle(tempCusomModifiers);
+			tempCustomModifiers = customModifierList;
+			tempCustomModifiers.push('');
+			shuffle(tempCustomModifiers);
 			
-			tempCusomModifiers = tempCusomModifiers.slice(0,settings.useCustomModifiers);
+			tempCustomModifiers = tempCustomModifiers.slice(0,settings.useCustomModifiers);
 		}
 		
-		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max(tempLoraAlphas.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempLoras.length,1)*Math.max(tempSamplers.length,1)*Math.max(useModifierCount,1)*Math.max(tempCusomModifiers.length,1));
+		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max(tempLoraAlphas.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempLoras.length,1)*Math.max(tempSamplers.length,1)*Math.max(useModifierCount,1)*Math.max(tempCustomModifiers.length,1));
 		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
 		for(let i = 0; i<tempMaxImagesToGenerate; i++){
 			var tempTask = {};
@@ -1185,7 +1186,7 @@ preview.addEventListener("keydown", (event) => {
 				vae: (settings.useVaes>0 ? tempVaes[Math.round(Math.random() * (tempVaes.length - 1))]: reqBody.use_vae_model),
 				lora: (settings.useLoras>0 ? tempLoras[Math.round(Math.random() * (tempLoras.length - 1))]: reqBody.use_lora_model),
 				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]: reqBody.sampler_name),
-				customModifier: (settings.useCustomModifiers>0 ? tempCusomModifiers[Math.round(Math.random() * (tempCusomModifiers.length - 1))] : ''),
+				customModifier: (settings.useCustomModifiers>0 ? tempCustomModifiers[Math.round(Math.random() * (tempCustomModifiers.length - 1))] : ''),
 				modifiers: {},
 			}
 			for (const group in rhModifiers) {
