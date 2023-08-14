@@ -323,16 +323,6 @@ style.textContent = `
 		padding:10px;
 		margin-top:10px;
 	}
-	#editor .simple-tooltip {
-		right:0 !important;
-		top:100% !important;
-		left:unset !important;
-		bottom:unset !important;
-		transform: translate(0, -50%) !important;
-	}
-	#editor :hover > .simple-tooltip {
-		transform: translate(0,0) !important;
-	}
 	#tab-content-settings {
 		text-align:center;
 	}
@@ -365,6 +355,7 @@ let ActionButton = document.createElement("button");
 let menuButton = document.createElement("button");
 let I2ICount = 5;
 let useModifierCount = 0;
+let allModelCount = 0;
 var settings = {
 	galleryActions: 'hidden',
 	actions: 'hover',
@@ -386,7 +377,6 @@ var settings = {
 	ISCount: 0,
 	ISStep: 0,
 	ISMid: 0,
-	useModels: 0,
 	useGfpgans: 0,
 	useHypernetworks: 0,
 	useVaes: 0,
@@ -406,7 +396,9 @@ var settings = {
 	disable_hover_on_group: false,
 	rh_classicDefault: false,
 	rabbitHoleOpen: false,
-	useModifiers: {}
+	useModifiers: {},
+	useModels: {},
+	useAllModels: 0
 };
 
 function save(){
@@ -419,6 +411,11 @@ function load() {
 			for(var mod in tempSettings[key]){
 				
 				settings[key][mod] = tempSettings[key][mod];
+			}
+		}else if(key == 'useModels'){
+			for(var model in tempSettings[key]){
+				
+				settings[key][model] = tempSettings[key][model];
 			}
 		}else{
 			settings[key] = tempSettings[key];
@@ -825,7 +822,6 @@ preview.addEventListener("keydown", (event) => {
 		settings.ISCount = parseInt(ISCount_input.value);
 		settings.ISStep = parseInt(ISStep_input.value);
 		settings.ISMid = parseInt(ISMid_input.value);
-		settings.useModels = parseInt(useModels_input.value);
 		settings.useGfpgans = parseInt(useGfpgans_input.value);
 		settings.useHypernetworks = parseInt(useHypernetworks_input.value);
 		settings.useVaes = parseInt(useVaes_input.value);
@@ -837,7 +833,7 @@ preview.addEventListener("keydown", (event) => {
 		loadCustomModifierList();
 		settings.useCustomModifiers = parseInt(useCustomModifiers_input.value);
 		
-		useModifierCount = 0;
+		useModifierCount = 0;		
 		for (const group in rhModifiers) {
 			settings.useModifiers[group] = parseInt(document.getElementById('use'+group+'_input').value)
 			if(settings.useModifiers[group] > rhModifiers[group].length+1){
@@ -864,13 +860,25 @@ preview.addEventListener("keydown", (event) => {
 		if(settings.disable_hover_on_group){document.getElementById('container').classList.add('noGroupHover');}
 		else{document.getElementById('container').classList.remove('noGroupHover');}
 		
-		rhLoadModels();
+		//rhLoadModels();
 		rhLoadSamplers();
 		
-
+		allModelCount = 0;
+		settings.useAllModels = 0;
+		for(var modelGroup in models){
+			if(modelGroup != 'addEventListener'){
+				settings.useModels[modelGroup] = parseInt(document.getElementById('use'+modelGroup+'_input').value)
+				if(settings.useModels[modelGroup] > models[modelGroup].length){
+					settings.useModels[modelGroup] = models[modelGroup].length; 
+					document.getElementById('use'+modelGroup+'_input').value = models[modelGroup].length;
+				}
+				allModelCount += models[modelGroup].length;
+				settings.useAllModels += settings.useModels[modelGroup];
+			}
+		}
+		
 		//Check Max Settings
 
-		if(settings.useModels > models.length){settings.useModels = models.length; useModels_input.value = models.length;}
 		if(settings.useGfpgans > gfpgans.length){settings.useGfpgans = gfpgans.length; useGfpgans_input.value = gfpgans.length;}
 		if(settings.useHypernetworks > hypernetworks.length){settings.useHypernetworks = hypernetworks.length; useHypernetworks_input.value = hypernetworks.length;}
 		if(settings.useVaes > vaes.length){settings.useVaes = vaes.length; useVaes_input.value = vaes.length;}
@@ -923,20 +931,33 @@ preview.addEventListener("keydown", (event) => {
 			let hypernetworkOptions = modelOptions['hypernetwork']
 			let vaeOptions = modelOptions['vae']
 			let loraOptions = modelOptions['lora']
-			models = []
 			gfpgans = []
 			hypernetworks = []
 			vaes = []
 			loras = []
+			let tempHTML = "";
+			console.log('start load model html')
+			tempHTML ='<tr id="modelHeading"><td colspan="2"><b class="settings-subheader">Model Group Settings</b></td></tr>';
+			models['Ungrouped'] = []
 			stableDiffusionOptions.forEach(modelName => {
-				if(Array.isArray(modelName)){
+				if(modelName['sd-v1-4']){
+					models['Ungrouped'].push('sd-v1-4');
+				} else if(Array.isArray(modelName)){
+					models[modelName[0]] = [];
 					modelName[1].forEach(subModel => {
-						models.push(modelName[0]+"/"+subModel);
+						models[modelName[0]].push(modelName[0]+"/"+subModel);
 					})
+					settings.useModels[modelName[0]] = 0
+					tempHTML += `<tr class="pl-5 modelRow"><td><label for="use${modelName[0]}_input">Random ${modelName[0].replaceAll('-', ' ')}:</label></td><td> <input id="use${modelName[0]}_input" name="use${modelName[0]}_input" size="10" value="`+parseInt(settings.useModels[modelName[0]])+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>`
+					
 				} else {
-					models.push(modelName);
+					models['Ungrouped'].push(modelName);
 				}
 			})
+			settings.useModels['Ungrouped'] = 0
+			tempHTML += `<tr class="pl-5 modelRow"><td><label for="useUngrouped_input">Random Ungrouped:</label></td><td> <input id="useUngrouped_input" name="useUngrouped_input" size="10" value="`+parseInt(settings.useModels['Ungrouped'])+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>`
+			document.querySelectorAll('.modelRow').forEach(e => e.remove());
+			document.getElementById('modelHeading').outerHTML = tempHTML;
 			gfpganOptions.forEach(gfpganName => {
 				if(Array.isArray(gfpganName)){
 					gfpganName[1].forEach(subgfpgan => {
@@ -1046,8 +1067,10 @@ preview.addEventListener("keydown", (event) => {
 		var tempHypernetworks=[];
 		var tempVaes=[];
 		var tempLoras=[];
-		var tempModifiers = {};
+		var tempModifiers = {};		
 		var tempCustomModifiers=[];
+		var tempModels = {};
+		var tempAllModels = [];
 		var tempScales = [];
 		var tempISs = [];
 		var tempMaxImagesToGenerate, tempScaleMid, tempISMid, tempPromptStrengthMid, tempHyperStrengthMid, tempLoraAlphaMid, 
@@ -1117,11 +1140,6 @@ preview.addEventListener("keydown", (event) => {
 		} else {
 			tempSeeds[0] = reqBody.seed;
 		}
-		if(settings.useModels>0){
-			tempModels = models;
-			shuffle(tempModels);
-			tempModels = tempModels.slice(0,settings.useModels);
-		}
 		if(settings.useGfpgans>0){
 			tempGfpgans = gfpgans;
 			tempGfpgans.push('');
@@ -1168,8 +1186,16 @@ preview.addEventListener("keydown", (event) => {
 			
 			tempCustomModifiers = tempCustomModifiers.slice(0,settings.useCustomModifiers);
 		}
+
+		for (const modelGroup in models) {
+			if(settings.useModels[modelGroup]>0){
+				tempModels[modelGroup] = models[modelGroup];
+				shuffle(tempModels[modelGroup]);
+				tempAllModels = tempAllModels.concat(tempModels[modelGroup].slice(0,settings.useModels[modelGroup]));
+			}
+		}
 		
-		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max(tempLoraAlphas.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempLoras.length,1)*Math.max(tempSamplers.length,1)*Math.max(useModifierCount,1)*Math.max(tempCustomModifiers.length,1));
+		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max(tempLoraAlphas.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempAllModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempLoras.length,1)*Math.max(tempSamplers.length,1)*Math.max(useModifierCount,1)*Math.max(tempCustomModifiers.length,1));
 		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
 		for(let i = 0; i<tempMaxImagesToGenerate; i++){
 			var tempTask = {};
@@ -1180,7 +1206,7 @@ preview.addEventListener("keydown", (event) => {
 				HS: tempHyperStrengths[Math.round(Math.random() * (tempHyperStrengths.length - 1))],
 				LS: tempLoraAlphas[Math.round(Math.random() * (tempLoraAlphas.length - 1))],
 				seed: tempSeeds[Math.round(Math.random() * (tempSeeds.length - 1))],
-				model: (settings.useModels>0 ? tempModels[Math.round(Math.random() * (tempModels.length - 1))]: reqBody.use_stable_diffusion_model),
+				model: (settings.useAllModels>0 ? tempAllModels[Math.round(Math.random() * (tempAllModels.length - 1))]: reqBody.use_stable_diffusion_model),
 				gfpgan: (settings.useGfpgans>0 ? tempGfpgans[Math.round(Math.random() * (tempGfpgans.length - 1))]: reqBody.use_face_correction),
 				hypernetwork: (settings.useHypernetworks>0 ? tempHypernetworks[Math.round(Math.random() * (tempHypernetworks.length - 1))]: reqBody.use_hypernetwork_model),
 				vae: (settings.useVaes>0 ? tempVaes[Math.round(Math.random() * (tempVaes.length - 1))]: reqBody.use_vae_model),
@@ -1188,6 +1214,7 @@ preview.addEventListener("keydown", (event) => {
 				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]: reqBody.sampler_name),
 				customModifier: (settings.useCustomModifiers>0 ? tempCustomModifiers[Math.round(Math.random() * (tempCustomModifiers.length - 1))] : ''),
 				modifiers: {},
+				models: {},
 			}
 			for (const group in rhModifiers) {
 				tempTask.modifiers[group] = (settings.useModifiers[group]>0 ? tempModifiers[group][Math.round(Math.random() * (tempModifiers[group].length - 1))] : '');
@@ -1292,7 +1319,6 @@ function addRabbitHoleSettings(){
 					<tr><td><b class="settings-subheader">Image Settings</b></td></tr>
 					<tr class="pl-5"><td><label for="maxImagesToGenerate_input">Max Image to Generate:</label></td><td> <input id="maxImagesToGenerate_input" name="maxImagesToGenerate_input" size="10" value="`+settings.maxImagesToGenerate+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"><button id="calcMaxButton"><i class="fa fa-calculator"></i></button></td></tr>
 					<tr class="pl-5"><td><label for="useSeeds_input">Seeds to Generate:</label></td><td> <input id="useSeeds_input" name="useSeeds_input" size="10" value="`+settings.useSeeds+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="useModels_input">Random Models:</label></td><td> <input id="useModels_input" name="useModels_input" size="10" value="`+settings.useModels+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useVaes_input">Random VAEs:</label></td><td> <input id="useVaes_input" name="useVaes_input" size="10" value="`+settings.useVaes+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useLoras_input">Random LORAs:</label></td><td> <input id="useLoras_input" name="useLoras_input" size="10" value="`+settings.useLoras+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="loraAlphaCount_input">LORA Strength Count:</label></td><td> <input id="loraAlphaCount_input" name="loraAlphaCount_input" size="10" value="`+settings.loraAlphaCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
@@ -1315,6 +1341,10 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5"><td><label for="useGfpgans_input">Random GFPGANs:</label></td><td> <input id="useGfpgans_input" name="useGfpgans_input" size="10" value="`+settings.useGfpgans+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					
 					<tr><td>&nbsp;</td></tr>
+					<tr id="modelHeading"><td colspan="2"><b class="settings-subheader">Model Group Settings</b></td></tr>					
+					<tr><td>&nbsp;</td></tr>
+
+					<tr><td>&nbsp;</td></tr>
 					<tr id="modHeading"><td colspan="2"><b class="settings-subheader">Image Modifier Settings</b></td></tr>					
 					<tr class="pl-5" id="useCustomModifiersContainer"><td><label for="useCustomModifiers_input">Random Custom Modifiers:</label></td><td> <input id="useCustomModifiers_input" name="useCustomModifiers_input" size="10" value="`+settings.useCustomModifiers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr><td>&nbsp;</td></tr>
@@ -1336,9 +1366,9 @@ function addRabbitHoleSettings(){
 	});
 	document.getElementById('calcMaxButton').addEventListener("click", function () {
 		if(document.getElementById('editor').classList.contains('img2img')){
-			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.loraAlphaCount,1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.loraAlphaCount,1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useAllModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
 		} else {
-			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.loraAlphaCount,1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.loraAlphaCount,1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useAllModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
 		}
 		setSettings();
 	});
