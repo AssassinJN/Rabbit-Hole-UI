@@ -226,6 +226,7 @@ style.textContent = `
 	.minimalUI .imgItem, .minimalUI .imgItem img {
 		width:100%;
 		height:auto;
+		max-height:none;
 		margin:0;
 	}
 	.highlightRing {
