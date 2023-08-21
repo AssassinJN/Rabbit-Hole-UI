@@ -354,6 +354,7 @@ let UIButton = document.createElement("button");
 let ActionButtonGallery = document.createElement("button");
 let ActionButton = document.createElement("button");
 let menuButton = document.createElement("button");
+let modelGroupHTML = "";
 let I2ICount = 5;
 let useModifierCount = 0;
 let allModelCount = 0;
@@ -922,6 +923,42 @@ preview.addEventListener("keydown", (event) => {
 
 	  return array;
 	}
+
+	function unpackModels(modelName, parentName="", modelDir = ""){
+		if(Array.isArray(modelName)){
+			if(parentName == ""){
+				parentName = modelName[0];
+			} else {
+				parentName = parentName+"/"+modelName[0]
+			}
+			modelDir += modelName[0]+"/"
+			
+			modelName[1].forEach(subModel => {
+				unpackModels(subModel, parentName, modelDir)
+			})
+			
+		} else {
+			
+			if(parentName == ""){
+				parentName = "Ungrouped";
+			}
+			if(!Array.isArray(models[parentName])){
+				models[parentName] = [];
+				settings.useModels[parentName] = 0;
+				modelGroupHTML += `<tr class="pl-5 modelRow"><td><label for="use${parentName}_input">${parentName.replaceAll('-', ' ')}:</label></td><td> <input id="use${parentName}_input" name="use${parentName}_input" size="10" value="`+parseInt(settings.useModels[parentName])+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>`
+			}
+			if(modelName['sd-v1-4']){
+				models[parentName].push(modelDir+'sd-v1-4');
+			} else {
+				models[parentName].push(modelDir+modelName);
+			}
+			
+			
+			
+			//console.log(modelDir+modelName);
+		}
+	}
+
 	async function rhLoadModels() {
 		try {
 			let res = await fetch('/get/models')
@@ -936,29 +973,15 @@ preview.addEventListener("keydown", (event) => {
 			hypernetworks = []
 			vaes = []
 			loras = []
-			let tempHTML = "";
-			console.log('start load model html')
-			tempHTML ='<tr id="modelHeading"><td colspan="2"><b class="settings-subheader">Model Group Settings</b></td></tr>';
-			models['Ungrouped'] = []
+			
+			modelGroupHTML ='<tr id="modelHeading"><td colspan="2"><b class="settings-subheader">Model Group Settings</b></td></tr>';
 			stableDiffusionOptions.forEach(modelName => {
-				if(modelName['sd-v1-4']){
-					models['Ungrouped'].push('sd-v1-4');
-				} else if(Array.isArray(modelName)){
-					models[modelName[0]] = [];
-					modelName[1].forEach(subModel => {
-						models[modelName[0]].push(modelName[0]+"/"+subModel);
-					})
-					settings.useModels[modelName[0]] = 0
-					tempHTML += `<tr class="pl-5 modelRow"><td><label for="use${modelName[0]}_input">Random ${modelName[0].replaceAll('-', ' ')}:</label></td><td> <input id="use${modelName[0]}_input" name="use${modelName[0]}_input" size="10" value="`+parseInt(settings.useModels[modelName[0]])+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>`
-					
-				} else {
-					models['Ungrouped'].push(modelName);
-				}
+				unpackModels(modelName);
 			})
-			settings.useModels['Ungrouped'] = 0
-			tempHTML += `<tr class="pl-5 modelRow"><td><label for="useUngrouped_input">Random Ungrouped:</label></td><td> <input id="useUngrouped_input" name="useUngrouped_input" size="10" value="`+parseInt(settings.useModels['Ungrouped'])+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>`
+			console.log(models);
+			
 			document.querySelectorAll('.modelRow').forEach(e => e.remove());
-			document.getElementById('modelHeading').outerHTML = tempHTML;
+			document.getElementById('modelHeading').outerHTML = modelGroupHTML;
 			gfpganOptions.forEach(gfpganName => {
 				if(Array.isArray(gfpganName)){
 					gfpganName[1].forEach(subgfpgan => {
