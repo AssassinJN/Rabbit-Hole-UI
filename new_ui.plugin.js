@@ -952,10 +952,6 @@ preview.addEventListener("keydown", (event) => {
 			} else {
 				models[parentName].push(modelDir+modelName);
 			}
-			
-			
-			
-			//console.log(modelDir+modelName);
 		}
 	}
 
@@ -978,7 +974,6 @@ preview.addEventListener("keydown", (event) => {
 			stableDiffusionOptions.forEach(modelName => {
 				unpackModels(modelName);
 			})
-			console.log(models);
 			
 			document.querySelectorAll('.modelRow').forEach(e => e.remove());
 			document.getElementById('modelHeading').outerHTML = modelGroupHTML;
