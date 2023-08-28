@@ -39,14 +39,8 @@ style.textContent = `
 	.img2imgOnly {
 		display:none;
 	}
-	.notImg2img {
-		display:revert;
-	}
 	#editor.img2img .img2imgOnly {
 		display:revert;
-	}
-	#editor.img2img .notImg2img {
-		display:none;
 	}
 	.hidden #editor {
 		left:-550px;
@@ -227,6 +221,7 @@ style.textContent = `
 		width:100%;
 		height:auto;
 		max-height:none;
+		max-width:100%;
 		margin:0;
 	}
 	.highlightRing {
@@ -1297,7 +1292,6 @@ preview.addEventListener("keydown", (event) => {
 			newTaskRequest.numOutputsTotal = document.querySelector('#num_outputs_total').value;
 			if(reqBody.init_image != null){
 				newTaskRequest.reqBody.prompt_strength = taskSetting.PS;
-				newTaskRequest.reqBody.sampler_name = "ddim";
 			}
 			if(newTaskRequest.use_hypernetwork_model != ''){
 				newTaskRequest.reqBody.hypernetwork_strength = taskSetting.HS
@@ -1343,7 +1337,7 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5"><td><label for="loraAlphaCount_input">LORA Strength Count:</label></td><td> <input id="loraAlphaCount_input" name="loraAlphaCount_input" size="10" value="`+settings.loraAlphaCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="loraAlphaStep_input">LORA Strength Step Size:</label></td><td> <input id="loraAlphaStep_input" name="loraAlphaStep_input" size="10" value="`+settings.loraAlphaStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="loraAlphaMid_input">LORA Strength Midpoint:</label></td><td> <input id="loraAlphaMid_input" name="loraAlphaMid_input" size="10" value="`+settings.loraAlphaMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5 notImg2img"><td><label for="useSamplers_input">Random Samplers:</label></td><td> <input id="useSamplers_input" name="useSamplers_input" size="10" value="`+settings.useSamplers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
+					<tr class="pl-5"><td><label for="useSamplers_input">Random Samplers:</label></td><td> <input id="useSamplers_input" name="useSamplers_input" size="10" value="`+settings.useSamplers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISCount_input">Inference Steps Count:</label></td><td> <input id="ISCount_input" name="ISCount_input" size="10" value="`+settings.ISCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISStep_input">Inference Steps Step Size:</label></td><td> <input id="ISStep_input" name="ISStep_input" size="10" value="`+settings.ISStep+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISMid_input">Inference Steps Midpoint:</label></td><td> <input id="ISMid_input" name="ISMid_input" size="10" value="`+settings.ISMid+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
@@ -1427,7 +1421,6 @@ function buildRequest(steps, mode, reqBody, img) {
         promptStrengthContainer.style.display = 'table-row';
         //maskSetting.checked = false;
         samplerSelectionContainer.style.display = 'none';
-		newTaskRequest.reqBody.sampler_name = 'ddim';
 		newTaskRequest.reqBody.prompt_strength = reqBody.prompt_strength;
 		newTaskRequest.reqBody.init_image = imageElem.src;
 		newTaskRequest.steps = steps-1;
