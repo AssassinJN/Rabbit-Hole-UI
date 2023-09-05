@@ -333,6 +333,14 @@ style.textContent = `
 		font-size: 1.1rem;
 		vertical-align: middle;
 	}
+	#makeImage {
+		width:calc(100% - 150px);
+	}
+	.rabbitHoleButton {
+		width:147px;
+		margin-left:3px;
+		height:30pt;
+	}
 `;
 
 document.head.appendChild(style);
@@ -626,6 +634,22 @@ function rh_makeButtons(){
 		}
 	});
 	PLUGINS["IMAGE_INFO_BUTTONS"].push({ text: "Draw RH Variants", on_click: startRequest });
+
+
+	let makeRabbits = document.createElement("button");
+	makeRabbits.innerHTML = "Rabbit Hole";
+	makeRabbits.classList.add('primaryButton','rabbitHoleButton');
+	makeRabbits.addEventListener("click", function () {
+		const taskTemplate = getCurrentUserRequest();
+		const newTaskRequests = [];
+		//console.log(taskTemplate);
+		getPrompts().forEach((prompt) => newTaskRequests.push(Object.assign({}, taskTemplate, {
+			reqBody: Object.assign({ prompt: prompt }, taskTemplate.reqBody)
+		})));
+		newTaskRequests.forEach((task) => startRequest(task.reqBody, task.img));
+		initialText.style.display = 'none';
+	});
+	document.getElementById('makeImage').after(makeRabbits);
 }
 
 
