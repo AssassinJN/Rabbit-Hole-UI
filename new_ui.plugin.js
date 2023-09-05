@@ -341,6 +341,9 @@ style.textContent = `
 		margin-left:3px;
 		height:30pt;
 	}
+	button.primaryButton, button.secondaryButton, #stopImage, #makeImage, .tertiaryButton:hover {
+		color:#ffffff;
+	}
 `;
 
 document.head.appendChild(style);
