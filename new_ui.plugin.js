@@ -381,7 +381,6 @@ var settings = {
 	hyperStrengthMid: 0,
 	loraAlphaCount: 0,
 	loraAlphaStep: 0,
-	loraAlphaMid: 0,
 	ISCount: 0,
 	ISStep: 0,
 	ISMid: 0,
@@ -841,7 +840,6 @@ preview.addEventListener("keydown", (event) => {
 		settings.hyperStrengthMid = parseFloat(hyperStrengthMid_input.value);
 		settings.loraAlphaCount = parseInt(loraAlphaCount_input.value);
 		settings.loraAlphaStep = parseFloat(loraAlphaStep_input.value);
-		settings.loraAlphaMid = parseFloat(loraAlphaMid_input.value);
 		//Inference Steps, works the same as Guidance Scale
 		settings.ISCount = parseInt(ISCount_input.value);
 		settings.ISStep = parseInt(ISStep_input.value);
@@ -1114,21 +1112,23 @@ preview.addEventListener("keydown", (event) => {
 		var tempAllModels = [];
 		var tempScales = [];
 		var tempISs = [];
-		var tempMaxImagesToGenerate, tempScaleMid, tempISMid, tempPromptStrengthMid, tempHyperStrengthMid, tempLoraAlphaMid, 
+		var tempMaxImagesToGenerate, tempScaleMid, tempISMid, tempPromptStrengthMid, tempHyperStrengthMid,
 			tempPromptStrengthCount, tempScaleCount, tempISCount, tempHyperStrengthCount, tempLoraAlphaCount,
 			tempPromptStrengthStep, tempScaleStep, tempISStep, tempHyperStrengthStep, tempLoraAlphaStep;
+		var tempLoraAlphaMid = [];
 		var tempSamplers = [];
 		var tempPromptStrengths = [];
 		var tempHyperStrengths = [];
 		var tempLoraAlphas = [];
 		tempPromptStrengthMid = (settings.promptStrengthMid ? settings.promptStrengthMid : parseFloat(reqBody.prompt_strength));
 		tempHyperStrengthMid = (settings.hyperStrengthMid ? settings.hyperStrengthMid : parseFloat(reqBody.hypernetwork_strength));
-		tempLoraAlphaMid = (settings.loraAlphaCount>0 ? settings.loraAlphaMid : parseFloat(reqBody.lora_alpha));
+		
+		tempLoraAlphaMid = reqBody.lora_alpha;
 		tempScaleMid = (settings.scaleMid ? settings.scaleMid : parseFloat(reqBody.guidance_scale));
 		tempISMid = (settings.ISMid ? settings.ISMid : parseInt(reqBody.num_inference_steps));
 		tempPromptStrengthCount = (settings.promptStrengthCount ? settings.promptStrengthCount : 1);
-		tempHyperStrengthCount = (settings.hyperStrengthCount ? settings.hyperStrengthCount : 1);
-		tempLoraAlphaCount = (settings.loraAlphaCount ? settings.loraAlphaCount : 1);
+		tempHyperStrengthCount = (settings.hyperStrengthCount ? settings.hyperStrengthCount : 0);
+		tempLoraAlphaCount = (settings.loraAlphaCount ? settings.loraAlphaCount : 0);
 		tempScaleCount = (settings.scaleCount ? settings.scaleCount : 1);
 		tempISCount = (settings.ISCount ? settings.ISCount : 1);
 		tempPromptStrengthStep = (settings.promptStrengthStep ? settings.promptStrengthStep : 0.1);
@@ -1149,14 +1149,22 @@ preview.addEventListener("keydown", (event) => {
 			if((tempHyperStrengthMid + i)>=HS_slider.getAttribute('min')/100 && (tempHyperStrengthMid + i)<=HS_slider.getAttribute('max')/100){
 				tempHyperStrengths.push(Math.round((tempHyperStrengthMid + i)*100)/100);
 			}else{
-				console.log("invalid prompt strength: "+(tempHyperStrengthMid + i));
+				console.log("invalid hyper strength: "+(tempHyperStrengthMid + i));
 			}
 		}
-		for (let i = (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1); i <= (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1)+tempLoraAlphaStep*(tempLoraAlphaCount-1); i+=tempLoraAlphaStep) {
-			if((tempLoraAlphaMid + i)>=0 && (tempLoraAlphaMid + i)<=9.9){
-				tempLoraAlphas.push(Math.round((tempLoraAlphaMid + i)*100)/100);
-			}else{
-				console.log("invalid prompt strength: "+(tempLoraAlphaMid + i));
+		if(!tempLoraAlphaMid.isArray && tempLoraAlphaMid.length < 1){
+			var g = tempLoraAlphaMid;
+			tempLoraAlphaMid = [];
+			tempLoraAlphaMid[0] = g;
+		}
+		for(let li = 0; li < tempLoraAlphaMid.length; li++){
+			tempLoraAlphas[li] = [];
+			for (let i = (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1); i <= (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1)+tempLoraAlphaStep*(tempLoraAlphaCount-1); i+=tempLoraAlphaStep) {
+				if((parseFloat(tempLoraAlphaMid[li]) + i)>=0 && (parseFloat(tempLoraAlphaMid[li]) + i)<=9.9){
+					tempLoraAlphas[li].push(Math.round((parseFloat(tempLoraAlphaMid[li]) + i)*100)/100);
+				}else{
+					console.log("invalid lora strength: "+(parseFloat(tempLoraAlphaMid[li]) + i));
+				}
 			}
 		}
 		for (let i = (Math.floor(tempScaleCount/2)*tempScaleStep*-1); i <= (Math.floor(tempScaleCount/2)*tempScaleStep*-1)+tempScaleStep*(tempScaleCount-1); i+=tempScaleStep) {
@@ -1236,7 +1244,7 @@ preview.addEventListener("keydown", (event) => {
 			}
 		}
 		
-		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max(tempLoraAlphas.length,1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempAllModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempLoras.length,1)*Math.max(tempSamplers.length,1)*Math.max(useModifierCount,1)*Math.max(tempCustomModifiers.length,1));
+		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max((tempLoraAlphas[0].length ** tempLoraAlphas.length),1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempAllModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempLoras.length,1)*Math.max(tempSamplers.length,1)*Math.max(useModifierCount,1)*Math.max(tempCustomModifiers.length,1));
 		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
 		for(let i = 0; i<tempMaxImagesToGenerate; i++){
 			var tempTask = {};
@@ -1245,7 +1253,7 @@ preview.addEventListener("keydown", (event) => {
 				GS: tempScales[Math.round(Math.random() * (tempScales.length - 1))],
 				PS: tempPromptStrengths[Math.round(Math.random() * (tempPromptStrengths.length - 1))],
 				HS: tempHyperStrengths[Math.round(Math.random() * (tempHyperStrengths.length - 1))],
-				LS: tempLoraAlphas[Math.round(Math.random() * (tempLoraAlphas.length - 1))],
+				LS: [],
 				seed: tempSeeds[Math.round(Math.random() * (tempSeeds.length - 1))],
 				model: (settings.useAllModels>0 ? tempAllModels[Math.round(Math.random() * (tempAllModels.length - 1))]: reqBody.use_stable_diffusion_model),
 				gfpgan: (settings.useGfpgans>0 ? tempGfpgans[Math.round(Math.random() * (tempGfpgans.length - 1))]: reqBody.use_face_correction),
@@ -1256,6 +1264,9 @@ preview.addEventListener("keydown", (event) => {
 				customModifier: (settings.useCustomModifiers>0 ? tempCustomModifiers[Math.round(Math.random() * (tempCustomModifiers.length - 1))] : ''),
 				modifiers: {},
 				models: {},
+			}
+			for(let i = 0; i<tempLoraAlphas.length; i++){
+				tempTask.LS[i] = tempLoraAlphas[i][Math.round(Math.random() * (tempLoraAlphas[i].length - 1))];
 			}
 			for (const group in rhModifiers) {
 				tempTask.modifiers[group] = (settings.useModifiers[group]>0 ? tempModifiers[group][Math.round(Math.random() * (tempModifiers[group].length - 1))] : '');
@@ -1363,7 +1374,6 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5"><td><label for="useLoras_input">Random LORAs:</label></td><td> <input id="useLoras_input" name="useLoras_input" size="10" value="`+settings.useLoras+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="loraAlphaCount_input">LORA Strength Count:</label></td><td> <input id="loraAlphaCount_input" name="loraAlphaCount_input" size="10" value="`+settings.loraAlphaCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="loraAlphaStep_input">LORA Strength Step Size:</label></td><td> <input id="loraAlphaStep_input" name="loraAlphaStep_input" size="10" value="`+settings.loraAlphaStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="loraAlphaMid_input">LORA Strength Midpoint:</label></td><td> <input id="loraAlphaMid_input" name="loraAlphaMid_input" size="10" value="`+settings.loraAlphaMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useSamplers_input">Random Samplers:</label></td><td> <input id="useSamplers_input" name="useSamplers_input" size="10" value="`+settings.useSamplers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISCount_input">Inference Steps Count:</label></td><td> <input id="ISCount_input" name="ISCount_input" size="10" value="`+settings.ISCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="ISStep_input">Inference Steps Step Size:</label></td><td> <input id="ISStep_input" name="ISStep_input" size="10" value="`+settings.ISStep+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
@@ -1406,9 +1416,9 @@ function addRabbitHoleSettings(){
 	});
 	document.getElementById('calcMaxButton').addEventListener("click", function () {
 		if(document.getElementById('editor').classList.contains('img2img')){
-			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max(settings.loraAlphaCount,1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useAllModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max((settings.loraAlphaCount ** document.querySelectorAll('#lora_model .model_entry').length),1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useAllModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
 		} else {
-			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.loraAlphaCount,1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useAllModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max((settings.loraAlphaCount ** document.querySelectorAll('#lora_model .model_entry').length),1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useAllModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
 		}
 		setSettings();
 	});
