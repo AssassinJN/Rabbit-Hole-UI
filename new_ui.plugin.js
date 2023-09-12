@@ -835,9 +835,12 @@ preview.addEventListener("keydown", (event) => {
 		settings.promptStrengthCount = parseInt(promptStrengthCount_input.value);
 		settings.promptStrengthStep = parseFloat(promptStrengthStep_input.value);
 		settings.promptStrengthMid = parseFloat(promptStrengthMid_input.value);
+		/*
+		settings.useHypernetworks = parseInt(useHypernetworks_input.value);
 		settings.hyperStrengthCount = parseInt(hyperStrengthCount_input.value);
 		settings.hyperStrengthStep = parseFloat(hyperStrengthStep_input.value);
 		settings.hyperStrengthMid = parseFloat(hyperStrengthMid_input.value);
+		*/
 		settings.loraAlphaCount = parseInt(loraAlphaCount_input.value);
 		settings.loraAlphaStep = parseFloat(loraAlphaStep_input.value);
 		//Inference Steps, works the same as Guidance Scale
@@ -845,7 +848,6 @@ preview.addEventListener("keydown", (event) => {
 		settings.ISStep = parseInt(ISStep_input.value);
 		settings.ISMid = parseInt(ISMid_input.value);
 		settings.useGfpgans = parseInt(useGfpgans_input.value);
-		settings.useHypernetworks = parseInt(useHypernetworks_input.value);
 		settings.useVaes = parseInt(useVaes_input.value);
 		settings.useLoras = parseInt(useLoras_input.value);
 		settings.useSamplers = parseInt(useSamplers_input.value);
@@ -1123,7 +1125,7 @@ preview.addEventListener("keydown", (event) => {
 		tempPromptStrengthMid = (settings.promptStrengthMid ? settings.promptStrengthMid : parseFloat(reqBody.prompt_strength));
 		tempHyperStrengthMid = (settings.hyperStrengthMid ? settings.hyperStrengthMid : parseFloat(reqBody.hypernetwork_strength));
 		
-		tempLoraAlphaMid = reqBody.lora_alpha;
+		tempLoraAlphaMid = (reqBody.lora_alpha ? reqBody.lora_alpha : 0);
 		tempScaleMid = (settings.scaleMid ? settings.scaleMid : parseFloat(reqBody.guidance_scale));
 		tempISMid = (settings.ISMid ? settings.ISMid : parseInt(reqBody.num_inference_steps));
 		tempPromptStrengthCount = (settings.promptStrengthCount ? settings.promptStrengthCount : 1);
@@ -1145,21 +1147,20 @@ preview.addEventListener("keydown", (event) => {
 				}
 			}
 		}
-		for (let i = (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1); i <= (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1)+tempHyperStrengthStep*(tempHyperStrengthCount-1); i+=tempHyperStrengthStep) {
+		/*for (let i = (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1); i <= (Math.floor(tempHyperStrengthCount/2)*tempHyperStrengthStep*-1)+tempHyperStrengthStep*(tempHyperStrengthCount-1); i+=tempHyperStrengthStep) {
 			if((tempHyperStrengthMid + i)>=HS_slider.getAttribute('min')/100 && (tempHyperStrengthMid + i)<=HS_slider.getAttribute('max')/100){
 				tempHyperStrengths.push(Math.round((tempHyperStrengthMid + i)*100)/100);
 			}else{
 				console.log("invalid hyper strength: "+(tempHyperStrengthMid + i));
 			}
-		}
-		if(!tempLoraAlphaMid.isArray && tempLoraAlphaMid.length < 1){
+		}*/
+		if(!Array.isArray(tempLoraAlphaMid) || tempLoraAlphaMid.length < 1 || tempLoraAlphaMid == 0){
 			var g = tempLoraAlphaMid;
 			tempLoraAlphaMid = [];
 			tempLoraAlphaMid[0] = g;
 		}
 		for(let li = 0; li < tempLoraAlphaMid.length; li++){
 			tempLoraAlphas[li] = [];
-			console.log('check',(Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1), (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1)+tempLoraAlphaStep*(tempLoraAlphaCount-1))
 			for (let i = (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1); i <= (Math.floor(tempLoraAlphaCount/2)*tempLoraAlphaStep*-1)+tempLoraAlphaStep*(tempLoraAlphaCount-1); i+=tempLoraAlphaStep) {
 				if((parseFloat(tempLoraAlphaMid[li]) + i)>=0 && (parseFloat(tempLoraAlphaMid[li]) + i)<=9.9){
 					tempLoraAlphas[li].push(Math.round((parseFloat(tempLoraAlphaMid[li]) + i)*100)/100);
@@ -1385,8 +1386,8 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthCount_input">Prompt Strength Count:</label></td><td> <input id="promptStrengthCount_input" name="promptStrengthCount_input" size="10" value="`+settings.promptStrengthCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthStep_input">Prompt Strength Step Size:</label></td><td> <input id="promptStrengthStep_input" name="promptStrengthStep_input" size="10" value="`+settings.promptStrengthStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5 img2imgOnly"><td><label for="promptStrengthMid_input">Prompt Strength Midpoint:</label></td><td> <input id="promptStrengthMid_input" name="promptStrengthMid_input" size="10" value="`+settings.promptStrengthMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="useHypernetworks_input">Random Hypernetworks:</label></td><td> <input id="useHypernetworks_input" name="useHypernetworks_input" size="10" value="`+settings.useHypernetworks+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<!--
+					<tr class="pl-5"><td><label for="useHypernetworks_input">Random Hypernetworks:</label></td><td> <input id="useHypernetworks_input" name="useHypernetworks_input" size="10" value="`+settings.useHypernetworks+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="hyperStrengthCount_input">Hyper Strength Count:</label></td><td> <input id="hyperStrengthCount_input" name="hyperStrengthCount_input" size="10" value="`+settings.hyperStrengthCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="hyperStrengthStep_input">Hyper Strength Step Size:</label></td><td> <input id="hyperStrengthStep_input" name="hyperStrengthStep_input" size="10" value="`+settings.hyperStrengthStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="hyperStrengthMid_input">Hyper Strength Midpoint:</label></td><td> <input id="hyperStrengthMid_input" name="hyperStrengthMid_input" size="10" value="`+settings.hyperStrengthMid+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
