@@ -1617,7 +1617,7 @@ function addSettingsTabInfo(){
 			</div>
 			<div>
 				<div><i class="fa fa-gear"></i></div>
-				<div><label for="rh_disableGrouping_input">Disable Grouping</label><small>Rabbit Hole will disable the default image grouping.</small></div>
+				<div><label for="rh_disableGrouping_input">Disable Grouping</label><small>Rabbit Hole will disable the default image grouping. Turn this off at your own risk.</small></div>
 				<div>
 					<div class="input-toggle"><input id="rh_disableGrouping_input" name="rh_disableGrouping_input" type="checkbox" onchange="setSettings();"><label for="rh_disableGrouping_input"></label></div>
 				</div>
