@@ -1,16 +1,22 @@
 const style = document.createElement('style');
 
 style.textContent = `
-	.UIButton, #preview.focused .ActionButton, .ActionButtonGallery {
+	.UIButton, #preview.focused .ActionButton, .ActionButtonGallery, .selectButton, .endSelectButton, .selectAllButton {
 		padding:5px 10px;
 		background-color:var(--accent-color);
 		margin-right:10px;
 		display:inline-block;
 	}
-	.ActionButton {
+	.ActionButton, .endSelectButton, .selectAllButton {
 		display:none;
 	}
-	#preview.focused .UIButton, #preview.focused .ActionButtonGallery {
+	#preview.selecting .selectButton {
+		display:none;
+	}
+	#preview.selecting .endSelectButton, #preview.selecting .selectAllButton {
+		display:inline-block;
+	}
+	#preview.focused .UIButton, #preview.focused .ActionButtonGallery, #preview.focused .selectButton {
 		display:none;
 	}
 
@@ -104,11 +110,15 @@ style.textContent = `
 		vertical-align:top;
 		box-shadow:none;
 		margin-bottom:0px;
+		position:relative;
 	}
 	.minimalUI .drag-handle {
 		display:none;
 	}
 	.ZoomButton {
+		display:none;
+	}
+	#container:not(.minimalUI) .selectButton, #container:not(.minimalUI) .endSelectButton, #container:not(.minimalUI) .selectAllButton {
 		display:none;
 	}
 	.minimalUI #preview:not(.focused) .ZoomButton {
@@ -267,6 +277,27 @@ style.textContent = `
 	.tab-content {
 		margin-bottom:200px;
 	}
+	.selectMask, .selectMask:active {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: none;
+		border: 1px solid white;
+	}
+	.selectMask:hover {
+		box-shadow:inset 0 0 25px rgb(128,255,255);
+		border-color:rgb(128,255,255);
+		background:none;
+	}
+	.selectMask.selected {
+		border-color:rgb(29,157,61);
+		border-width:5px;
+	}
+	.selectMask.selected:hover {
+		box-shadow:inset 0 0 25px rgb(29,157,61);
+	}
 
 	@media screen and (max-width: 1349px) {
 		.minimalUI #tab-content-wrapper {
@@ -333,20 +364,52 @@ style.textContent = `
 		font-size: 1.1rem;
 		vertical-align: middle;
 	}
-	#makeImage {
-		width:calc(100% - 150px);
+	#makeImage, .rabbitHoleButton {
+		width:calc(50% - 2px);
 	}
 	.rabbitHoleButton {
-		width:147px;
 		margin-left:3px;
 		height:30pt;
 	}
 	button.primaryButton, button.secondaryButton, #stopImage, #makeImage, .tertiaryButton:hover {
 		color:#ffffff;
 	}
+	.selectedActionsContainer {
+		position:absolute;
+		top:110px;
+		left:calc(50% - 200px);
+		width:400px;
+		padding:10px;
+		background:#ccc;
+		border:1px solid #000;
+		z-index:10000;
+	}
+	.selectedActionsContainer button, .selectedActionsContainer span {
+		margin:3px;
+		display:inline-block;
+	}
+	.selectedActionsContainer button.closeButton {
+		display: block;
+		margin-top: 30px;
+		color: #000;
+		background: none;
+		font-weight: bold;
+	}
+	.selectedActionsContainer button.removeImagesButton, .selectedActionsContainer button.removeOtherImagesButton {
+		display: block;
+		margin-top: 30px;
+		color: #5b0a18;
+		background: none;
+		font-weight: bold;
+	}
+	tr:has(#num_outputs_total) {
+		display:none;
+	}
 `;
 
 document.head.appendChild(style);
+document.getElementById('num_outputs_total').value = 1;
+document.getElementById('num_outputs_parallel').value = 1;
 document.getElementById('container').classList.add('minimalUI');
 let rhModifiers = {}, models = [], gfpgans = [], hypernetworks = [], vaes = [], loras = [], customModifierList = [];
 var editor = document.getElementById('editor');
@@ -359,6 +422,9 @@ var imageTaskContainer = document.getElementsByClassName('imageTaskContainer');
 let UIButton = document.createElement("button");
 let ActionButtonGallery = document.createElement("button");
 let ActionButton = document.createElement("button");
+let SelectButton = document.createElement("button");
+let SelectAllButton = document.createElement("button");
+let EndSelectButton = document.createElement("button")
 let menuButton = document.createElement("button");
 let modelGroupHTML = "";
 let I2ICount = 5;
@@ -652,6 +718,19 @@ function rh_makeButtons(){
 		initialText.style.display = 'none';
 	});
 	document.getElementById('makeImage').after(makeRabbits);
+
+	SelectButton.innerHTML = "Select";
+	SelectButton.addEventListener("click", startSelection);
+	SelectButton.classList.add('selectButton');
+	document.getElementsByClassName('auto-scroll')[0].prepend(SelectButton);
+	SelectAllButton.innerHTML = "Select All";
+	SelectAllButton.addEventListener("click", allSelection);
+	SelectAllButton.classList.add('selectAllButton');
+	document.getElementsByClassName('auto-scroll')[0].prepend(SelectAllButton);
+	EndSelectButton.innerHTML = "End Select";
+	EndSelectButton.addEventListener("click", endSelection);
+	EndSelectButton.classList.add('endSelectButton');
+	document.getElementsByClassName('auto-scroll')[0].prepend(EndSelectButton);
 }
 
 
@@ -1531,6 +1610,126 @@ function addSettingsTabInfo(){
 	`;
 	var settingsPage = document.getElementById('tab-content-settings');
 	settingsPage.appendChild(settingsPageContent);
-}	
+}
+
+function startSelection(){
+	preview.classList.remove('showActionsGallery','hoverActionsGallery');
+	preview.classList.add('selecting');
+	let taskList = document.getElementsByClassName('imageTaskContainer');
+	let taskButtonList = {};
+	for (let i = 0; i < taskList.length; i++){
+		taskButtonList[i] = {}
+		taskButtonList[i].selected = false;
+		let taskSelectionMask = document.createElement("button");
+		taskSelectionMask.classList.add('selectMask');
+		taskSelectionMask.addEventListener("click", function(e){
+			if(taskSelectionMask.classList.contains('selected')){
+				taskButtonList[i].selected = false
+				taskSelectionMask.classList.remove('selected')
+			}else{
+				taskButtonList[i].selected = true
+				taskSelectionMask.classList.add('selected')
+			}
+		})
+		taskList[i].appendChild(taskSelectionMask);
+		taskButtonList[i] = taskList[i].querySelectorAll('.imgItemInfo button')
+	}	
+}
+
+function allSelection(){
+	let selectList = preview.querySelectorAll('.selectMask');
+	selectList.forEach((selectMask) => {
+		if(!selectMask.classList.contains('selected')){
+			selectMask.classList.add('selected')
+		}
+	});
+}
+
+function endSelection(){
+	let selectedTaskList = [];
+	let selectList = preview.querySelectorAll('.selectMask');
+	selectList.forEach((selectMask) => {
+		if(selectMask.classList.contains('selected')){
+			selectedTaskList.push(selectMask.parentElement)
+		}
+		var old_element = selectMask;
+		var new_element = old_element.cloneNode(true);
+		old_element.parentNode.replaceChild(new_element, old_element);
+	});
+	console.log(selectedTaskList.length)
+	if(selectedTaskList.length == 0){
+		closeSelection(selectList);
+		return(false);
+	}
+	let selectedActions = document.createElement("div");
+	selectedActions.id = "selectedTaskActions";
+	selectedActions.classList.add('selectedActionsContainer');
+	selectedActions.innerHTML = selectedTaskList[0].querySelector('.imgItemInfo').innerHTML
+	let removeImagesButton = document.createElement('button');
+	removeImagesButton.classList.add('removeImagesButton');
+	removeImagesButton.innerHTML = "Remove Images";
+	selectedActions.appendChild(removeImagesButton);
+	let removeOtherImagesButton = document.createElement('button');
+	removeOtherImagesButton.classList.add('removeOtherImagesButton');
+	removeOtherImagesButton.innerHTML = "Remove Other Images";
+	selectedActions.appendChild(removeOtherImagesButton);
+	preview.prepend(selectedActions)
+	let selectedActionsButtons = document.getElementById('selectedTaskActions').querySelectorAll('button');
+	selectedActionsButtons.forEach((button) => {
+		button.addEventListener('click', function(e){
+			selectedTaskList.forEach((task) => {
+				let selectedTaskButtonList = task.querySelectorAll('.imgItemInfo button');
+				selectedTaskButtonList.forEach((targetButton) => {
+					if(targetButton.innerHTML == button.innerHTML){
+						targetButton.click();
+					}
+				})
+				if(button.innerHTML == "Remove Images"){
+					let removeButton = task.querySelector('.imgPreviewItemClearBtn');
+					removeButton.click();
+				}
+				if(button.innerHTML == "Remove Other Images"){
+					let allTasks = preview.querySelectorAll('.imageTaskContainer');
+					allTasks.forEach((allTask) => {
+						if(!selectedTaskList.includes(allTask)){
+							let removeOtherButton = allTask.querySelector('.imgPreviewItemClearBtn');
+							removeOtherButton.click();
+						}
+					})
+				}
+			})
+		})
+	})
+	let closeButton = document.createElement('button');
+	closeButton.innerHTML = "Done";
+	closeButton.classList.add('closeButton');
+	closeButton.addEventListener('click', function(){
+		selectedActions.remove();
+		closeSelection(selectList)
+	})
+	selectedActions.appendChild(closeButton)
+	document.querySelector('.endSelectButton').style.display = "none";
+}
+
+function closeSelection(selectList){
+	selectList = preview.querySelectorAll('.selectMask');
+	selectList.forEach((selectMask) => {
+		selectMask.remove()
+	});
+	document.querySelector('.endSelectButton').style.display = "";
+	preview.classList.remove('selecting');
+	if(settings.galleryActions === 'hidden'){
+		ActionButtonGallery.innerHTML = "Actions: Hidden";
+		preview.classList.remove('showActionsGallery','hoverActionsGallery');
+	} else if(settings.galleryActions === 'visible'){
+		ActionButtonGallery.innerHTML = "Actions: Visible";
+		preview.classList.remove('hoverActionsGallery');
+		preview.classList.add('showActionsGallery');
+	} else if(settings.galleryActions === 'hover'){
+		ActionButtonGallery.innerHTML = "Actions: Hover";
+		preview.classList.remove('showActionsGallery');
+		preview.classList.add('hoverActionsGallery');
+	}
+}
 	
 setup();
