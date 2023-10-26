@@ -375,7 +375,7 @@ style.textContent = `
 		color:#ffffff;
 	}
 	.selectedActionsContainer {
-		position:absolute;
+		position:fixed;
 		top:110px;
 		left:calc(50% - 200px);
 		width:400px;
@@ -1729,6 +1729,7 @@ function endSelection(){
 	})
 	selectedActions.appendChild(closeButton)
 	document.querySelector('.endSelectButton').style.display = "none";
+	document.querySelector('.selectAllButton').style.display = "none";
 }
 
 function closeSelection(selectList){
@@ -1737,6 +1738,7 @@ function closeSelection(selectList){
 		selectMask.remove()
 	});
 	document.querySelector('.endSelectButton').style.display = "";
+	document.querySelector('.selectAllButton').style.display = "";
 	preview.classList.remove('selecting');
 	if(settings.galleryActions === 'hidden'){
 		ActionButtonGallery.innerHTML = "Actions: Hidden";
