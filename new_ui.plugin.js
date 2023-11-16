@@ -341,7 +341,7 @@ style.textContent = `
 		#preview-tools button i {
 			font-size: 12pt;
 		}
-		#preview-tools button.ActionButtonGallery, #preview-tools button.UIButton, #preview-tools button.ActionButton {
+		#preview-tools button.ActionButtonGallery, #preview-tools button.UIButton, #preview-tools button.ActionButton, #preview-tools button.selectButton {
 			font-size: 10pt;
 		}
 	}
@@ -425,9 +425,11 @@ let SelectAllButton = document.createElement("button");
 let EndSelectButton = document.createElement("button")
 let menuButton = document.createElement("button");
 let modelGroupHTML = "";
+let loraGroupHTML = "";
 let I2ICount = 5;
 let useModifierCount = 0;
 let allModelCount = 0;
+let allLoraCount = 0;
 var settings = {
 	galleryActions: 'hidden',
 	actions: 'hover',
@@ -451,7 +453,6 @@ var settings = {
 	useGfpgans: 0,
 	useHypernetworks: 0,
 	useVaes: 0,
-	useLoras: 0,
 	useSamplers: 0,
 	useCustomModifiers: 0,
 	ISButton1: -20,
@@ -469,7 +470,9 @@ var settings = {
 	rabbitHoleOpen: false,
 	useModifiers: {},
 	useModels: {},
+	useLoras: {},
 	useAllModels: 0,
+	useAllLoras: 0,
 	rh_disableGrouping: true
 };
 
@@ -481,13 +484,15 @@ function load() {
 	for(var key in tempSettings){
 		if(key == 'useModifiers'){
 			for(var mod in tempSettings[key]){
-				
 				settings[key][mod] = tempSettings[key][mod];
 			}
 		}else if(key == 'useModels'){
 			for(var model in tempSettings[key]){
-				
 				settings[key][model] = tempSettings[key][model];
+			}
+		}else if(key == 'useLoras'){
+			for(var lora in tempSettings[key]){
+				settings[key][lora] = tempSettings[key][lora];
 			}
 		}else{
 			settings[key] = tempSettings[key];
@@ -940,7 +945,6 @@ preview.addEventListener("keydown", (event) => {
 		settings.ISMid = parseInt(ISMid_input.value);
 		settings.useGfpgans = parseInt(useGfpgans_input.value);
 		settings.useVaes = parseInt(useVaes_input.value);
-		settings.useLoras = parseInt(useLoras_input.value);
 		settings.useSamplers = parseInt(useSamplers_input.value);
 		
 		
@@ -992,13 +996,26 @@ preview.addEventListener("keydown", (event) => {
 				settings.useAllModels += settings.useModels[modelGroup];
 			}
 		}
+
+		allLoraCount = 0;
+		settings.useAllLoras = 0;
+		for(var LoraGroup in loras){
+			if(LoraGroup != 'addEventListener'){
+				settings.useLoras[LoraGroup] = parseInt(document.getElementById('useLora'+LoraGroup+'_input').value);
+				if(settings.useLoras[LoraGroup] > loras[LoraGroup].length){
+					settings.useLoras[LoraGroup] = loras[LoraGroup].length; 
+					document.getElementById('useLora'+LoraGroup+'_input').value = loras[LoraGroup].length;
+				}
+				allLoraCount += loras[LoraGroup].length;
+				settings.useAllLoras += settings.useLoras[LoraGroup];
+			}
+		}
 		
 		//Check Max Settings
 
 		if(settings.useGfpgans > gfpgans.length){settings.useGfpgans = gfpgans.length; useGfpgans_input.value = gfpgans.length;}
 		if(settings.useHypernetworks > hypernetworks.length){settings.useHypernetworks = hypernetworks.length; useHypernetworks_input.value = hypernetworks.length;}
 		if(settings.useVaes > vaes.length){settings.useVaes = vaes.length; useVaes_input.value = vaes.length;}
-		if(settings.useLoras > loras.length){settings.useLoras = loras.length; useLoras_input.value = loras.length;}
 		if(settings.useSamplers > samplers.length){settings.useSamplers = samplers.length; useSamplers_input.value = samplers.length;}
 		if(settings.useCustomModifiers > customModifierList.length){settings.useCustomModifiers = customModifierList.length; useCustomModifiers_input.value = customModifierList.length;}
 
@@ -1058,13 +1075,43 @@ preview.addEventListener("keydown", (event) => {
 			}
 			if(!Array.isArray(models[parentName])){
 				models[parentName] = [];
-				settings.useModels[parentName] = 0;
+				//settings.useModels[parentName] = 0;
 				modelGroupHTML += `<tr class="pl-5 modelRow"><td><label for="use${parentName}_input">${parentName.replaceAll('-', ' ')}:</label></td><td> <input id="use${parentName}_input" name="use${parentName}_input" size="10" value="`+parseInt(settings.useModels[parentName])+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>`
 			}
 			if(modelName['sd-v1-4']){
 				models[parentName].push(modelDir+'sd-v1-4');
 			} else {
 				models[parentName].push(modelDir+modelName);
+			}
+		}
+	}
+	function unpackLoras(loraName, parentName="", loraDir = ""){
+		if(Array.isArray(loraName)){
+			if(parentName == ""){
+				parentName = loraName[0];
+			} else {
+				parentName = parentName+"/"+loraName[0]
+			}
+			loraDir += loraName[0]+"/"
+			
+			loraName[1].forEach(subLora => {
+				unpackLoras(subLora, parentName, loraDir)
+			})
+			
+		} else {
+			
+			if(parentName == ""){
+				parentName = "Ungrouped";
+			}
+			if(!Array.isArray(loras[parentName])){
+				loras[parentName] = [];
+				//settings.useLoras[parentName] = 0;
+				loraGroupHTML += `<tr class="pl-5 modelRow"><td><label for="useLora${parentName}_input">${parentName.replaceAll('-', ' ')}:</label></td><td> <input id="useLora${parentName}_input" name="useLora${parentName}_input" size="10" value="`+parseInt(settings.useLoras[parentName])+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>`
+			}
+			if(loraName['sd-v1-4']){
+				loras[parentName].push(loraDir+'sd-v1-4');
+			} else {
+				loras[parentName].push(loraDir+loraName);
 			}
 		}
 	}
@@ -1085,12 +1132,17 @@ preview.addEventListener("keydown", (event) => {
 			loras = []
 			
 			modelGroupHTML ='<tr id="modelHeading"><td colspan="2"><b class="settings-subheader">Model Group Settings</b></td></tr>';
+			loraGroupHTML ='<tr id="loraHeading"><td colspan="2"><b class="settings-subheader">LoRA Group Settings</b></td></tr>';
 			stableDiffusionOptions.forEach(modelName => {
 				unpackModels(modelName);
+			})
+			loraOptions.forEach(loraName => {
+				unpackLoras(loraName);
 			})
 			
 			document.querySelectorAll('.modelRow').forEach(e => e.remove());
 			document.getElementById('modelHeading').outerHTML = modelGroupHTML;
+			document.getElementById('loraHeading').outerHTML = loraGroupHTML;
 			gfpganOptions.forEach(gfpganName => {
 				if(Array.isArray(gfpganName)){
 					gfpganName[1].forEach(subgfpgan => {
@@ -1116,15 +1168,6 @@ preview.addEventListener("keydown", (event) => {
 					})
 				} else {
 					vaes.push(vaeName);
-				}
-			})
-			loraOptions.forEach(loraName => {
-				if(Array.isArray(loraName)){
-					loraName[1].forEach(sublora => {
-						loras.push(loraName[0]+"/"+sublora);
-					})
-				} else {
-					loras.push(loraName);
 				}
 			})
 		} catch (e) {
@@ -1195,15 +1238,15 @@ preview.addEventListener("keydown", (event) => {
 	function getTaskSettings(reqBody, img){
 		var outputTasks = [];
 		var tempSeeds=[];
-		var tempModels=[];
 		var tempGfpgans=[];
 		var tempHypernetworks=[];
 		var tempVaes=[];
-		var tempLoras=[];
 		var tempModifiers = {};		
 		var tempCustomModifiers=[];
 		var tempModels = {};
 		var tempAllModels = [];
+		var tempLoras = {};
+		var tempAllLoras = [];
 		var tempScales = [];
 		var tempISs = [];
 		var tempMaxImagesToGenerate, tempScaleMid, tempISMid, tempPromptStrengthMid, tempHyperStrengthMid,
@@ -1301,12 +1344,6 @@ preview.addEventListener("keydown", (event) => {
 			shuffle(tempVaes);
 			tempVaes = tempVaes.slice(0,settings.useVaes);
 		}
-		if(settings.useLoras>0){
-			tempLoras = loras;
-			tempLoras.push('');
-			shuffle(tempLoras);
-			tempLoras = tempLoras.slice(0,settings.useLoras);
-		}
 		if(settings.useSamplers>0){
 			tempSamplers = samplers;
 			shuffle(tempSamplers);
@@ -1337,8 +1374,15 @@ preview.addEventListener("keydown", (event) => {
 				tempAllModels = tempAllModels.concat(tempModels[modelGroup].slice(0,settings.useModels[modelGroup]));
 			}
 		}
+		for (const loraGroup in loras) {
+			if(settings.useLoras[loraGroup]>0){
+				tempLoras[loraGroup] = loras[loraGroup];
+				shuffle(tempLoras[loraGroup]);
+				tempAllLoras = tempAllLoras.concat(tempLoras[loraGroup].slice(0,settings.useLoras[loraGroup]));
+			}
+		}
 		
-		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max((tempLoraAlphas[0].length ** tempLoraAlphas.length),1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempAllModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempLoras.length,1)*Math.max(tempSamplers.length,1)*Math.max(useModifierCount,1)*Math.max(tempCustomModifiers.length,1));
+		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max((tempLoraAlphas[0].length ** tempLoraAlphas.length),1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempAllModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempAllLoras.length,1)*Math.max(tempSamplers.length,1)*Math.max(useModifierCount,1)*Math.max(tempCustomModifiers.length,1));
 		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
 		for(let i = 0; i<tempMaxImagesToGenerate; i++){
 			var tempTask = {};
@@ -1353,11 +1397,12 @@ preview.addEventListener("keydown", (event) => {
 				gfpgan: (settings.useGfpgans>0 ? tempGfpgans[Math.round(Math.random() * (tempGfpgans.length - 1))]: reqBody.use_face_correction),
 				hypernetwork: (settings.useHypernetworks>0 ? tempHypernetworks[Math.round(Math.random() * (tempHypernetworks.length - 1))]: reqBody.use_hypernetwork_model),
 				vae: (settings.useVaes>0 ? tempVaes[Math.round(Math.random() * (tempVaes.length - 1))]: reqBody.use_vae_model),
-				lora: (settings.useLoras>0 ? tempLoras[Math.round(Math.random() * (tempLoras.length - 1))]: reqBody.use_lora_model),
+				lora: (settings.useAllLoras>0 ? tempAllLoras[Math.round(Math.random() * (tempAllLoras.length - 1))]: reqBody.use_lora_model),
 				sampler: (settings.useSamplers>0 ? tempSamplers[Math.round(Math.random() * (tempSamplers.length - 1))]: reqBody.sampler_name),
 				customModifier: (settings.useCustomModifiers>0 ? tempCustomModifiers[Math.round(Math.random() * (tempCustomModifiers.length - 1))] : ''),
 				modifiers: {},
 				models: {},
+				loras: {},
 			}
 			for(let i = 0; i<tempLoraAlphas.length; i++){
 				tempTask.LS[i] = tempLoraAlphas[i][Math.round(Math.random() * (tempLoraAlphas[i].length - 1))];
@@ -1465,7 +1510,6 @@ function addRabbitHoleSettings(){
 					<tr class="pl-5"><td><label for="maxImagesToGenerate_input">Max Image to Generate:</label></td><td> <input id="maxImagesToGenerate_input" name="maxImagesToGenerate_input" size="10" value="`+settings.maxImagesToGenerate+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"><button id="calcMaxButton"><i class="fa fa-calculator"></i></button></td></tr>
 					<tr class="pl-5"><td><label for="useSeeds_input">Seeds to Generate:</label></td><td> <input id="useSeeds_input" name="useSeeds_input" size="10" value="`+settings.useSeeds+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useVaes_input">Random VAEs:</label></td><td> <input id="useVaes_input" name="useVaes_input" size="10" value="`+settings.useVaes+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
-					<tr class="pl-5"><td><label for="useLoras_input">Random LORAs:</label></td><td> <input id="useLoras_input" name="useLoras_input" size="10" value="`+settings.useLoras+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="loraAlphaCount_input">LORA Alpha Count:</label></td><td> <input id="loraAlphaCount_input" name="loraAlphaCount_input" size="10" value="`+settings.loraAlphaCount+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="loraAlphaStep_input">LORA Alpha Step Size:</label></td><td> <input id="loraAlphaStep_input" name="loraAlphaStep_input" size="10" value="`+settings.loraAlphaStep+`" pattern="^[0-9\\.]+$" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr class="pl-5"><td><label for="useSamplers_input">Random Samplers:</label></td><td> <input id="useSamplers_input" name="useSamplers_input" size="10" value="`+settings.useSamplers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
@@ -1489,8 +1533,9 @@ function addRabbitHoleSettings(){
 					<tr><td>&nbsp;</td></tr>
 					<tr id="modelHeading"><td colspan="2"><b class="settings-subheader">Model Group Settings</b></td></tr>					
 					<tr><td>&nbsp;</td></tr>
-
+					<tr id="loraHeading"><td colspan="2"><b class="settings-subheader">LoRA Group Settings</b></td></tr>					
 					<tr><td>&nbsp;</td></tr>
+
 					<tr id="modHeading"><td colspan="2"><b class="settings-subheader">Image Modifier Settings</b></td></tr>					
 					<tr class="pl-5" id="useCustomModifiersContainer"><td><label for="useCustomModifiers_input">Random Custom Modifiers:</label></td><td> <input id="useCustomModifiers_input" name="useCustomModifiers_input" size="10" value="`+settings.useCustomModifiers+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>
 					<tr><td>&nbsp;</td></tr>
@@ -1512,9 +1557,9 @@ function addRabbitHoleSettings(){
 	});
 	document.getElementById('calcMaxButton').addEventListener("click", function () {
 		if(document.getElementById('editor').classList.contains('img2img')){
-			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max((settings.loraAlphaCount ** document.querySelectorAll('#lora_model .model_entry').length),1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useAllModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max(settings.promptStrengthCount,1)*Math.max((settings.loraAlphaCount * document.querySelectorAll('#lora_model .model_entry').length),1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useAllModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useAllLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
 		} else {
-			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max((settings.loraAlphaCount ** document.querySelectorAll('#lora_model .model_entry').length),1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useAllModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
+			document.getElementById('maxImagesToGenerate_input').value = Math.max(settings.useSeeds,1)*Math.max(settings.scaleCount,1)*Math.max((settings.loraAlphaCount * document.querySelectorAll('#lora_model .model_entry').length),1)*Math.max(settings.hyperStrengthCount,1)*Math.max(settings.ISCount,1)*Math.max(settings.useAllModels,1)*Math.max(settings.useGfpgans,1)*Math.max(settings.useHypernetworks,1)*Math.max(settings.useVaes,1)*Math.max(settings.useAllLoras,1)*Math.max(settings.useSamplers,1)*Math.max(useModifierCount,1)*Math.max(settings.useCustomModifiers,1);
 		}
 		setSettings();
 	});
@@ -1676,7 +1721,6 @@ function endSelection(){
 		var new_element = old_element.cloneNode(true);
 		old_element.parentNode.replaceChild(new_element, old_element);
 	});
-	console.log(selectedTaskList.length)
 	if(selectedTaskList.length == 0){
 		closeSelection(selectList);
 		return(false);
