@@ -495,7 +495,13 @@ function load() {
 				settings[key][lora] = tempSettings[key][lora];
 			}
 		}else{
-			settings[key] = tempSettings[key];
+			console.log(tempSettings[key])
+			if(tempSettings[key] == '' || tempSettings[key] == null){
+				settings[key] == 0;
+			}else{
+				settings[key] = tempSettings[key];
+			}
+			
 		}
 		
 	}
@@ -1075,7 +1081,9 @@ preview.addEventListener("keydown", (event) => {
 			}
 			if(!Array.isArray(models[parentName])){
 				models[parentName] = [];
-				//settings.useModels[parentName] = 0;
+				if(settings.useModels[parentName] == null){
+					settings.useModels[parentName] = 0;
+				}
 				modelGroupHTML += `<tr class="pl-5 modelRow"><td><label for="use${parentName}_input">${parentName.replaceAll('-', ' ')}:</label></td><td> <input id="use${parentName}_input" name="use${parentName}_input" size="10" value="`+parseInt(settings.useModels[parentName])+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>`
 			}
 			if(modelName['sd-v1-4']){
@@ -1105,7 +1113,9 @@ preview.addEventListener("keydown", (event) => {
 			}
 			if(!Array.isArray(loras[parentName])){
 				loras[parentName] = [];
-				//settings.useLoras[parentName] = 0;
+				if(settings.useLoras[parentName] == null){
+					settings.useLoras[parentName] = 0;
+				}
 				loraGroupHTML += `<tr class="pl-5 modelRow"><td><label for="useLora${parentName}_input">${parentName.replaceAll('-', ' ')}:</label></td><td> <input id="useLora${parentName}_input" name="useLora${parentName}_input" size="10" value="`+parseInt(settings.useLoras[parentName])+`" onkeypress="preventNonNumericalInput(event)" onchange="setSettings()"></td></tr>`
 			}
 			if(loraName['sd-v1-4']){
@@ -1196,7 +1206,8 @@ preview.addEventListener("keydown", (event) => {
 				//rhModifiers = tempModifiers;
 			}
 			for (let group in rhModifiers) {
-				settings.useModifiers[group] = 0
+				if(settings.useModifiers[group] == null)
+				settings.useModifiers[group] = 0;
 			}
 			let tempHTML = "";
 			tempHTML = `<tr id="modHeading"><td colspan="2"><b class="settings-subheader">Image Modifier Settings</b></td></tr>`;
