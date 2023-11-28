@@ -495,7 +495,6 @@ function load() {
 				settings[key][lora] = tempSettings[key][lora];
 			}
 		}else{
-			console.log(tempSettings[key])
 			if(tempSettings[key] == '' || tempSettings[key] == null){
 				settings[key] == 0;
 			}else{
@@ -1462,6 +1461,27 @@ preview.addEventListener("keydown", (event) => {
 					tempPrompt += ', '+taskSetting.modifiers[group];
 				}
 			}
+			var tempLoras = [];
+			var tempLoraAlphas = [];
+			if(!Array.isArray(reqBody.use_lora_model) && reqBody.use_lora_model != null){
+				tempLoras.push(reqBody.use_lora_model);
+			}else if(reqBody.use_lora_model != null){
+				tempLoras=reqBody.use_lora_model;
+			}
+			if(!Array.isArray(reqBody.lora_alpha)){
+				tempLoraAlphas.push(reqBody.lora_alpha);
+			}else{
+				tempLoraAlphas=reqBody.lora_alpha;
+			}
+			if(settings.useAllLoras > 0){
+				tempLoras.push(taskSetting.lora);
+				if(!reqBody.lora_alpha){
+					tempLoraAlphas[0] = 1;
+				}else{
+					tempLoraAlphas.push(taskSetting.LS[0]);
+				}
+			}
+			
 			tempPrompt += taskSetting.customModifier;
 			const newTaskRequest = modifyCurrentRequest(reqBody, {
 				//num_outputs: 1,
@@ -1474,7 +1494,6 @@ preview.addEventListener("keydown", (event) => {
 				use_face_correction: taskSetting.gfpgan,
 				use_hypernetwork_model: taskSetting.hypernetwork,
 				use_vae_model: taskSetting.vae,
-				use_lora_model: taskSetting.lora,
 			});
 			newTaskRequest.batchCount = document.querySelector('#num_outputs_total').value;
 			newTaskRequest.numOutputsTotal = document.querySelector('#num_outputs_total').value;
@@ -1484,8 +1503,9 @@ preview.addEventListener("keydown", (event) => {
 			if(newTaskRequest.use_hypernetwork_model != ''){
 				newTaskRequest.reqBody.hypernetwork_strength = taskSetting.HS
 			}
-			if(newTaskRequest.use_lora_model != ''){
-				newTaskRequest.reqBody.lora_alpha = taskSetting.LS
+			if((settings.useAllLoras > 0) || reqBody.use_lora_model){
+				reqBody.use_lora_model = tempLoras;
+				reqBody.lora_alpha = tempLoraAlphas;
 			}
 			//delete newTaskRequest.reqBody.mask;
 			newTaskList.push(newTaskRequest);
