@@ -207,6 +207,7 @@ style.textContent = `
 	.imageTaskContainer .imgItemInfo {
 		display:none;
 		opacity:1;
+		pointer-events: none;
 	}
 
 	#preview.focused.showActions .imageTaskContainer .imgItemInfo,
