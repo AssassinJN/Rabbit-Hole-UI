@@ -209,6 +209,9 @@ style.textContent = `
 		opacity:1;
 		pointer-events: none;
 	}
+	.imageTaskContainer .imgItemInfo * {
+		pointer-events: auto;
+	}
 
 	#preview.focused.showActions .imageTaskContainer .imgItemInfo,
 	#preview.showActionsGallery .imageTaskContainer .imgItemInfo,
