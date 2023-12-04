@@ -472,8 +472,7 @@ var settings = {
 	useModels: {},
 	useLoras: {},
 	useAllModels: 0,
-	useAllLoras: 0,
-	rh_disableGrouping: true
+	useAllLoras: 0
 };
 
 function save(){
@@ -520,15 +519,6 @@ function setup() {
 	rh_makeButtons();
 	loadCustomModifierList();
 	rhLoadSamplers();
-	if(settings.rh_disableGrouping){
-		document.getElementById('num_outputs_total').value = 1;
-		document.getElementById('num_outputs_parallel').value = 1;
-		style.textContent += `
-			tr:has(#num_outputs_total) {
-				display:none;
-			}
-		`
-	}
 	document.head.appendChild(style);
 	
 	//ActionButtonGallery
@@ -565,9 +555,6 @@ function setup() {
 	}
 	if(settings.rh_classicDefault){
 		document.getElementById('rh_classicDefault_input').checked = true;
-	}
-	if(settings.rh_disabledGrouping){
-		document.getElementById('rh_disableGrouping_input').checked = true;
 	}
 	document.querySelector('#reset-rh-settings').addEventListener('click', resetRH);
 	document.querySelector('#upscale_amount').innerHTML += `
@@ -952,7 +939,6 @@ preview.addEventListener("keydown", (event) => {
 		settings.useVaes = parseInt(useVaes_input.value);
 		settings.useSamplers = parseInt(useSamplers_input.value);
 		
-		
 		rhLoadModifiers();
 		loadCustomModifierList();
 		settings.useCustomModifiers = parseInt(useCustomModifiers_input.value);
@@ -979,7 +965,6 @@ preview.addEventListener("keydown", (event) => {
 		settings.GSButton5 = parseFloat(GSButton5_input.value);
 		settings.disable_hover_on_group = disable_hover_on_group_input.checked;
 		settings.rh_classicDefault = rh_classicDefault_input.checked;
-		settings.rh_disableGrouping = rh_disableGrouping_input.checked;
 		settings.rabbitHoleOpen = document.getElementById('rabbit-settings').getElementsByTagName('h4')[0].classList.contains('active');
 		
 		if(settings.disable_hover_on_group){document.getElementById('container').classList.add('noGroupHover');}
@@ -1689,13 +1674,6 @@ function addSettingsTabInfo(){
 				<div><label for="rh_classicDefault_input">Default to Classic View</label><small>Rabbit Hole will start in Classic View</small></div>
 				<div>
 					<div class="input-toggle"><input id="rh_classicDefault_input" name="rh_classicDefault_input" type="checkbox" onchange="setSettings();"><label for="rh_classicDefault_input"></label></div>
-				</div>
-			</div>
-			<div>
-				<div><i class="fa fa-gear"></i></div>
-				<div><label for="rh_disableGrouping_input">Disable Grouping</label><small>Rabbit Hole will disable the default image grouping. Turn this off at your own risk.</small></div>
-				<div>
-					<div class="input-toggle"><input id="rh_disableGrouping_input" name="rh_disableGrouping_input" type="checkbox" onchange="setSettings();"><label for="rh_disableGrouping_input"></label></div>
 				</div>
 			</div>
 		</div>
