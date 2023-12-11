@@ -1761,8 +1761,10 @@ function endSelection(){
 					}
 				})
 				if(button.innerHTML == "Remove Images"){
-					let removeButton = task.querySelector('.imgPreviewItemClearBtn');
-					removeButton.click();
+					let removeButtons = task.querySelectorAll('.imgPreviewItemClearBtn');
+					removeButtons.forEach((removeButton) => {
+						removeButton.click();
+					})
 				}
 				if(button.innerHTML == "Remove Other Images"){
 					let allTasks = preview.querySelectorAll('.imageTaskContainer');
