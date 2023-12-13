@@ -1692,7 +1692,13 @@ function addSettingsTabInfo(){
 function startSelection(){
 	preview.classList.remove('showActionsGallery','hoverActionsGallery');
 	preview.classList.add('selecting');
-	let taskList = document.getElementsByClassName('imageTaskContainer');
+	let tempTaskList = preview.querySelectorAll('.imageTaskContainer');
+	let taskList = [];
+	tempTaskList.forEach((theTask) => {
+		if(theTask.querySelector('.imgItem')){
+			taskList.push(theTask)
+		}
+	})
 	let taskButtonList = {};
 	for (let i = 0; i < taskList.length; i++){
 		taskButtonList[i] = {}
