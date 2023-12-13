@@ -1740,7 +1740,14 @@ function endSelection(){
 	let selectedActions = document.createElement("div");
 	selectedActions.id = "selectedTaskActions";
 	selectedActions.classList.add('selectedActionsContainer');
-	selectedActions.innerHTML = selectedTaskList[0].querySelector('.imgItemInfo').innerHTML
+	let imgItemInfoArea = selectedTaskList[0].querySelector('.imgItemInfo');
+	if(imgItemInfoArea){
+		selectedActions.innerHTML = selectedTaskList[0].querySelector('.imgItemInfo').innerHTML;
+	}else{
+		closeSelection(selectList);
+		return(false);
+	}
+	
 	let removeImagesButton = document.createElement('button');
 	removeImagesButton.classList.add('removeImagesButton');
 	removeImagesButton.innerHTML = "Remove Images";
