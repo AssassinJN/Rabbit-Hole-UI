@@ -1380,7 +1380,6 @@ preview.addEventListener("keydown", (event) => {
 				tempAllLoras = tempAllLoras.concat(tempLoras[loraGroup].slice(0,settings.useLoras[loraGroup]));
 			}
 		}
-		
 		var maxVariations = parseInt(Math.max(tempSeeds.length,1)*Math.max(tempPromptStrengths.length,1)*Math.max(tempHyperStrengths.length,1)*Math.max((tempLoraAlphas[0].length ** tempLoraAlphas.length),1)*Math.max(tempScales.length,1)*Math.max(tempISs.length,1)*Math.max(tempAllModels.length,1)*Math.max(tempGfpgans.length,1)*Math.max(tempHypernetworks.length,1)*Math.max(tempVaes.length,1)*Math.max(tempAllLoras.length,1)*Math.max(tempSamplers.length,1)*Math.max(useModifierCount,1)*Math.max(tempCustomModifiers.length,1));
 		tempMaxImagesToGenerate = Math.min(settings.maxImagesToGenerate, maxVariations);
 		for(let i = 0; i<tempMaxImagesToGenerate; i++){
@@ -1442,7 +1441,6 @@ preview.addEventListener("keydown", (event) => {
 	function loopRequests(reqBody, img){
 		var newTaskList = [];
 		var taskSettings = getTaskSettings(reqBody, img);
-
 		taskSettings.forEach(function(taskSetting){
 			var tempPrompt = reqBody.prompt;
 			for (const group in rhModifiers) {
@@ -1470,7 +1468,9 @@ preview.addEventListener("keydown", (event) => {
 					tempLoraAlphas.push(taskSetting.LS[0]);
 				}
 			}
-			
+			if(settings.loraAlphaCount > 0){
+				tempLoraAlphas = taskSetting.LS
+			}
 			tempPrompt += taskSetting.customModifier;
 			const newTaskRequest = modifyCurrentRequest(reqBody, {
 				//num_outputs: 1,
@@ -1492,9 +1492,9 @@ preview.addEventListener("keydown", (event) => {
 			if(newTaskRequest.use_hypernetwork_model != ''){
 				newTaskRequest.reqBody.hypernetwork_strength = taskSetting.HS
 			}
-			if((settings.useAllLoras > 0) || reqBody.use_lora_model){
-				reqBody.use_lora_model = tempLoras;
-				reqBody.lora_alpha = tempLoraAlphas;
+			if((settings.useAllLoras > 0) || newTaskRequest.reqBody.use_lora_model){
+				newTaskRequest.reqBody.use_lora_model = tempLoras;
+				newTaskRequest.reqBody.lora_alpha = tempLoraAlphas;
 			}
 			//delete newTaskRequest.reqBody.mask;
 			newTaskList.push(newTaskRequest);
