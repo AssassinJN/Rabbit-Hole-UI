@@ -398,6 +398,8 @@ style.textContent = `
 		color: #000;
 		background: none;
 		font-weight: bold;
+		border: 1px solid #000;
+    	padding: 4px 8px;
 	}
 	.selectedActionsContainer button.removeImagesButton, .selectedActionsContainer button.removeOtherImagesButton {
 		display: block;
@@ -786,6 +788,18 @@ var previewObserver = new MutationObserver(function (mutations) {
 						preview.classList.remove('focused')
 					}					
 				});
+				if(preview.classList.contains('selecting')){
+					let taskSelectionMask = document.createElement("button");
+					taskSelectionMask.classList.add('selectMask');
+					taskSelectionMask.addEventListener("click", function(e){
+						if(taskSelectionMask.classList.contains('selected')){
+							taskSelectionMask.classList.remove('selected')
+						}else{
+							taskSelectionMask.classList.add('selected')
+						}
+					})
+					mutation.addedNodes[0].closest('.imageTaskContainer').appendChild(taskSelectionMask);
+				}
 			}
 		}
 		if(mutation.target.className == 'img-batch'){
@@ -1799,6 +1813,15 @@ function endSelection(){
 		closeSelection(selectList)
 	})
 	selectedActions.appendChild(closeButton)
+	let cancelButton = document.createElement('button');
+	cancelButton.innerHTML = "Close (keep selection)";
+	cancelButton.classList.add('closeButton');
+	cancelButton.addEventListener('click', function(){
+		selectedActions.remove();
+		document.querySelector('.endSelectButton').style.display = "";
+		document.querySelector('.selectAllButton').style.display = "";
+	})
+	selectedActions.appendChild(cancelButton)
 	document.querySelector('.endSelectButton').style.display = "none";
 	document.querySelector('.selectAllButton').style.display = "none";
 }
